@@ -32,7 +32,8 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void gameStarted() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        		bwapi.setGameSpeed(0);
+		bwapi.loadMapData(true);
     }
 
     public void gameUpdate() {
