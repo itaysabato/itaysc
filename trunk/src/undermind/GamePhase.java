@@ -1,8 +1,12 @@
 package undermind;
 
 import eisbot.proxy.JNIBWAPI;
+import eisbot.proxy.model.BaseLocation;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -12,7 +16,7 @@ import eisbot.proxy.types.UnitType;
 enum GamePhase {
     INIT {
         private static final int MINERAL_DIST = 300;
-        public static final int DRONE_COUNT = 5;            //todo: find out the number of drones
+        private static final int DRONE_COUNT = 5;            //todo: find out the number of drones
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
@@ -58,8 +62,14 @@ enum GamePhase {
 
     CREATE_POOL {
 
-        private int poolDrone = -1;
+        private int poolDrone;
         private static final int POOL_PRICE = 200;
+
+        @Override
+        protected void init(JNIBWAPI bwapi) throws UndermindException {
+            super.init(bwapi);
+            poolDrone = -1;
+        }
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
@@ -89,9 +99,70 @@ enum GamePhase {
     },
 
     SCOUT {
+        private int scout;
+        private Set<Integer> scouted;
+        private boolean canSpwan;
+
+
+        @Override
+        protected void init(JNIBWAPI bwapi) throws UndermindException {
+            super.init(bwapi);
+            scout = -1;
+            scouted = null;
+            canSpwan = false;
+        }
+
         @Override
         public GamePhase gameUpdate() throws UndermindException {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            if(scout < 0){
+                for (Unit unit : bwapi.getMyUnits()) {
+                    if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
+                            && unit.isGatheringMinerals() && !unit.isCarryingMinerals()) {
+                        scout = unit.getID();
+                        scouted = new HashSet<Integer>();
+                        break;
+                    }
+                }
+            }
+
+            if(scout >= 0){
+                Unit scoutUnit = bwapi.getUnit(scout);
+                if(scoutUnit.isGatheringMinerals()  || scoutUnit.isIdle()) {
+                    for(BaseLocation baseLocation: bwapi.getMap().getBaseLocations()){
+                        if(!scouted.contains(baseLocation.getRegionID())){
+                            scouted.add(baseLocation.getRegionID());
+                            bwapi.rightClick(scout,baseLocation.getX(),baseLocation.getY());
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(!canSpwan){
+                for(Unit unit: bwapi.getMyUnits()){
+                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() && unit.isCompleted()){
+                        canSpwan = true;
+                    }
+                }
+            }
+
+            if(canSpwan){
+                Out.println("Minerals at zergling spawning: "+bwapi.getSelf().getMinerals());
+                for(Unit unit: bwapi.getMyUnits()){
+                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
+                        bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
+                    }
+                }
+                return IDLE;
+            }
+            return this;
+        }
+    },
+
+    IDLE {
+        @Override
+        public GamePhase gameUpdate() throws UndermindException {
+            return this;
         }
     };
 
