@@ -1,0 +1,228 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x68502234, pid=4964, tid=4936
+#
+# JRE version: 6.0_24-b07
+# Java VM: Java HotSpot(TM) Client VM (19.1-b02 mixed mode, sharing windows-x86 )
+# Problematic frame:
+# C  [ExampleAIClient.dll+0x2234]
+#
+# If you would like to submit a bug report, please visit:
+#   http://java.sun.com/webapps/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00219c00):  JavaThread "main" [_thread_in_native, id=4936, stack(0x00220000,0x00270000)]
+
+siginfo: ExceptionCode=0xc0000005, reading address 0x00000000
+
+Registers:
+EAX=0x00000000, EBX=0x070b83a8, ECX=0x68658fbc, EDX=0x00000018
+ESP=0x0026f568, EBP=0x0026f5b8, ESI=0x04b97a88, EDI=0x00000003
+EIP=0x68502234, EFLAGS=0x00010287
+
+Register to memory mapping:
+
+EAX=0x00000000
+0x00000000 is pointing to unknown location
+
+EBX=0x070b83a8
+0x070b83a8 is pointing to unknown location
+
+ECX=0x68658fbc
+0x68658fbc is pointing to unknown location
+
+EDX=0x00000018
+0x00000018 is pointing to unknown location
+
+ESP=0x0026f568
+0x0026f568 is pointing into the stack for thread: 0x00219c00
+"main" prio=6 tid=0x00219c00 nid=0x1348 runnable [0x0026f000]
+   java.lang.Thread.State: RUNNABLE
+
+EBP=0x0026f5b8
+0x0026f5b8 is pointing into the stack for thread: 0x00219c00
+"main" prio=6 tid=0x00219c00 nid=0x1348 runnable [0x0026f000]
+   java.lang.Thread.State: RUNNABLE
+
+ESI=0x04b97a88
+0x04b97a88 is pointing to unknown location
+
+EDI=0x00000003
+0x00000003 is pointing to unknown location
+
+
+Top of Stack: (sp=0x0026f568)
+0x0026f568:   00219c00 34416580 34416580 00000000
+0x0026f578:   0026f584 00000000 00000002 29965d18
+0x0026f588:   04b97a88 071a6e40 0026f588 071ae580
+0x0026f598:   04b97a88 00000000 299b5ff0 0026f5a4
+0x0026f5a8:   3841e668 0026f5d4 071ae580 00000003
+0x0026f5b8:   0026f5f0 02179fc7 00219d18 0026f600
+0x0026f5c8:   00000000 29967040 0026f5d0 00000000
+0x0026f5d8:   0026f600 3441c600 00000000 34416580 
+
+Instructions: (pc=0x68502234)
+0x68502224:   32 68 68 8b 11 8b 82 34 01 00 00 8b 5b 0c ff d0
+0x68502234:   8b 10 8b c8 8b 02 ff d0 8b 13 8b 12 8b cb 89 44 
+
+
+Stack: [0x00220000,0x00270000],  sp=0x0026f568,  free space=317k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [ExampleAIClient.dll+0x2234]
+j  eisbot.proxy.JNIBWAPI.getPlayerInfo()[I+0
+j  eisbot.proxy.JNIBWAPI.gameStarted()V+36
+v  ~StubRoutines::call_stub
+V  [jvm.dll+0xf0ab9]
+V  [jvm.dll+0x1837d1]
+V  [jvm.dll+0xf0b3d]
+V  [jvm.dll+0xfa2e1]
+V  [jvm.dll+0xfbd07]
+C  [ExampleAIClient.dll+0x101a]
+j  eisbot.proxy.JNIBWAPI.startClient(Leisbot/proxy/JNIBWAPI;)V+0
+j  eisbot.proxy.JNIBWAPI.start()V+2
+j  eisbot.proxy.ExampleAIClient.<init>()V+46
+j  eisbot.proxy.ExampleAIClient.main([Ljava/lang/String;)V+4
+v  ~StubRoutines::call_stub
+V  [jvm.dll+0xf0ab9]
+V  [jvm.dll+0x1837d1]
+V  [jvm.dll+0xf0b3d]
+V  [jvm.dll+0x19ebe3]
+V  [jvm.dll+0x19f526]
+V  [jvm.dll+0x11cd49]
+C  [java.dll+0x7136]
+j  sun.reflect.NativeMethodAccessorImpl.invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;+87
+j  sun.reflect.DelegatingMethodAccessorImpl.invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;+6
+j  java.lang.reflect.Method.invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;+161
+j  com.intellij.rt.execution.application.AppMain.main([Ljava/lang/String;)V+140
+v  ~StubRoutines::call_stub
+V  [jvm.dll+0xf0ab9]
+V  [jvm.dll+0x1837d1]
+V  [jvm.dll+0xf0b3d]
+V  [jvm.dll+0xfa0d6]
+V  [jvm.dll+0x101cde]
+C  [java.exe+0x2155]
+C  [java.exe+0x85b4]
+C  [kernel32.dll+0x13677]
+C  [ntdll.dll+0x39f02]
+C  [ntdll.dll+0x39ed5]
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  eisbot.proxy.JNIBWAPI.getPlayerInfo()[I+0
+j  eisbot.proxy.JNIBWAPI.gameStarted()V+36
+v  ~StubRoutines::call_stub
+j  eisbot.proxy.JNIBWAPI.startClient(Leisbot/proxy/JNIBWAPI;)V+0
+j  eisbot.proxy.JNIBWAPI.start()V+2
+j  eisbot.proxy.ExampleAIClient.<init>()V+46
+j  eisbot.proxy.ExampleAIClient.main([Ljava/lang/String;)V+4
+v  ~StubRoutines::call_stub
+j  sun.reflect.NativeMethodAccessorImpl.invoke0(Ljava/lang/reflect/Method;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;+0
+j  sun.reflect.NativeMethodAccessorImpl.invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;+87
+j  sun.reflect.DelegatingMethodAccessorImpl.invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;+6
+j  java.lang.reflect.Method.invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;+161
+j  com.intellij.rt.execution.application.AppMain.main([Ljava/lang/String;)V+140
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x0214c800 JavaThread "Monitor Ctrl-Break" daemon [_thread_in_native, id=3856, stack(0x04a00000,0x04a50000)]
+  0x020f3000 JavaThread "Low Memory Detector" daemon [_thread_blocked, id=2396, stack(0x045e0000,0x04630000)]
+  0x020f1800 JavaThread "CompilerThread0" daemon [_thread_blocked, id=3932, stack(0x04550000,0x045a0000)]
+  0x020f0800 JavaThread "Attach Listener" daemon [_thread_blocked, id=1752, stack(0x044c0000,0x04510000)]
+  0x020ed800 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=3848, stack(0x04430000,0x04480000)]
+  0x020df400 JavaThread "Finalizer" daemon [_thread_blocked, id=4888, stack(0x043a0000,0x043f0000)]
+  0x020dd800 JavaThread "Reference Handler" daemon [_thread_blocked, id=4900, stack(0x04310000,0x04360000)]
+=>0x00219c00 JavaThread "main" [_thread_in_native, id=4936, stack(0x00220000,0x00270000)]
+
+Other Threads:
+  0x020a1400 VMThread [stack: 0x04280000,0x042d0000] [id=3304]
+  0x0211d800 WatcherThread [stack: 0x04670000,0x046c0000] [id=1256]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ def new generation   total 4928K, used 1726K [0x243f0000, 0x24940000, 0x29940000)
+  eden space 4416K,  37% used [0x243f0000, 0x245933c8, 0x24840000)
+  from space 512K,   9% used [0x248c0000, 0x248cc678, 0x24940000)
+  to   space 512K,   0% used [0x24840000, 0x24840000, 0x248c0000)
+ tenured generation   total 10944K, used 603K [0x29940000, 0x2a3f0000, 0x343f0000)
+   the space 10944K,   5% used [0x29940000, 0x299d6e40, 0x299d7000, 0x2a3f0000)
+ compacting perm gen  total 12288K, used 321K [0x343f0000, 0x34ff0000, 0x383f0000)
+   the space 12288K,   2% used [0x343f0000, 0x34440568, 0x34440600, 0x34ff0000)
+    ro space 10240K,  54% used [0x383f0000, 0x3896d9f8, 0x3896da00, 0x38df0000)
+    rw space 12288K,  55% used [0x38df0000, 0x394913f8, 0x39491400, 0x399f0000)
+
+Dynamic libraries:
+0x00400000 - 0x00424000 	C:\Program Files (x86)\Java\jdk1.6.0_24\bin\java.exe
+0x774b0000 - 0x77630000 	C:\Windows\SysWOW64\ntdll.dll
+0x76ae0000 - 0x76be0000 	C:\Windows\syswow64\kernel32.dll
+0x75e30000 - 0x75e76000 	C:\Windows\syswow64\KERNELBASE.dll
+0x76640000 - 0x766e0000 	C:\Windows\syswow64\ADVAPI32.dll
+0x75080000 - 0x7512c000 	C:\Windows\syswow64\msvcrt.dll
+0x76ce0000 - 0x76cf9000 	C:\Windows\SysWOW64\sechost.dll
+0x767f0000 - 0x768e0000 	C:\Windows\syswow64\RPCRT4.dll
+0x75020000 - 0x75080000 	C:\Windows\syswow64\SspiCli.dll
+0x75010000 - 0x7501c000 	C:\Windows\syswow64\CRYPTBASE.dll
+0x7c340000 - 0x7c396000 	C:\Program Files (x86)\Java\jdk1.6.0_24\jre\bin\msvcr71.dll
+0x6d8a0000 - 0x6db46000 	C:\Program Files (x86)\Java\jdk1.6.0_24\jre\bin\client\jvm.dll
+0x76f80000 - 0x77080000 	C:\Windows\syswow64\USER32.dll
+0x76ee0000 - 0x76f70000 	C:\Windows\syswow64\GDI32.dll
+0x767e0000 - 0x767ea000 	C:\Windows\syswow64\LPK.dll
+0x76c40000 - 0x76cdd000 	C:\Windows\syswow64\USP10.dll
+0x74c10000 - 0x74c42000 	C:\Windows\system32\WINMM.dll
+0x76be0000 - 0x76c40000 	C:\Windows\system32\IMM32.DLL
+0x75f10000 - 0x75fdc000 	C:\Windows\syswow64\MSCTF.dll
+0x72dc0000 - 0x72e0b000 	C:\Windows\system32\apphelp.dll
+0x6d850000 - 0x6d85c000 	C:\Program Files (x86)\Java\jdk1.6.0_24\jre\bin\verify.dll
+0x6d3d0000 - 0x6d3ef000 	C:\Program Files (x86)\Java\jdk1.6.0_24\jre\bin\java.dll
+0x6d330000 - 0x6d338000 	C:\Program Files (x86)\Java\jdk1.6.0_24\jre\bin\hpi.dll
+0x77480000 - 0x77485000 	C:\Windows\syswow64\PSAPI.DLL
+0x6d890000 - 0x6d89f000 	C:\Program Files (x86)\Java\jdk1.6.0_24\jre\bin\zip.dll
+0x10000000 - 0x10007000 	C:\Program Files (x86)\JetBrains\IntelliJ IDEA Community Edition 9.0.4\bin\breakgen.dll
+0x68500000 - 0x6869b000 	C:\Users\itay\IdeaProjects\undermind\release\ExampleAIClient.dll
+0x04a60000 - 0x04a8b000 	C:\Windows\gmp-vc90-mt.dll
+0x73ae0000 - 0x73b83000 	C:\Windows\WinSxS\x86_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_50934f2ebcb7eb57\MSVCR90.dll
+0x72e10000 - 0x72e9e000 	C:\Windows\WinSxS\x86_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_50934f2ebcb7eb57\MSVCP90.dll
+0x04aa0000 - 0x04ae1000 	C:\Windows\mpfr-vc90-mt.dll
+0x6d6b0000 - 0x6d6c3000 	C:\Program Files (x86)\Java\jdk1.6.0_24\jre\bin\net.dll
+0x76d00000 - 0x76d35000 	C:\Windows\syswow64\WS2_32.dll
+0x76f70000 - 0x76f76000 	C:\Windows\syswow64\NSI.dll
+0x73c50000 - 0x73c8c000 	C:\Windows\system32\mswsock.dll
+0x73990000 - 0x73996000 	C:\Windows\System32\wship6.dll
+0x73c40000 - 0x73c45000 	C:\Windows\System32\wshtcpip.dll
+
+VM Arguments:
+jvm_args: -Didea.launcher.port=7533 -Didea.launcher.bin.path=C:\Program Files (x86)\JetBrains\IntelliJ IDEA Community Edition 9.0.4\bin -Dfile.encoding=windows-1255 
+java_command: com.intellij.rt.execution.application.AppMain eisbot.proxy.ExampleAIClient
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=C:\Program Files (x86)\Java\jdk1.6.0_24
+CLASSPATH=.;C:\Program Files (x86)\Java\jre6\lib\ext\QTJava.zip
+PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Java\jdk1.6.0_24\bin;C:\Program Files (x86)\Common Files\Roxio Shared\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\10.0\DLLShared\;C:\Program Files\MATLAB\R2008b\bin;C:\Program Files\MATLAB\R2008b\bin\win64;C:\Program Files\TortoiseSVN\bin;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files (x86)\apache-ant-1.8.2\bin;C:\Users\itay\IdeaProjects\undermind\release;c:\program files (x86)\jetbrains\intellij idea community edition 9.0.4\jre\jre\bin
+USERNAME=itay
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 23 Stepping 10, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 7 Build 7600 
+
+CPU:total 2 (2 cores per cpu, 1 threads per core) family 6 model 23 stepping 10, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1
+
+Memory: 4k page, physical 4152176k(2221752k free), swap 8302452k(6022440k free)
+
+vm_info: Java HotSpot(TM) Client VM (19.1-b02) for windows-x86 JRE (1.6.0_24-b07), built on Feb  2 2011 17:44:41 by "java_re" with MS VC++ 7.1 (VS2003)
+
+time: Sun Jul 10 19:36:01 2011
+elapsed time: 487 seconds
+
