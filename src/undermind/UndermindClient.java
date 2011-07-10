@@ -4,9 +4,7 @@ import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
 
 /**
- * Names: Itay Sabato, Rotem Barzilay <br/>
- * Logins: itays04, rotmus <br/>
- * IDs: 036910008, 300618592 <br/>
+ * Created By: Itay Sabato<br/>
  * Date: 10/07/2011 <br/>
  * Time: 20:47:39 <br/>
  */
@@ -32,8 +30,8 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void gameStarted() {
-        		bwapi.setGameSpeed(0);
-		bwapi.loadMapData(true);
+        	bwapi.setGameSpeed(0);
+		    bwapi.loadMapData(true);
     }
 
     public void gameUpdate() {
