@@ -115,26 +115,13 @@ enum GamePhase {
         @Override
         public GamePhase gameUpdate() throws UndermindException {
             if(scout < 0){
-                for (Unit unit : bwapi.getMyUnits()) {
-                    if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
-                            && unit.isGatheringMinerals() && !unit.isCarryingMinerals()) {
-                        scout = unit.getID();
-                        scouted = new HashSet<Integer>();
-                        break;
-                    }
-                }
+                chooseScout();
             }
 
             if(scout >= 0){
                 Unit scoutUnit = bwapi.getUnit(scout);
                 if(scoutUnit.isGatheringMinerals()  || scoutUnit.isIdle()) {
-                    for(BaseLocation baseLocation: bwapi.getMap().getBaseLocations()){
-                        if(!scouted.contains(baseLocation.getRegionID())){
-                            scouted.add(baseLocation.getRegionID());
-                            bwapi.rightClick(scout,baseLocation.getX(),baseLocation.getY());
-                            break;
-                        }
-                    }
+                    scoutNext();
                 }
             }
 
@@ -153,9 +140,34 @@ enum GamePhase {
                         bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
                     }
                 }
+                
+                IDLE.init(bwapi);
+                bwapi = null;
+                Out.println("changed phase to IDLE");
                 return IDLE;
             }
             return this;
+        }
+
+        private void scoutNext() {
+            for(BaseLocation baseLocation: bwapi.getMap().getBaseLocations()){
+                if(!scouted.contains(baseLocation.getRegionID())){
+                    scouted.add(baseLocation.getRegionID());
+                    bwapi.rightClick(scout,baseLocation.getX(),baseLocation.getY());
+                    break;
+                }
+            }
+        }
+
+        private void chooseScout() {
+            for (Unit unit : bwapi.getMyUnits()) {
+                if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
+                        && unit.isGatheringMinerals() && !unit.isCarryingMinerals()) {
+                    scout = unit.getID();
+                    scouted = new HashSet<Integer>();
+                    break;
+                }
+            }
         }
     },
 
