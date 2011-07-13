@@ -5,6 +5,8 @@ import eisbot.proxy.model.BaseLocation;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +18,7 @@ import java.util.Set;
 enum GamePhase {
     INIT {
         private static final int MINERAL_DIST = 300;
-        private static final int DRONE_COUNT = 5;            //todo: find out the number of drones
+        private static final int DRONE_COUNT = 4;
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
@@ -46,7 +48,7 @@ enum GamePhase {
 
             for (Unit minerals : bwapi.getNeutralUnits()) {
                 if (minerals.getTypeID() == UnitType.UnitTypes.Resource_Mineral_Field.ordinal()) {
-                    double distance = Math.sqrt(Math.pow(minerals.getX() - bwapi.getMyUnits().get(0).getX(), 2) + Math.pow(minerals.getY() - bwapi.getMyUnits().get(0).getY(), 2));
+                    double distance = distance(minerals.getX(),minerals.getY(), bwapi.getMyUnits().get(0).getX(), bwapi.getMyUnits().get(0).getY());
                     if (distance < MINERAL_DIST) {
                         result[i++] =  minerals.getID();
                         if(i >= DRONE_COUNT){
@@ -61,7 +63,6 @@ enum GamePhase {
     },
 
     CREATE_POOL {
-
         private int poolDrone;
         private static final int POOL_PRICE = 200;
 
@@ -100,27 +101,39 @@ enum GamePhase {
 
     SCOUT {
         private int scout;
-        private Set<Integer> scouted;
+        private Set<BaseLocation> toScout;
         private boolean canSpwan;
-
+        private boolean spwaned;
 
         @Override
         protected void init(JNIBWAPI bwapi) throws UndermindException {
             super.init(bwapi);
             scout = -1;
-            scouted = null;
+            toScout = new HashSet<BaseLocation>(bwapi.getMap().getBaseLocations());
             canSpwan = false;
+            spwaned = false;
         }
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
+            if(spwaned){
+                for (Unit enemy : bwapi.getEnemyUnits()) {
+                    for (Unit unit : bwapi.getMyUnits()) {
+                        if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal() && unit.isIdle()) {
+                            bwapi.attackMove(unit.getID(), enemy.getX(), enemy.getY());
+                            break;
+                        }
+                    }
+                }
+            }
+
             if(scout < 0){
                 chooseScout();
             }
 
             if(scout >= 0){
                 Unit scoutUnit = bwapi.getUnit(scout);
-                if(scoutUnit.isGatheringMinerals()  || scoutUnit.isIdle()) {
+                if(scoutUnit != null && (scoutUnit.isGatheringMinerals()  || scoutUnit.isIdle())) {
                     scoutNext();
                 }
             }
@@ -133,30 +146,33 @@ enum GamePhase {
                 }
             }
 
-            if(canSpwan){
+            if(canSpwan && !spwaned && bwapi.getSelf().getMinerals() >= 150){
                 Out.println("Minerals at zergling spawning: "+bwapi.getSelf().getMinerals());
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
                         bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
                     }
                 }
-                
-                IDLE.init(bwapi);
-                bwapi = null;
-                Out.println("changed phase to IDLE");
-                return IDLE;
+                spwaned = true;
+//                IDLE.init(bwapi);
+//                bwapi = null;
+//                Out.println("changed phase to IDLE");
+//                return IDLE;
             }
             return this;
         }
 
         private void scoutNext() {
-            for(BaseLocation baseLocation: bwapi.getMap().getBaseLocations()){
-                if(!scouted.contains(baseLocation.getRegionID())){
-                    scouted.add(baseLocation.getRegionID());
-                    bwapi.rightClick(scout,baseLocation.getX(),baseLocation.getY());
-                    break;
+            BaseLocation baseLocation = Collections.min(toScout,new Comparator<BaseLocation>() {
+                public int compare(BaseLocation o1, BaseLocation o2) {
+                    double d1 = distance(o1.getX(),o1.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
+                    double d2 = distance(o2.getX(),o2.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
+                    return d1 > d2 ?
+                            1 : (d1 < d2 ? -1 : 0);
                 }
-            }
+            }) ;
+            toScout.remove(baseLocation);
+            bwapi.rightClick(scout,baseLocation.getX(),baseLocation.getY());
         }
 
         private void chooseScout() {
@@ -164,7 +180,6 @@ enum GamePhase {
                 if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
                         && unit.isGatheringMinerals() && !unit.isCarryingMinerals()) {
                     scout = unit.getID();
-                    scouted = new HashSet<Integer>();
                     break;
                 }
             }
@@ -198,5 +213,9 @@ enum GamePhase {
     public static GamePhase getInitialPhase(JNIBWAPI bwapi) throws UndermindException {
         INIT.init(bwapi);
         return INIT;
+    }
+
+    public static double distance(int x1, int y1, int x2, int y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 }

@@ -11,14 +11,23 @@ import eisbot.proxy.JNIBWAPI;
 public class UndermindClient implements BWAPIEventListener {
 
     private final JNIBWAPI bwapi;
+    private GamePhase currentPhase = null;
 
-    private UndermindClient() {
+    private UndermindClient() throws UndermindException {
         bwapi = new JNIBWAPI(this);
+        currentPhase = GamePhase.getInitialPhase(bwapi);
     }
 
     public static void main(String[] arguments) {
-        UndermindClient undermindClient = new UndermindClient();
-        undermindClient.start();
+        try {
+            UndermindClient undermindClient = new UndermindClient();
+            undermindClient.start();
+        }
+        catch(Exception e) {
+            Out.println("Exception caught: "+e.getMessage());
+            e.printStackTrace();
+        }
+
     }
 
     private void start() {
@@ -35,7 +44,13 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void gameUpdate() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        try {
+            currentPhase = currentPhase.gameUpdate();
+        }
+        catch(Exception e) {
+            Out.println("Exception caught: "+e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void gameEnded() {
