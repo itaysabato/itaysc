@@ -13,11 +13,12 @@ public class Out {
     private static PrintStream out;
 
     static {
-        try {
-            out = new PrintStream(new FileOutputStream("log.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        out = System.out;
+//        try {
+//            out = new PrintStream(new FileOutputStream("log.txt"));
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static void println(String string) {
