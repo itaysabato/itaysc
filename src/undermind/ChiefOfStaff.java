@@ -29,8 +29,13 @@ public class ChiefOfStaff {
     }
 
     public void gameUpdate() {
+        removeDead();
         updateStates();
         issueCommands();
+    }
+
+    private void removeDead() {
+        //To change body of created methods use File | Settings | File Templates.
     }
 
     private void updateStates() {
@@ -44,4 +49,5 @@ public class ChiefOfStaff {
             commander.command(IDtoState.getKey(), IDtoState.getValue());
         }
     }
+
 }

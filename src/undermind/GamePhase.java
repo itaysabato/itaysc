@@ -51,7 +51,7 @@ enum GamePhase {
 
             for (Unit minerals : bwapi.getNeutralUnits()) {
                 if (minerals.getTypeID() == UnitType.UnitTypes.Resource_Mineral_Field.ordinal()) {
-                    double distance = distance(minerals.getX(),minerals.getY(), bwapi.getMyUnits().get(0).getX(), bwapi.getMyUnits().get(0).getY());
+                    double distance = Utils.distance(minerals.getX(),minerals.getY(), bwapi.getMyUnits().get(0).getX(), bwapi.getMyUnits().get(0).getY());
                     if (distance < MINERAL_DIST) {
                         result[i++] =  minerals.getID();
                         if(i >= DRONE_COUNT){
@@ -137,8 +137,8 @@ enum GamePhase {
 
             BaseLocation baseLocation = Collections.min(toScout,new Comparator<BaseLocation>() {
                 public int compare(BaseLocation o1, BaseLocation o2) {
-                    double d1 = distance(o1.getX(),o1.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
-                    double d2 = distance(o2.getX(),o2.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
+                    double d1 = Utils.distance(o1.getX(),o1.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
+                    double d2 = Utils.distance(o2.getX(),o2.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
                     return d1 > d2 ?
                             1 : (d1 < d2 ? -1 : 0);
                 }
@@ -185,9 +185,5 @@ enum GamePhase {
     public static GamePhase getInitialPhase(JNIBWAPI bwapi) throws UndermindException {
         INIT.init(bwapi);
         return INIT;
-    }
-
-    public static double distance(int x1, int y1, int x2, int y2) {
-        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 }
