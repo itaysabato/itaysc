@@ -11,11 +11,13 @@ import eisbot.proxy.types.UnitType;
  */
 public class Attacker {
     private JNIBWAPI bwapi;
+    private ChiefOfStaff chief;
     private boolean canSpwan;
     private boolean spwaned;
 
     public Attacker(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
+        chief = new ChiefOfStaff(bwapi);
         canSpwan = false;
         spwaned = false;
     }
@@ -23,14 +25,20 @@ public class Attacker {
     public void gameUpdate() {
 
         if(spwaned){
-            for (Unit enemy : bwapi.getEnemyUnits()) {
-                for (Unit unit : bwapi.getMyUnits()) {
-                    if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal() && unit.isIdle()) {
-                        bwapi.attackMove(unit.getID(), enemy.getX(), enemy.getY());
-                        break;
-                    }
+            chief.gameUpdate();
+            for (Unit unit : bwapi.getMyUnits()) {
+                if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()) {
+                      chief.recruit(unit);
                 }
             }
+//            for (Unit enemy : bwapi.getEnemyUnits()) {
+//                for (Unit unit : bwapi.getMyUnits()) {
+//                    if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal() && unit.isIdle()) {
+//                        bwapi.attackMove(unit.getID(), enemy.getX(), enemy.getY());
+//                        break;
+//                    }
+//                }
+//            }
         }
 
         if(!canSpwan){
