@@ -19,18 +19,22 @@ public class SoldierState {
 //        this.nearStructure = nearStructure;
 //    }
 
-    public static  SoldierState getCurrentState(int unitID, SoldierState previousState, JNIBWAPI bwapi) {
+    public static  SoldierState getCurrentState(Unit unit, SoldierState previousState, JNIBWAPI bwapi) {
         SoldierState state = new SoldierState();
-        for(Unit unit: bwapi.getEnemyUnits()){
-            double distance = Utils.distance(bwapi.getUnit(unitID).getX(),bwapi.getUnit(unitID).getY(), unit.getX(),unit.getY());
-            if(Utils.isWorker(unit)){
-                state.nearWorker = state.nearWorker || distance <= Utils.getMaxCloseDistanceFrom(unit);
-            }
-            else if(Utils.isStructure(unit)){
-                state.nearStructure = state.nearStructure || distance <= Utils.getMaxCloseDistanceFrom(unit);
-            }
-            else if(Utils.isCombative(unit)){
-                state.nearCombative = state.nearCombative || distance <= Utils.getMaxCloseDistanceFrom(unit);
+        if(unit != null && bwapi.getEnemyUnits() != null){
+            for(Unit enemyUnit: bwapi.getEnemyUnits()){
+                if(enemyUnit.isExists()){
+                    double distance = Utils.distance(unit.getX(),unit.getY(), enemyUnit.getX(),enemyUnit.getY());
+                    if(Utils.isWorker(enemyUnit)){
+                        state.nearWorker = state.nearWorker || distance <= Utils.getMaxCloseDistanceFrom(enemyUnit);
+                    }
+                    else if(Utils.isStructure(enemyUnit)){
+                        state.nearStructure = state.nearStructure || distance <= Utils.getMaxCloseDistanceFrom(enemyUnit);
+                    }
+                    else if(Utils.isCombative(enemyUnit)){
+                        state.nearCombative = state.nearCombative || distance <= Utils.getMaxCloseDistanceFrom(enemyUnit);
+                    }
+                }
             }
         }
         return state;

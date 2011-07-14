@@ -51,7 +51,7 @@ enum GamePhase {
 
             for (Unit minerals : bwapi.getNeutralUnits()) {
                 if (minerals.getTypeID() == UnitType.UnitTypes.Resource_Mineral_Field.ordinal()) {
-                    double distance = Utils.distance(minerals.getX(),minerals.getY(), bwapi.getMyUnits().get(0).getX(), bwapi.getMyUnits().get(0).getY());
+                    double distance = Utils.distance(minerals.getX(), minerals.getY(), bwapi.getMyUnits().get(0).getX(), bwapi.getMyUnits().get(0).getY());
                     if (distance < MINERAL_DIST) {
                         result[i++] =  minerals.getID();
                         if(i >= DRONE_COUNT){
@@ -66,7 +66,6 @@ enum GamePhase {
     },
 
     CREATE_POOL {
-        private int poolDrone;
         private static final int POOL_PRICE = 200;
 
         @Override
@@ -81,6 +80,7 @@ enum GamePhase {
                 for (Unit unit : bwapi.getMyUnits()) {
                     if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()) {
                         poolDrone = unit.getID();
+                        Out.println("poolDrone id: "+poolDrone);
                         break;
                     }
                 }
@@ -92,6 +92,7 @@ enum GamePhase {
                         bwapi.build(poolDrone, unit.getTileX(), unit.getTileY(), UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal());
 
                         SCOUT.init(bwapi);
+                        SCOUT.poolDrone = poolDrone;
                         bwapi = null;
                         Out.println("changed phase to SCOUT");
                         return SCOUT;
@@ -122,12 +123,26 @@ enum GamePhase {
 
             if(scout >= 0){
                 Unit scoutUnit = bwapi.getUnit(scout);
-                if(scoutUnit != null && (scoutUnit.isGatheringMinerals()  || scoutUnit.isIdle())) {
+                if(poolStarted() && scoutUnit != null && (scoutUnit.isGatheringMinerals()  || scoutUnit.isIdle())) {
                     scoutNext();
                 }
             }
 
             return this;
+        }
+
+        private boolean poolStarted() {
+//            if( bwapi.getUnit(poolDrone) == null){
+//                Out.println("poolDrone null");
+//            }
+//            else if(bwapi.getUnit(poolDrone).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
+//                Out.println("poolDrone became pool");
+//            }
+//            else if(!bwapi.getUnit(poolDrone).isExists()){
+//                Out.println("poolDrone not exists");
+//            }
+
+            return  bwapi.getUnit(poolDrone) == null || bwapi.getUnit(poolDrone).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() || !bwapi.getUnit(poolDrone).isExists();
         }
 
         private void scoutNext() {
@@ -137,8 +152,8 @@ enum GamePhase {
 
             BaseLocation baseLocation = Collections.min(toScout,new Comparator<BaseLocation>() {
                 public int compare(BaseLocation o1, BaseLocation o2) {
-                    double d1 = Utils.distance(o1.getX(),o1.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
-                    double d2 = Utils.distance(o2.getX(),o2.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());
+                    double d1 = Utils.distance(o1.getX(), o1.getY(), bwapi.getUnit(scout).getX(), bwapi.getUnit(scout).getY());
+                    double d2 = Utils.distance(o2.getX(), o2.getY(), bwapi.getUnit(scout).getX(), bwapi.getUnit(scout).getY());
                     return d1 > d2 ?
                             1 : (d1 < d2 ? -1 : 0);
                 }
@@ -150,8 +165,9 @@ enum GamePhase {
         private void chooseScout() {
             for (Unit unit : bwapi.getMyUnits()) {
                 if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
-                        && unit.isGatheringMinerals() && !unit.isCarryingMinerals()) {
+                        && unit.getID() != poolDrone) {
                     scout = unit.getID();
+                    Out.println("scout id: "+scout);
                     break;
                 }
             }
@@ -166,6 +182,7 @@ enum GamePhase {
     };
 
     protected JNIBWAPI bwapi = null;
+    protected int poolDrone = -1;
 
     public abstract GamePhase gameUpdate() throws UndermindException;
 

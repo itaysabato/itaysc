@@ -48,6 +48,7 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void gameUpdate() {
         try {
+//            Out.println("got enemies: "+!bwapi.getEnemyUnits().isEmpty());
             currentPhase = currentPhase.gameUpdate();
             if(currentPhase == GamePhase.SCOUT){
                  attacker.gameUpdate();
