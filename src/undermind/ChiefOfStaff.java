@@ -5,6 +5,7 @@ import eisbot.proxy.model.Map;
 import eisbot.proxy.model.Unit;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -24,7 +25,7 @@ public class ChiefOfStaff {
 
     public void recruit(Unit unit){
         if(!soldierStateMap.containsKey(unit.getID())){
-            soldierStateMap.put(unit.getID(),SoldierState.getCurrentState(unit.getID(),null,bwapi));
+            soldierStateMap.put(unit.getID(),SoldierState.getCurrentState(unit,null,bwapi));
         }
     }
 
@@ -35,12 +36,18 @@ public class ChiefOfStaff {
     }
 
     private void removeDead() {
-        //To change body of created methods use File | Settings | File Templates.
+        Iterator<java.util.Map.Entry<Integer,SoldierState>> iterator = soldierStateMap.entrySet().iterator();
+        while(iterator.hasNext()){
+            int unitID = iterator.next().getKey();
+            if(bwapi.getUnit(unitID) == null || !bwapi.getUnit(unitID).isExists()){
+                iterator.remove();
+            }
+        }
     }
 
     private void updateStates() {
         for(java.util.Map.Entry<Integer,SoldierState> IDtoState: soldierStateMap.entrySet()){
-                IDtoState.setValue(SoldierState.getCurrentState(IDtoState.getKey(), IDtoState.getValue(),bwapi));
+                IDtoState.setValue(SoldierState.getCurrentState(bwapi.getUnit(IDtoState.getKey()), IDtoState.getValue(),bwapi));
         }
     }
 

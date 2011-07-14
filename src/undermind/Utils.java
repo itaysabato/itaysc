@@ -51,7 +51,7 @@ public class Utils {
 
     public static double getMaxCloseDistanceFrom(Unit unit) {
         if(isWorker(unit) || isStructure(unit)){
-            return 50;
+            return 8;
         }
         else return 0;
     }

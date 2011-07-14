@@ -23,24 +23,43 @@ public class Commander {
 
     public void command(Integer unitID, SoldierState state) {
         Unit unit = bwapi.getUnit(unitID);
+        if(unit == null){
+            return;
+        }
+
         if(state.isNearCombative()){
             runAway(unit);
         }
-        else if(state.isNearWorker()){
-            attackNearestWorker(unit);
-        }
-        else {
-            Unit worker = findEnemyWorker();
-            if(worker != null){
-                bwapi.attackMove(unitID,worker.getX(),worker.getY());
-            }
-            else if(state.isNearStructure()){
-                attackNearestStructure(unit);
+        else if(unit.isIdle()) {
+            if(state.isNearWorker()){
+                attackNearestWorker(unit);
             }
             else {
-                explore(unit);
+                Unit worker = findEnemyWorker();
+                if(worker != null){
+                    bwapi.attackMove(unitID,worker.getX(),worker.getY());
+                }
+                else if(state.isNearStructure()){
+                    attackNearestStructure(unit);
+                }
+                else if(unit.isIdle()){
+                    Unit structure = findEnemyStructure();
+                    if(structure != null){
+                        bwapi.attackMove(unitID,structure.getX(),structure.getY());
+                    }
+                    explore(unit);
+                }
             }
         }
+    }
+
+    private Unit findEnemyStructure() {
+        for(Unit enemyUnit: bwapi.getEnemyUnits()){
+            if(Utils.isStructure(enemyUnit)){
+                return enemyUnit;
+            }
+        }
+        return null;
     }
 
     private void runAway(Unit unit) {
@@ -78,7 +97,6 @@ public class Commander {
         return null;
     }
 
-
     private void attackNearestStructure(Unit unit) {
         List<Unit> structures = new LinkedList<Unit>();
         for(Unit enemyUnit: bwapi.getEnemyUnits()){
@@ -90,11 +108,11 @@ public class Commander {
         bwapi.attackMove(unit.getID(),structure.getX(),structure.getY());
     }
     private void explore(Unit unit) {
-        if(!bwapi.getEnemyUnits().isEmpty()){
-            bwapi.attackMove(unit.getID(),bwapi.getEnemyUnits().get(0).getX(),bwapi.getEnemyUnits().get(0).getY());
-        }
-        else {
-            Out.println("unit ["+unit.getID()+"] is bored.");
+        for (Unit enemy : bwapi.getEnemyUnits()) {
+            if(enemy.isExists()){
+                bwapi.attackMove(unit.getID(), enemy.getX(), enemy.getY());
+                break;
+            }
         }
     }
 
