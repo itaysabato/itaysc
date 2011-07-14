@@ -22,8 +22,11 @@ enum GamePhase {
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
+            Out.println("started");
             validate();
+            Out.println("validated");
             collectMinerals();
+            Out.println("collected");
 
             CREATE_POOL.init(bwapi);
             bwapi = null;
@@ -99,34 +102,20 @@ enum GamePhase {
         }
     },
 
+    //TODO: improve scouting so that scout only goes to the main base locations
     SCOUT {
         private int scout;
         private Set<BaseLocation> toScout;
-        private boolean canSpwan;
-        private boolean spwaned;
 
         @Override
         protected void init(JNIBWAPI bwapi) throws UndermindException {
             super.init(bwapi);
             scout = -1;
             toScout = new HashSet<BaseLocation>(bwapi.getMap().getBaseLocations());
-            canSpwan = false;
-            spwaned = false;
         }
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
-            if(spwaned){
-                for (Unit enemy : bwapi.getEnemyUnits()) {
-                    for (Unit unit : bwapi.getMyUnits()) {
-                        if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal() && unit.isIdle()) {
-                            bwapi.attackMove(unit.getID(), enemy.getX(), enemy.getY());
-                            break;
-                        }
-                    }
-                }
-            }
-
             if(scout < 0){
                 chooseScout();
             }
@@ -138,31 +127,14 @@ enum GamePhase {
                 }
             }
 
-            if(!canSpwan){
-                for(Unit unit: bwapi.getMyUnits()){
-                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() && unit.isCompleted()){
-                        canSpwan = true;
-                    }
-                }
-            }
-
-            if(canSpwan && !spwaned && bwapi.getSelf().getMinerals() >= 150){
-                Out.println("Minerals at zergling spawning: "+bwapi.getSelf().getMinerals());
-                for(Unit unit: bwapi.getMyUnits()){
-                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
-                        bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
-                    }
-                }
-                spwaned = true;
-//                IDLE.init(bwapi);
-//                bwapi = null;
-//                Out.println("changed phase to IDLE");
-//                return IDLE;
-            }
             return this;
         }
 
         private void scoutNext() {
+            if(toScout == null || toScout.isEmpty()){
+                return;
+            }
+
             BaseLocation baseLocation = Collections.min(toScout,new Comparator<BaseLocation>() {
                 public int compare(BaseLocation o1, BaseLocation o2) {
                     double d1 = distance(o1.getX(),o1.getY(),bwapi.getUnit(scout).getX(),bwapi.getUnit(scout).getY());

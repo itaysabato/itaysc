@@ -2,6 +2,7 @@ package undermind;
 
 import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
+import eisbot.proxy.types.UnitType;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -12,10 +13,12 @@ public class UndermindClient implements BWAPIEventListener {
 
     private final JNIBWAPI bwapi;
     private GamePhase currentPhase = null;
+    private Attacker attacker = null;
 
     private UndermindClient() throws UndermindException {
         bwapi = new JNIBWAPI(this);
         currentPhase = GamePhase.getInitialPhase(bwapi);
+        attacker = new Attacker(bwapi);
     }
 
     public static void main(String[] arguments) {
@@ -46,6 +49,9 @@ public class UndermindClient implements BWAPIEventListener {
     public void gameUpdate() {
         try {
             currentPhase = currentPhase.gameUpdate();
+            if(currentPhase == GamePhase.SCOUT){
+                 attacker.gameUpdate();
+            }
         }
         catch(Exception e) {
             Out.println("Exception caught: "+e.getMessage());
@@ -62,7 +68,15 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void matchEnded(boolean winner) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Out.println("winner: "+winner);
+        try {
+            currentPhase = GamePhase.getInitialPhase(bwapi);
+        }
+        catch(Exception e) {
+            Out.println("Exception caught: "+e.getMessage());
+            e.printStackTrace();
+        }
+        attacker = new Attacker(bwapi);
     }
 
     public void playerLeft(int id) {
@@ -78,7 +92,9 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitDiscover(int unitID) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
+            Out.println("discovered spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
+        }
     }
 
     public void unitEvade(int unitID) {
@@ -86,7 +102,9 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitShow(int unitID) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
+            Out.println("shown spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
+        }
     }
 
     public void unitHide(int unitID) {
@@ -94,14 +112,17 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitCreate(int unitID) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
+            Out.println("created spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
+        }    }
 
     public void unitDestroy(int unitID) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void unitMorph(int unitID) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
+            Out.println("morphed spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
+        }
     }
 }
