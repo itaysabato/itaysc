@@ -1,7 +1,11 @@
 package undermind;
 
+import eisbot.proxy.model.Map;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+
+import java.util.EnumMap;
+import java.util.HashMap;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -9,6 +13,18 @@ import eisbot.proxy.types.UnitType;
  * Time: 16:57 <br/>
  */
 public class Utils {
+    private static final java.util.Map<String, MapConstants> MAP_CONSTANTS_MAP;
+
+    static {
+        MAP_CONSTANTS_MAP = new HashMap<String, MapConstants>();
+        for(MapConstants mapConstants: MapConstants.values()){
+            MAP_CONSTANTS_MAP.put(mapConstants.getHash(),mapConstants);
+        }
+    }
+
+    public static MapConstants getMapConstantsFor(String hash){
+       return MAP_CONSTANTS_MAP.get(hash);
+    }
 
     public static double distance(int x1, int y1, int x2, int y2) {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));

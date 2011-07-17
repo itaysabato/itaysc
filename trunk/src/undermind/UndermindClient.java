@@ -42,8 +42,9 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void gameStarted() {
-        	bwapi.setGameSpeed(0);
-		    bwapi.loadMapData(true);
+        bwapi.setGameSpeed(0);
+        bwapi.loadMapData(true);
+        Out.println("map is: ["+Utils.getMapConstantsFor(bwapi.getMap().getHash())+"]");
     }
 
     public void gameUpdate() {
@@ -51,7 +52,7 @@ public class UndermindClient implements BWAPIEventListener {
 //            Out.println("got enemies: "+!bwapi.getEnemyUnits().isEmpty());
             currentPhase = currentPhase.gameUpdate();
             if(currentPhase == GamePhase.SCOUT){
-                 attacker.gameUpdate();
+                attacker.gameUpdate();
             }
         }
         catch(Exception e) {
