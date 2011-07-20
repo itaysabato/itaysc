@@ -37,7 +37,7 @@ public class Commander {
             else {
                 Unit worker = findEnemyWorker();
                 if(worker != null){
-                    bwapi.attackMove(unitID,worker.getX(),worker.getY());
+                    bwapi.attack(unitID, worker.getX(), worker.getY());
                 }
                 else if(state.isNearStructure()){
                     attackNearestStructure(unit);
@@ -45,7 +45,7 @@ public class Commander {
                 else if(unit.isIdle()){
                     Unit structure = findEnemyStructure();
                     if(structure != null){
-                        bwapi.attackMove(unitID,structure.getX(),structure.getY());
+                        bwapi.attack(unitID,structure.getX(),structure.getY());
                     }
                     explore(unit);
                 }
@@ -74,7 +74,7 @@ public class Commander {
             }
         }
         Unit worker = Collections.min(workers, getUnitComparator(unit)) ;
-        bwapi.attackMove(unit.getID(),worker.getX(),worker.getY());
+        bwapi.attack(unit.getID(), worker.getX(), worker.getY());
     }
 
     private Comparator<Unit> getUnitComparator(final Unit unit) {
@@ -105,12 +105,12 @@ public class Commander {
             }
         }
         Unit structure = Collections.min(structures, getUnitComparator(unit)) ;
-        bwapi.attackMove(unit.getID(),structure.getX(),structure.getY());
+        bwapi.attack(unit.getID(), structure.getX(), structure.getY());
     }
     private void explore(Unit unit) {
         for (Unit enemy : bwapi.getEnemyUnits()) {
             if(enemy.isExists()){
-                bwapi.attackMove(unit.getID(), enemy.getX(), enemy.getY());
+                bwapi.attack(unit.getID(), enemy.getX(), enemy.getY());
                 break;
             }
         }

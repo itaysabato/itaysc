@@ -221,9 +221,7 @@
   </component>
   <component name="libraryTable">
     <library name="lib">
-      <CLASSES>
-        <root url="jar://$PROJECT_DIR$/ExampleAIClient.jar!/" />
-      </CLASSES>
+      <CLASSES />
       <JAVADOC />
       <SOURCES />
     </library>

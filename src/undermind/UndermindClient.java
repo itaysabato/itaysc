@@ -11,6 +11,10 @@ import eisbot.proxy.types.UnitType;
  */
 public class UndermindClient implements BWAPIEventListener {
 
+    static {
+        System.loadLibrary("ExampleAIClient");
+    }
+
     private final JNIBWAPI bwapi;
     private GamePhase currentPhase = null;
     private Attacker attacker = null;
