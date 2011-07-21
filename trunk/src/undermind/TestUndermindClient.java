@@ -2,39 +2,41 @@ package undermind;
 
 import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
+import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
-
-import java.awt.*;
 
 /**
  * Created By: Itay Sabato<br/>
  * Date: 10/07/2011 <br/>
  * Time: 20:47:39 <br/>
  */
-public class UndermindClient implements BWAPIEventListener {
-    private static final UndermindClient myClient = new UndermindClient();
+public class TestUndermindClient implements BWAPIEventListener {
 
-    public final JNIBWAPI bwapi;
-    private GamePhase currentPhase;
-    private Attacker attacker;
-    private Point enemyHome;
-    private Point myHome;
-    private MapConstants mapConstants;
+//    static {
+//        System.loadLibrary("ExampleAIClient");
+//    }
 
+    private final JNIBWAPI bwapi;
+    private GamePhase currentPhase = null;
+    private Attacker attacker = null;
 
-    private UndermindClient() {
+    private TestUndermindClient() throws UndermindException {
         bwapi = new JNIBWAPI(this);
+        currentPhase = GamePhase.getInitialPhase();
+        attacker = new Attacker(bwapi);
     }
 
     public static void main(String[] arguments) {
         try {
-//            Out.println("this is NOT a test!");
-            myClient.start();
+            Out.println("main");
+            TestUndermindClient undermindClient = new TestUndermindClient();
+            undermindClient.start();
         }
         catch(Exception e) {
-            System.err.println("Exception caught: "+e.getMessage());
+            Out.println("Exception caught: "+e.getMessage());
             e.printStackTrace();
         }
+
     }
 
     private void start() {
@@ -42,25 +44,24 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void connected() {
+        Out.println("connected");
         bwapi.loadTypeData();
     }
 
     public void gameStarted() {
+		bwapi.enableUserInput();
+		bwapi.enablePerfectInformation();
         bwapi.setGameSpeed(0);
         bwapi.loadMapData(true);
-        currentPhase = GamePhase.getInitialPhase();
-        attacker = new Attacker(bwapi);
-        enemyHome = null;
-        myHome = null;
-         mapConstants = Utils.getMapConstantsFor(bwapi.getMap().getHash());
-        Out.println("map is: ["+mapConstants+"]");
+        Out.println("map is: ["+Utils.getMapConstantsFor(bwapi.getMap().getHash())+"]");
     }
 
     public void gameUpdate() {
         try {
-            currentPhase = currentPhase.gameUpdate();
-            if(currentPhase.ordinal() >= GamePhase.SCOUT.ordinal()){
-                attacker.gameUpdate();
+            for(Unit unit: bwapi.getMyUnits()){
+                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Overlord.ordinal()){
+                    Out.println("Overlord at (x,y)=("+unit.getX()+","+unit.getY()+").");
+                }
             }
         }
         catch(Exception e) {
@@ -79,6 +80,14 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void matchEnded(boolean winner) {
         Out.println("winner: "+winner);
+        try {
+            currentPhase = GamePhase.getInitialPhase();
+        }
+        catch(Exception e) {
+            Out.println("Exception caught: "+e.getMessage());
+            e.printStackTrace();
+        }
+        attacker = new Attacker(bwapi);
     }
 
     public void playerLeft(int id) {
@@ -116,8 +125,7 @@ public class UndermindClient implements BWAPIEventListener {
     public void unitCreate(int unitID) {
         if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
             Out.println("created spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
-        }
-    }
+        }    }
 
     public void unitDestroy(int unitID) {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -127,33 +135,5 @@ public class UndermindClient implements BWAPIEventListener {
         if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
             Out.println("morphed spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
         }
-    }
-
-    public Point getEnemyHome() {
-        return enemyHome;
-    }
-
-    public void setEnemyHome(Point enemyHome) {
-        this.enemyHome = enemyHome;
-    }
-
-    public static UndermindClient getMyClient() {
-        return myClient;
-    }
-
-    public Point getMyHome() {
-        return myHome;
-    }
-
-    public void setMyHome(Point myHome) {
-        this.myHome = myHome;
-    }
-
-    public MapConstants getMapConstants() {
-        return mapConstants;
-    }
-
-    public void setMapConstants(MapConstants mapConstants) {
-        this.mapConstants = mapConstants;
     }
 }

@@ -1,11 +1,13 @@
 package undermind;
 
-import eisbot.proxy.model.Map;
+import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
-import java.util.EnumMap;
+import java.awt.*;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -14,6 +16,7 @@ import java.util.HashMap;
  */
 public class Utils {
     private static final java.util.Map<String, MapConstants> MAP_CONSTANTS_MAP;
+    private static final int HOME_RADIUS = 300;
 
     static {
         MAP_CONSTANTS_MAP = new HashMap<String, MapConstants>();
@@ -70,5 +73,19 @@ public class Utils {
             return 8;
         }
         else return 0;
+    }
+
+    public static Set<Point> getScoutingLocations(JNIBWAPI bwapi) {
+        Set<Point> locations = UndermindClient.getMyClient().getMapConstants().getStartLocations(bwapi);
+        Iterator<Point> i = locations.iterator();
+        Out.println(locations.toString());
+        while(i.hasNext()){
+            Point point = i.next();
+             if(HOME_RADIUS >= Point.distance(point.x,point.y,UndermindClient.getMyClient().getMyHome().x,UndermindClient.getMyClient().getMyHome().y)){
+                  i.remove();
+                 break;
+             }
+        }
+        return locations;
     }
 }
