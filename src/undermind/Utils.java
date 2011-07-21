@@ -88,4 +88,21 @@ public class Utils {
         }
         return locations;
     }
+
+    public static boolean isSupplier(Unit unit) {
+        return unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
+                || unit.getTypeID() == UnitType.UnitTypes.Terran_SCV.ordinal()
+                || unit.getTypeID() == UnitType.UnitTypes.Protoss_Probe.ordinal();
+    }
+
+    public static boolean isMain(Unit unit) {
+        return unit.getTypeID() == UnitType.UnitTypes.Zerg_Hatchery.ordinal()
+                || unit.getTypeID() == UnitType.UnitTypes.Zerg_Lair.ordinal()
+                || unit.getTypeID() == UnitType.UnitTypes.Protoss_Nexus.ordinal()
+                || unit.getTypeID() == UnitType.UnitTypes.Terran_Command_Center.ordinal();
+    }
+
+    public static boolean isFlyer(Unit unit) {
+        return unit.getTypeID() == UnitType.UnitTypes.Zerg_Overlord.ordinal();
+    }
 }

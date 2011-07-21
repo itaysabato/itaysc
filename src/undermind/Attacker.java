@@ -25,11 +25,6 @@ public class Attacker {
     public void gameUpdate() {
         if(spwaned){
             chief.gameUpdate();
-            for (Unit unit : bwapi.getMyUnits()) {
-                if (unit.isExists() && unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()) {
-                      chief.recruit(unit);
-                }
-            }
 //            for (Unit enemy : bwapi.getEnemyUnits()) {
 //                for (Unit unit : bwapi.getMyUnits()) {
 //                    if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal() && unit.isIdle()) {
@@ -49,14 +44,24 @@ public class Attacker {
             }
         }
 
-        if(canSpwan && bwapi.getSelf().getMinerals() >= 150){
-//            Out.println("Minerals at zergling spawning: "+bwapi.getSelf().getMinerals());
-            for(Unit unit: bwapi.getMyUnits()){
-                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
-                    bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
+        if(canSpwan){
+            if(bwapi.getSelf().getSupplyTotal() < bwapi.getSelf().getSupplyUsed() + 2 && bwapi.getSelf().getMinerals() >= 100){
+                for(Unit unit: bwapi.getMyUnits()){
+                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
+                        bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Overlord.ordinal());
+                        break;
+                    }
                 }
             }
-            spwaned = true;
+            if(bwapi.getSelf().getMinerals() >= 150){
+                for(Unit unit: bwapi.getMyUnits()){
+                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
+                        bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
+                    }
+                }
+                spwaned = true;
+            }
+
         }
     }
 }

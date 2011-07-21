@@ -5,6 +5,8 @@ import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -20,7 +22,7 @@ public class UndermindClient implements BWAPIEventListener {
     private Point enemyHome;
     private Point myHome;
     private MapConstants mapConstants;
-
+    private Set<Integer> destroyed;
 
     private UndermindClient() {
         bwapi = new JNIBWAPI(this);
@@ -50,9 +52,10 @@ public class UndermindClient implements BWAPIEventListener {
         bwapi.loadMapData(true);
         currentPhase = GamePhase.getInitialPhase();
         attacker = new Attacker(bwapi);
+        destroyed = new HashSet<Integer>();
+        mapConstants = Utils.getMapConstantsFor(bwapi.getMap().getHash());
         enemyHome = null;
         myHome = null;
-         mapConstants = Utils.getMapConstantsFor(bwapi.getMap().getHash());
         Out.println("map is: ["+mapConstants+"]");
     }
 
@@ -120,7 +123,7 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitDestroy(int unitID) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        destroyed.add(unitID);
     }
 
     public void unitMorph(int unitID) {
@@ -155,5 +158,9 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void setMapConstants(MapConstants mapConstants) {
         this.mapConstants = mapConstants;
+    }
+
+    public boolean isDestroyed(int unitID) {
+        return destroyed.contains(unitID);
     }
 }
