@@ -3,9 +3,11 @@ package undermind;
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Map;
 import eisbot.proxy.model.Unit;
+import eisbot.proxy.types.UnitType;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -14,47 +16,56 @@ import java.util.Iterator;
  */
 public class ChiefOfStaff {
     private JNIBWAPI bwapi;
-    private java.util.Map<Integer,SoldierState> soldierStateMap;
+    private ZerglingKeeper zerglingKeeper;
+    private EnemyKeeper enemyKeeper;
     private Commander commander;
 
     public ChiefOfStaff(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
-        soldierStateMap = new HashMap<Integer, SoldierState>();
-        commander = new Commander(bwapi);
-    }
-
-    public void recruit(Unit unit){
-        if(!soldierStateMap.containsKey(unit.getID())){
-            soldierStateMap.put(unit.getID(),SoldierState.getCurrentState(unit,null,bwapi));
-        }
+        zerglingKeeper = new ZerglingKeeper();
+        enemyKeeper = new EnemyKeeper();
+        commander = new Commander(this);
     }
 
     public void gameUpdate() {
-        removeDead();
-        updateStates();
+        loadMyUnits();
+        loadEnemyUnits();
         issueCommands();
     }
 
-    private void removeDead() {
-        Iterator<java.util.Map.Entry<Integer,SoldierState>> iterator = soldierStateMap.entrySet().iterator();
-        while(iterator.hasNext()){
-            int unitID = iterator.next().getKey();
-            if(bwapi.getUnit(unitID) == null || !bwapi.getUnit(unitID).isExists()){
-                iterator.remove();
-            }
+    private void loadMyUnits() {
+        zerglingKeeper.clean();
+        for(Unit unit: bwapi.getMyUnits()){
+            Out.println("unit type: "+UnitType.UnitTypes.values()[unit.getTypeID()]);
+             if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
+                 Out.println("found zergling: "+unit.getID());
+                 zerglingKeeper.updateZergling(unit);
+             }
         }
+        Out.println("loaded");
     }
 
-    private void updateStates() {
-        for(java.util.Map.Entry<Integer,SoldierState> IDtoState: soldierStateMap.entrySet()){
-                IDtoState.setValue(SoldierState.getCurrentState(bwapi.getUnit(IDtoState.getKey()), IDtoState.getValue(),bwapi));
-        }
+    private void loadEnemyUnits() {
+        enemyKeeper.loadEnemyUnits(bwapi.getEnemyUnits());
     }
 
     private void issueCommands() {
-        for(java.util.Map.Entry<Integer,SoldierState> IDtoState: soldierStateMap.entrySet()){
-            commander.command(IDtoState.getKey(), IDtoState.getValue());
-        }
+        commander.issueCommands();
     }
 
+    public ZerglingKeeper getZerglingKeeper() {
+        return zerglingKeeper;
+    }
+
+    public void setZerglingKeeper(ZerglingKeeper zerglingKeeper) {
+        this.zerglingKeeper = zerglingKeeper;
+    }
+
+    public EnemyKeeper getEnemyKeeper() {
+        return enemyKeeper;
+    }
+
+    public void setEnemyKeeper(EnemyKeeper enemyKeeper) {
+        this.enemyKeeper = enemyKeeper;
+    }
 }

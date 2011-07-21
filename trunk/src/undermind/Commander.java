@@ -1,13 +1,12 @@
 package undermind;
 
-import eisbot.proxy.JNIBWAPI;
-import eisbot.proxy.model.BaseLocation;
+
 import eisbot.proxy.model.Unit;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -15,111 +14,82 @@ import java.util.List;
  * Time: 16:25 <br/>
  */
 public class Commander {
-    private JNIBWAPI bwapi;
+    private final ChiefOfStaff chief;
+    private final Random random = new Random();
 
-    public Commander(JNIBWAPI bwapi) {
-        this.bwapi = bwapi;
+    public Commander(ChiefOfStaff chiefOfStaff) {
+        chief = chiefOfStaff;
     }
 
-    public void command(Integer unitID, SoldierState state) {
-        Unit unit = bwapi.getUnit(unitID);
-        if(unit == null){
-            return;
-        }
-
-        if(state.isNearCombative()){
-            runAway(unit);
-        }
-        else if(unit.isIdle()) {
-            if(UndermindClient.getMyClient().getEnemyHome() != null){
-                bwapi.attack(unitID,UndermindClient.getMyClient().getEnemyHome().x,UndermindClient.getMyClient().getEnemyHome().y);
+    public void issueCommands() {
+        UndermindClient client = UndermindClient.getMyClient();
+        if(client.getEnemyHome() != null){
+            List<ZerglingStatus> frees = new ArrayList<ZerglingStatus>();
+            double centroidX = 0, centroidY = 0;
+            Unit target = null;
+            for(ZerglingStatus status: chief.getZerglingKeeper()){
+                Unit unit = client.bwapi.getUnit(status.getUnitID());
+                if(status.getState() == ZerglingState.NOOB){
+                    status.setState(ZerglingState.IN_TRANSIT);
+                    status.setDestination(new Point(client.getEnemyHome().x,client.getEnemyHome().y));
+                    Out.println("sent noob: "+status.toString());
+                    client.bwapi.move(status.getUnitID(), client.getEnemyHome().x, client.getEnemyHome().y);
+                }
+                else if(status.getState() == ZerglingState.FREE || status.getState() == ZerglingState.ATTACKING){
+//                    client.bwapi.setGameSpeed(3);
+                    if(unit != null && unit.isIdle()){
+                        frees.add(status);
+                        centroidX += unit.getX();
+                        centroidY += unit.getY();
+//                        if(status.getState() == ZerglingState.ATTACKING && unit.isIdle()){
+//                            client.bwapi.attack(status.getUnitID(),status.getTarget());
+//                        }
+                    }
+                }
+                else if(status.getState() == ZerglingState.IN_TRANSIT){
+                    if(unit != null && unit.isIdle()){
+                        client.bwapi.move(status.getUnitID(), status.getDestination().x, status.getDestination().y);
+                    }
+                }
+//                else if(status.getState() == ZerglingState.ATTACKING ){
+//                    if(unit != null && unit.isIdle()){
+//                        client.bwapi.attack(status.getUnitID(),status.getTarget());
+//                    }
+//                    if(target == null){
+//                        target = client.bwapi.getUnit(status.getTarget());
+//                    }
+//                }
             }
-            if(state.isNearWorker()){
-                attackNearestWorker(unit);
+            centroidX = centroidX / frees.size();
+            centroidY = centroidY / frees.size();
+            target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
+
+            if(target != null){
+                for(ZerglingStatus status: frees){
+                    status.setState(ZerglingState.ATTACKING);
+                    status.setTarget(target.getID());
+                    Out.println("sent : "+status.toString());
+                    client.bwapi.attack(status.getUnitID(),target.getID());
+
+                }
             }
             else {
-                Unit worker = findEnemyWorker();
-                if(worker != null){
-                    bwapi.attack(unitID, worker.getX(), worker.getY());
+                int x,y;
+                do {
+                    x = client.getEnemyHome().x + random.nextInt(500) - 300;
+                    y = client.getEnemyHome().y + random.nextInt(500) - 300;
+                } while(x < 0 || y < 0);
+                Point dest = new Point(x,y);
+
+                for(ZerglingStatus status: frees){
+                    status.setState(ZerglingState.FREE);
+                    status.setDestination(dest);
+                    Out.println("sent : "+status.toString());
+                    client.bwapi.attack(status.getUnitID(),x,y);
                 }
-                else if(state.isNearStructure()){
-                    attackNearestStructure(unit);
-                }
-                else if(unit.isIdle()){
-                    Unit structure = findEnemyStructure();
-                    if(structure != null){
-                        bwapi.attack(unitID,structure.getX(),structure.getY());
-                    }
-                    explore(unit);
-                }
             }
         }
+
+
     }
-
-    private Unit findEnemyStructure() {
-        for(Unit enemyUnit: bwapi.getEnemyUnits()){
-            if(Utils.isStructure(enemyUnit)){
-                return enemyUnit;
-            }
-        }
-        return null;
-    }
-
-    private void runAway(Unit unit) {
-        //To change body of created methods use File | Settings | File Templates.
-    }
-
-    private void attackNearestWorker(Unit unit) {
-        List<Unit> workers = new LinkedList<Unit>();
-        for(Unit enemyUnit: bwapi.getEnemyUnits()){
-            if(Utils.isWorker(enemyUnit)){
-                workers.add(enemyUnit);
-            }
-        }
-        Unit worker = Collections.min(workers, getUnitComparator(unit)) ;
-        bwapi.attack(unit.getID(), worker.getX(), worker.getY());
-    }
-
-    private Comparator<Unit> getUnitComparator(final Unit unit) {
-        return new Comparator<Unit>() {
-            public int compare(Unit o1, Unit o2) {
-                double d1 = Utils.distance(o1.getX(), o1.getY(), unit.getX(), unit.getY());
-                double d2 = Utils.distance(o2.getX(), o2.getY(), unit.getX(),unit.getY());
-                return d1 > d2 ?
-                        1 : (d1 < d2 ? -1 : 0);
-            }
-        };
-    }
-
-    private Unit findEnemyWorker() {
-        for(Unit enemyUnit: bwapi.getEnemyUnits()){
-            if(Utils.isWorker(enemyUnit)){
-                return enemyUnit;
-            }
-        }
-        return null;
-    }
-
-    private void attackNearestStructure(Unit unit) {
-        List<Unit> structures = new LinkedList<Unit>();
-        for(Unit enemyUnit: bwapi.getEnemyUnits()){
-            if(Utils.isStructure(enemyUnit)){
-                structures.add(enemyUnit);
-            }
-        }
-        Unit structure = Collections.min(structures, getUnitComparator(unit)) ;
-        bwapi.attack(unit.getID(), structure.getX(), structure.getY());
-    }
-    private void explore(Unit unit) {
-        for (Unit enemy : bwapi.getEnemyUnits()) {
-            if(enemy.isExists()){
-                bwapi.attack(unit.getID(), enemy.getX(), enemy.getY());
-                break;
-            }
-        }
-    }
-
-
-
-
 }
