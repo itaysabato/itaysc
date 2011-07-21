@@ -31,6 +31,9 @@ public class Commander {
             runAway(unit);
         }
         else if(unit.isIdle()) {
+            if(UndermindClient.getMyClient().getEnemyHome() != null){
+                bwapi.attack(unitID,UndermindClient.getMyClient().getEnemyHome().x,UndermindClient.getMyClient().getEnemyHome().y);
+            }
             if(state.isNearWorker()){
                 attackNearestWorker(unit);
             }
