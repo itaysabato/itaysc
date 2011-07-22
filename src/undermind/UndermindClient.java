@@ -2,6 +2,7 @@ package undermind;
 
 import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
+import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
@@ -20,6 +21,7 @@ public class UndermindClient implements BWAPIEventListener {
     private GamePhase currentPhase;
     private Attacker attacker;
     private Point enemyHome;
+    private Point enemyTemp;
     private Point myHome;
     private MapConstants mapConstants;
     private Set<Integer> destroyed;
@@ -48,6 +50,9 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void gameStarted() {
+        bwapi.drawIDs(true);
+        bwapi.drawTargets(true);
+        bwapi.drawHealth(false);
         bwapi.setGameSpeed(0);
         bwapi.loadMapData(true);
         currentPhase = GamePhase.getInitialPhase();
@@ -97,8 +102,18 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitDiscover(int unitID) {
-        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
-            Out.println("discovered spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
+        if(enemyHome == null){
+            Unit unit =(bwapi.getUnit(unitID));
+            if( bwapi.getPlayer(unit.getPlayerID()).isEnemy()){
+                if(Utils.isStructure(bwapi.getUnit(unitID))){
+                    enemyHome = new Point(unit.getX(),unit.getY());
+                    Out.println("discovered enemyHome at: "+enemyHome);
+                }
+                else {
+                    enemyTemp =  new Point(unit.getX(),unit.getY());
+                    Out.println("discovered enemyTemp at: "+enemyTemp);
+                }
+            }
         }
     }
 
@@ -107,9 +122,6 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitShow(int unitID) {
-        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
-            Out.println("shown spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
-        }
     }
 
     public void unitHide(int unitID) {
@@ -117,9 +129,6 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitCreate(int unitID) {
-        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
-            Out.println("created spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
-        }
     }
 
     public void unitDestroy(int unitID) {
@@ -127,9 +136,6 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitMorph(int unitID) {
-        if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
-            Out.println("morphed spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
-        }
     }
 
     public Point getEnemyHome() {
@@ -162,5 +168,9 @@ public class UndermindClient implements BWAPIEventListener {
 
     public boolean isDestroyed(int unitID) {
         return destroyed.contains(unitID);
+    }
+
+    public Point getEnemyTemp() {
+        return enemyTemp;
     }
 }

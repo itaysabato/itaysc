@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class ZerglingKeeper implements Iterable<ZerglingStatus> {
     private Map<Integer,ZerglingStatus> zerglingStatusMap = new HashMap<Integer, ZerglingStatus>();
-    private static final int CLOSE = 400;
+    private static final int CLOSE = 300;
 
     public void clean() {
         Iterator<Map.Entry<Integer,ZerglingStatus>> i = zerglingStatusMap.entrySet().iterator();
@@ -34,7 +34,8 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
             zerglingStatusMap.put(zergling.getID(),new ZerglingStatus(zergling.getID()));
             Out.println("kept zergling: "+zergling.getID());
         }
-        else if(status.getState() == ZerglingState.IN_TRANSIT && CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY())){
+        else if(status.getState() == ZerglingState.IN_TRANSIT &&
+                (zergling.isAttacking() || CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY()))){
             status.setDestination(null);
             status.setState(ZerglingState.FREE);
         }

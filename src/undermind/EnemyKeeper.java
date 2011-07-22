@@ -1,6 +1,7 @@
 package undermind;
 
 import eisbot.proxy.model.Unit;
+import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
 import java.util.*;
@@ -11,95 +12,86 @@ import java.util.*;
  * Time: 14:44 <br/>
  */
 public class EnemyKeeper {
-    private Set<Integer> warriors = new HashSet<Integer>();
-    private Set<Integer> workers = new HashSet<Integer>();
-    private Set<Integer> suppliers = new HashSet<Integer>();
-    private Set<Integer> mains = new HashSet<Integer>();
-    private Set<Integer> others = new HashSet<Integer>();
-    private static final double CLOSE = 1000;
+    private  final ChiefOfStaff chief;
+    private Map<Integer, Point> spottedEnemies = new HashMap<Integer, Point>();
+    private static final double CLOSE = 1000;   //todo: bring it back?
+
+    public EnemyKeeper(ChiefOfStaff chief) {
+        this.chief = chief;
+    }
 
     public void loadEnemyUnits(ArrayList<Unit> enemyUnits) {
         clean();
         for(Unit unit: enemyUnits){
+            Out.println("enemy: "+unit.getID()+" of type: "+ UnitType.UnitTypes.values()[unit.getTypeID()]+" is present");
+            chief.bwapi.drawCircle(unit.getX(),unit.getY(),20,1,false,false);
+
             if(!UndermindClient.getMyClient().isDestroyed(unit.getID())){
-                if(Utils.isCombative(unit)){
-                    warriors.add(unit.getID());
-                }
-                else if(Utils.isWorker(unit)){
-                    workers.add(unit.getID());
-                }
-                else if(Utils.isSupplier(unit)){
-                    suppliers.add(unit.getID());
-                }
-                else if(Utils.isMain(unit)){
-                    mains.add(unit.getID());
-                }
-                else {
-                    others.add(unit.getID());
-                }
+                spottedEnemies.put(unit.getID(),new Point(unit.getX(),unit.getY()));
             }
         }
     }
 
     private void clean() {
-        clean(workers);
-        clean(warriors);
-        clean(suppliers);
-        clean(mains);
-        clean(others);
-    }
-
-    private void clean(Set<Integer> units) {
-        for(Iterator<Integer> i = units.iterator(); i.hasNext();){
-            if(UndermindClient.getMyClient().isDestroyed(i.next())){
+        for(Iterator<Map.Entry<Integer,Point>> i = spottedEnemies.entrySet().iterator(); i.hasNext();){
+            if(UndermindClient.getMyClient().isDestroyed(i.next().getKey())){
                 i.remove();
             }
         }
     }
 
-    public Unit getCloseTarget(double x, double y) {
-        Unit[] closests = findClosests(x, y);
-        for(Unit target: closests){
-            if(target != null && Point.distance(target.getX(),target.getY(),x,y) <= CLOSE){
-                return target;
-            }
-        }
-        return closests[0];
-    }
+    public Unit getCloseTarget(final double x, final double y) {
+        Set<Unit> filtered = filterEnemies();
 
-    private Unit[] findClosests(double x, double y) {
-        return new Unit[]{
-                findClosest(filter(warriors),x,y),
-                findClosest(filter(workers),x,y),
-                findClosest(filter(suppliers),x,y),
-                findClosest(filter(mains),x,y),
-                findClosest(filter(others),x,y)
-        };
-    }
-
-    private Unit findClosest(Set<Unit> units, final double x, final double y) {
-        if(units.isEmpty()){
+        if(filtered.isEmpty()){
+            Out.println("empty!");
             return null;
         }
-
-        return Collections.min(units, new Comparator<Unit>() {
+        else {
+           chief. bwapi.setGameSpeed(-1);
+            Out.println("NOT empty!");
+        }
+        return Collections.min(filtered, new Comparator<Unit>() {
             public int compare(Unit u1, Unit u2) {
-                double d1 = Point.distance(u1.getX(),u1.getY(),x,y);
-                double d2 = Point.distance(u2.getX(),u2.getY(),x,y);
-                return d1 > d2 ?
-                        1 : (d1 < d2 ? -1 : 0);
+                int priorityComparison = chief.getPrioritizer().compare(u1,u2);
+                 Out.println("comparison: "+priorityComparison);
+                if(priorityComparison == 0){
+                    Point p1 = spottedEnemies.get(u1.getID());
+                    double d1 = Point.distance(p1.x,p1.y,x,y);
+
+                    Point p2 = spottedEnemies.get(u2.getID());
+                    double d2 = Point.distance(p2.x,p2.y,x,y);
+
+                    return d1 > d2 ?
+                            1 : (d1 < d2 ? -1 : 0);
+                }
+                else {
+                    return priorityComparison;
+                }
             }
         });
     }
 
-    private Set<Unit> filter(Set<Integer> units) {
+    private Set<Unit> filterEnemies() {
         Set<Unit> filtered = new HashSet<Unit>();
-        for(int id: units){
+        for(int id: spottedEnemies.keySet()){
             Unit unit = UndermindClient.getMyClient().bwapi.getUnit(id);
-            if(unit != null && unit.isVisible() && !unit.isInvincible() && !Utils.isFlyer(unit)){
+            if(unit != null &&  !unit.isInvincible() && !Utils.isFlyer(unit)){
                 filtered.add(unit);
+            }
+            else {
+                if(unit != null){
+                    Out.println("unit "+unit.getID()+" of type: "+ UnitType.UnitTypes.values()[unit.getTypeID()]+"is filtered out because invincible? "+unit.isInvincible());
+                }
+                else {
+                    Out.println("unit "+id+"is filtered out because it was null! ");
+                }
             }
         }
         return filtered;
+    }
+
+    public Point getCachedLocation(int id) {
+        return spottedEnemies.get(id);
     }
 }

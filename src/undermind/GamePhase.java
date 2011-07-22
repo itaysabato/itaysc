@@ -20,7 +20,7 @@ import java.util.Set;
  */
 enum GamePhase {
     INIT {
-        private static final int MINERAL_DIST = 300;
+        private static final int MINERAL_DIST = 600;
         private static final int DRONE_COUNT = 4;
 
         @Override
