@@ -1,13 +1,11 @@
 package undermind;
 
-
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -26,10 +24,12 @@ public class Commander {
     }
 
     public void issueCommands() {
+        Out.println("issuing commands");
         Point enemyHome = UndermindClient.getMyClient().getEnemyHome();
 
         if(enemyHome != null){
-            List<ZerglingStatus> idles = new ArrayList<ZerglingStatus>();
+            Out.println("got home");
+            List<ZerglingStatus> active = new ArrayList<ZerglingStatus>();
             double centroidX = 0, centroidY = 0;
 
             for(ZerglingStatus status: chief.getZerglingKeeper()){
@@ -49,21 +49,18 @@ public class Commander {
                         break;
 
                     case ATTACKING:
-                        if(!unit.isIdle()){
-                            break;
-                        }
                     case FREE:
-                        idles.add(status);
+                        active.add(status);
                         centroidX += unit.getX();
                         centroidY += unit.getY();
                         break;
                 }
             }
 
-            if(idles.size() > 0){
-                centroidX = centroidX / idles.size();
-                centroidY = centroidY / idles.size();
-                doSomthing(idles, centroidX, centroidY);
+            if(active.size() > 0){
+                centroidX = centroidX / active.size();
+                centroidY = centroidY / active.size();
+                doSomthing(active, centroidX, centroidY);
             }
         }
         else if(UndermindClient.getMyClient().getEnemyTemp() != null){
@@ -74,28 +71,33 @@ public class Commander {
         }
     }
 
-    private void doSomthing(List<ZerglingStatus> idles, double centroidX, double centroidY) {
+    private void doSomthing(List<ZerglingStatus> active, double centroidX, double centroidY) {
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
 
         if(target != null){
             Out.println("chosen target is: "+target.getID()+"of type: "+ UnitType.UnitTypes.values()[target.getTypeID()]);
-            for(ZerglingStatus status: idles){
-                attack(status,target);
-            }
-
-            for(ZerglingStatus status: chief.getZerglingKeeper()){
+            for(ZerglingStatus status: active){
                 if(status.getState() == ZerglingState.ATTACKING){
-                    Unit secondaryTarget = chief.bwapi.getUnit(status.getTarget());
-                    if(secondaryTarget != null && shouldSwitchTarget(target,secondaryTarget)){
-                        Out.println("target switched to u1");
-                        attack(status, target);
+                    Unit unit = chief.bwapi.getUnit(status.getUnitID());
+                    if(unit != null && unit.isIdle()){
+                        Unit secondaryTarget = chief.bwapi.getUnit(status.getTarget());
+                        if(secondaryTarget != null && shouldSwitchTarget(target,secondaryTarget)){
+                            Out.println("target switched to: "+target.getID());
+                            attack(status, target);
+                        }
                     }
+                    else {
+                        attack(status,target);
+                    }
+                }
+                else {
+                    attack(status,target);
                 }
             }
         }
         else {
             Point dest = explorer.findDestination(centroidX,centroidY);
-            for(ZerglingStatus status: idles){
+            for(ZerglingStatus status: active){
                 status.setState(ZerglingState.FREE);
                 status.setDestination(dest);
                 Out.println("exploring : "+status.toString());

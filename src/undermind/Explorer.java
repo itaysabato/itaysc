@@ -14,8 +14,8 @@ public class Explorer {
     public Point findDestination(double currentX, double currentY) {
         int x,y;
         do {
-            x = UndermindClient.getMyClient().getEnemyHome().x + random.nextInt(500) - 300;
-            y = UndermindClient.getMyClient().getEnemyHome().y + random.nextInt(500) - 300;
+            x = UndermindClient.getMyClient().getEnemyHome().x + random.nextInt(1000) - 500;
+            y = UndermindClient.getMyClient().getEnemyHome().y + random.nextInt(1000) - 500;
         } while(x < 0 || y < 0);
         return new Point(x,y);
     }

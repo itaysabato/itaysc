@@ -15,6 +15,8 @@ public class EnemyKeeper {
     private  final ChiefOfStaff chief;
     private Map<Integer, Point> spottedEnemies = new HashMap<Integer, Point>();
     private static final double CLOSE = 1000;   //todo: bring it back?
+    private Set<Integer> nulls = new HashSet<Integer>();
+
 
     public EnemyKeeper(ChiefOfStaff chief) {
         this.chief = chief;
@@ -23,8 +25,8 @@ public class EnemyKeeper {
     public void loadEnemyUnits(ArrayList<Unit> enemyUnits) {
         clean();
         for(Unit unit: enemyUnits){
-            Out.println("enemy: "+unit.getID()+" of type: "+ UnitType.UnitTypes.values()[unit.getTypeID()]+" is present");
-            chief.bwapi.drawCircle(unit.getX(),unit.getY(),20,1,false,false);
+//            Out.println("enemy: "+unit.getID()+" of type: "+ UnitType.UnitTypes.values()[unit.getTypeID()]+" is present");
+//            chief.bwapi.drawCircle(unit.getX(),unit.getY(),20,1,false,false);
 
             if(!UndermindClient.getMyClient().isDestroyed(unit.getID())){
                 spottedEnemies.put(unit.getID(),new Point(unit.getX(),unit.getY()));
@@ -48,7 +50,7 @@ public class EnemyKeeper {
             return null;
         }
         else {
-           chief. bwapi.setGameSpeed(-1);
+//           chief. bwapi.setGameSpeed(-1);
             Out.println("NOT empty!");
         }
         return Collections.min(filtered, new Comparator<Unit>() {
@@ -78,12 +80,17 @@ public class EnemyKeeper {
             Unit unit = UndermindClient.getMyClient().bwapi.getUnit(id);
             if(unit != null &&  !unit.isInvincible() && !Utils.isFlyer(unit)){
                 filtered.add(unit);
+                if(nulls.contains(id)){
+                    Out.println("null unit is back! ["+id+","+ UnitType.UnitTypes.values()[unit.getTypeID()]+"]");
+                    nulls.remove(id);
+                }
             }
             else {
                 if(unit != null){
                     Out.println("unit "+unit.getID()+" of type: "+ UnitType.UnitTypes.values()[unit.getTypeID()]+"is filtered out because invincible? "+unit.isInvincible());
                 }
                 else {
+                    nulls.add(id);
                     Out.println("unit "+id+"is filtered out because it was null! ");
                 }
             }
