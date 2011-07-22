@@ -1,13 +1,8 @@
 package undermind;
 
 import eisbot.proxy.JNIBWAPI;
-import eisbot.proxy.model.Map;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -15,16 +10,18 @@ import java.util.Set;
  * Time: 15:15 <br/>
  */
 public class ChiefOfStaff {
-    private JNIBWAPI bwapi;
+    public final JNIBWAPI bwapi;
     private ZerglingKeeper zerglingKeeper;
     private EnemyKeeper enemyKeeper;
     private Commander commander;
+    private Priorityzer prioritizer;
 
     public ChiefOfStaff(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
         zerglingKeeper = new ZerglingKeeper();
-        enemyKeeper = new EnemyKeeper();
+        enemyKeeper = new EnemyKeeper(this);
         commander = new Commander(this);
+        prioritizer = new Priorityzer();
     }
 
     public void gameUpdate() {
@@ -36,13 +33,10 @@ public class ChiefOfStaff {
     private void loadMyUnits() {
         zerglingKeeper.clean();
         for(Unit unit: bwapi.getMyUnits()){
-            Out.println("unit type: "+UnitType.UnitTypes.values()[unit.getTypeID()]);
              if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
-                 Out.println("found zergling: "+unit.getID());
                  zerglingKeeper.updateZergling(unit);
              }
         }
-        Out.println("loaded");
     }
 
     private void loadEnemyUnits() {
@@ -67,5 +61,9 @@ public class ChiefOfStaff {
 
     public void setEnemyKeeper(EnemyKeeper enemyKeeper) {
         this.enemyKeeper = enemyKeeper;
+    }
+
+    public Priorityzer getPrioritizer() {
+        return prioritizer;
     }
 }

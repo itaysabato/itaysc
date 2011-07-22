@@ -100,12 +100,15 @@ public enum MapConstants {
     Empire_of_The_Sun {
         @Override
         protected void innerSetStartLocations() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            startLocations.add(new Point(3907,3811));
+            startLocations.add(new Point(165,3827));
+            startLocations.add(new Point(162,219));
+            startLocations.add(new Point(3918,201));
         }
 
         @Override
         public String getHash() {
-            return "'a220d93efdf05a439b83546a579953c63c863ca7";
+            return "a220d93efdf05a439b83546a579953c63c863ca7";
         }
     },
     Fortress {

@@ -8,7 +8,6 @@ package undermind;
 public enum ZerglingState {
     NOOB,
     IN_TRANSIT,
-    REACHED,
     ATTACKING,
     FREE
 }
