@@ -14,11 +14,11 @@ public class Out {
 
     static {
         out = System.out;
-        try {
-            out = new PrintStream(new FileOutputStream("cache.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            out = new PrintStream(new FileOutputStream("cache.txt"));
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static void println(String string) {

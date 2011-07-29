@@ -25,6 +25,7 @@ public class UndermindClient implements BWAPIEventListener {
     private Point myHome;
     private MapConstants mapConstants;
     private Set<Integer> destroyed;
+    private boolean isSlow;
 
     private UndermindClient() {
         bwapi = new JNIBWAPI(this);
@@ -32,7 +33,7 @@ public class UndermindClient implements BWAPIEventListener {
 
     public static void main(String[] arguments) {
         try {
-//            Out.println("this is NOT a test!");
+            Out.println("this is NOT a test!");
             myClient.start();
         }
         catch(Exception e) {
@@ -58,6 +59,7 @@ public class UndermindClient implements BWAPIEventListener {
         bwapi.drawTargets(true);
         bwapi.drawHealth(false);
         bwapi.setGameSpeed(0);
+        isSlow = false;
         bwapi.loadMapData(true);
         currentPhase = GamePhase.getInitialPhase();
         attacker = new Attacker(bwapi);
@@ -86,7 +88,13 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void keyPressed(int keyCode) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if(isSlow){
+              bwapi.setGameSpeed(0);
+        }
+        else {
+            bwapi.setGameSpeed(-1);
+        }
+        isSlow = !isSlow;
     }
 
     public void matchEnded(boolean winner) {

@@ -29,11 +29,8 @@ public enum MapConstants {
     Destination {
         @Override
         protected void innerSetStartLocations() {
-            Out.println("inner: "+startLocations.toString());
             startLocations.add(new Point(2266,3815));
-            Out.println("inner: "+startLocations.toString());
             startLocations.add(new Point(905,240));
-            Out.println("inner: "+startLocations.toString());
         }
 
         @Override

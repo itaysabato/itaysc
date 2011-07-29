@@ -18,6 +18,7 @@ public class Utils {
     private static final java.util.Map<String, MapConstants> MAP_CONSTANTS_MAP = new HashMap<String, MapConstants>();
     private static final java.util.Map<Integer,UnitClass> UNIT_CLASS_MAP = new HashMap<Integer, UnitClass>();
     private static final int HOME_RADIUS = 300;
+    private static final int DETECTION_RADIUS = 150;
 
     static {
         for(MapConstants mapConstants: MapConstants.values()){
@@ -95,5 +96,23 @@ public class Utils {
 
     public static boolean isFlyer(Unit unit) {
         return unit.getTypeID() == UnitType.UnitTypes.Zerg_Overlord.ordinal();
+    }
+
+    public static String unitToString(Unit unit) {
+        return "[ Unit: id="+unit.getID()+", type="+ UnitType.UnitTypes.values()[unit.getTypeID()]+", classification="+classify(unit)+"]";
+    }
+
+    public static boolean isGone(Unit enemy, JNIBWAPI bwapi) {
+        if(bwapi.getUnit(enemy.getID()) != null){
+            return false;
+        }
+        else {
+            for(Unit unit: bwapi.getMyUnits()){
+                if(!UndermindClient.getMyClient().isDestroyed(unit.getID()) && Point.distance(unit.getX(),unit.getY(),enemy.getX(),enemy.getY()) < DETECTION_RADIUS){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

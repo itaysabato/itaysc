@@ -24,11 +24,11 @@ public class Commander {
     }
 
     public void issueCommands() {
-        Out.println("issuing commands");
+//        Out.println("issuing commands");
         Point enemyHome = UndermindClient.getMyClient().getEnemyHome();
 
         if(enemyHome != null){
-            Out.println("got home");
+//            Out.println("got enemy home");
             List<ZerglingStatus> active = new ArrayList<ZerglingStatus>();
             double centroidX = 0, centroidY = 0;
 
@@ -110,16 +110,14 @@ public class Commander {
 //        Out.println("sending : " + status.toString());
         status.setState(ZerglingState.ATTACKING);
         status.setTarget(target.getID());
-        if(target.isVisible()) {
-            Out.println("target visible");
+        if(chief.bwapi.getUnit(target.getID()) != null && target.isVisible()) {
+            Out.println("target visible: "+Utils.unitToString(target));
             chief.bwapi.attack(status.getUnitID(), target.getID());
         }
         else {
-            Out.println("target not visible");
-            Point lastSeen = chief.getEnemyKeeper().getCachedLocation(target.getID());
-            chief.bwapi.attack(status.getUnitID(), lastSeen.x,lastSeen.y);
+            Out.println("target not visible"+Utils.unitToString(target));
+            chief.bwapi.attack(status.getUnitID(), target.getX(),target.getY());
         }
-//        Out.println("sent : " + status.toString());
     }
 
     private boolean shouldSwitchTarget(Unit to, Unit from) {
