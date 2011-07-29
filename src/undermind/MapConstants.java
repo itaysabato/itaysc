@@ -53,7 +53,9 @@ public enum MapConstants {
     Aztec {
         @Override
         protected void innerSetStartLocations() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            startLocations.add(new Point(2112,207));
+            startLocations.add(new Point(164,2701));
+            startLocations.add(new Point(3921,3237));
         }
 
         @Override
@@ -64,7 +66,9 @@ public enum MapConstants {
     Tau_Cross {
         @Override
         protected void innerSetStartLocations() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            startLocations.add(new Point(3136,3819));
+            startLocations.add(new Point(3940,338));
+            startLocations.add(new Point(170,231));
         }
 
         @Override
@@ -75,7 +79,10 @@ public enum MapConstants {
     Andromeda {
         @Override
         protected void innerSetStartLocations() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            startLocations.add(new Point(150,3815));
+            startLocations.add(new Point(3917,287));
+            startLocations.add(new Point(3905,3864));
+            startLocations.add(new Point(150,241));
         }
 
         @Override
@@ -86,7 +93,10 @@ public enum MapConstants {
     Circuit_Breaker {
         @Override
         protected void innerSetStartLocations() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            startLocations.add(new Point(3906,3814));
+            startLocations.add(new Point(175,3871));
+            startLocations.add(new Point(3918,362));
+            startLocations.add(new Point(161,358));
         }
 
         @Override
@@ -125,7 +135,10 @@ public enum MapConstants {
     Python {
         @Override
         protected void innerSetStartLocations() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            startLocations.add(new Point(1288,3832));
+            startLocations.add(new Point(3913,1308));
+            startLocations.add(new Point(2832,226));
+            startLocations.add(new Point(148,2818));
         }
 
         @Override

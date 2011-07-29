@@ -78,21 +78,8 @@ public class EnemyKeeper {
                 Out.println("using stored unit: "+Utils.unitToString(unit));
                 chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,0,false,false);
             }
-            if(unit != null && !unit.isInvincible() && !Utils.isFlyer(unit)){
+            if(!unit.isInvincible() && !Utils.isFlyer(unit)){
                 filtered.add(unit);
-//                if(nulls.contains(id)){
-//                    Out.println("null unit is back! ["+id+","+ UnitType.UnitTypes.values()[unit.getTypeID()]+"]");
-//                    nulls.remove(id);
-//                }
-            }
-            else {
-//                if(unit != null){
-//                    Out.println(Utils.unitToString(unit)+"is filtered out because invincible? "+unit.isInvincible());
-//                }
-//                else {
-//                    nulls.add(id);
-//                    Out.println("unit "+id+"is filtered out because it was null! ");
-//                }
             }
         }
         return filtered;
