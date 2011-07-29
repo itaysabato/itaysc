@@ -1,17 +1,12 @@
 package undermind;
 
-import eisbot.proxy.JNIBWAPI;
-import eisbot.proxy.model.BaseLocation;
 import eisbot.proxy.model.Map;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
-import javax.rmi.CORBA.Util;
 import java.awt.*;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -59,20 +54,27 @@ enum GamePhase {
 
         private int[] findMinerals() throws UndermindException {
             int[] result = new int[DRONE_COUNT];
-            int i = 0;
+            List<Unit> fields = new LinkedList<Unit>();
 
             for (Unit minerals : UndermindClient.getMyClient().bwapi.getNeutralUnits()) {
                 if (minerals.getTypeID() == UnitType.UnitTypes.Resource_Mineral_Field.ordinal()) {
-                    double distance = Point.distance(minerals.getX(), minerals.getY(), UndermindClient.getMyClient().getMyHome().getX(), UndermindClient.getMyClient().getMyHome().getY());
-                    if (distance < MINERAL_DIST) {
-                        result[i++] =  minerals.getID();
-                        if(i >= DRONE_COUNT){
-                            return result;
-                        }
-                    }
+                    fields.add(minerals);
                 }
             }
-            throw new UndermindException("Not enough mineral fields near by");
+
+            final Point home = UndermindClient.getMyClient().getMyHome();
+            for(int i = 0; i < result.length; i++){
+                result[i] = Collections.min(fields, new Comparator<Unit>() {
+                    public int compare(Unit u1, Unit u2) {
+                    double d1 = Point.distance(u1.getX(),u1.getY(),home.x,home.y);
+                    double d2 = Point.distance(u2.getX(),u2.getY(),home.x,home.y);
+
+                    return d1 > d2 ?
+                            1 : (d1 < d2 ? -1 : 0);
+                    }
+                }).getID();
+            }
+            return result;
         }
     },
 

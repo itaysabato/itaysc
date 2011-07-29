@@ -25,14 +25,6 @@ public class Attacker {
     public void gameUpdate() {
         if(spwaned){
             chief.gameUpdate();
-//            for (Unit enemy : bwapi.getEnemyUnits()) {
-//                for (Unit unit : bwapi.getMyUnits()) {
-//                    if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal() && unit.isIdle()) {
-//                        bwapi.attackMove(unit.getID(), enemy.getX(), enemy.getY());
-//                        break;
-//                    }
-//                }
-//            }
         }
 
         if(!canSpwan){
@@ -53,7 +45,7 @@ public class Attacker {
                     }
                 }
             }
-            if(bwapi.getSelf().getMinerals() >= 150){
+            if(bwapi.getSelf().getMinerals() >= 150 && bwapi.getSelf().getSupplyTotal() >= bwapi.getSelf().getSupplyUsed() + 3){
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
                         bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
