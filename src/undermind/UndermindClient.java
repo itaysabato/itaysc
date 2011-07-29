@@ -39,6 +39,9 @@ public class UndermindClient implements BWAPIEventListener {
             System.err.println("Exception caught: "+e.getMessage());
             e.printStackTrace();
         }
+        finally {
+            Out.close();
+        }
     }
 
     private void start() {
@@ -50,6 +53,7 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void gameStarted() {
+        bwapi.enableUserInput();
         bwapi.drawIDs(true);
         bwapi.drawTargets(true);
         bwapi.drawHealth(false);

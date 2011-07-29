@@ -98,16 +98,16 @@ public class Commander {
         else {
             Point dest = explorer.findDestination(centroidX,centroidY);
             for(ZerglingStatus status: active){
-                status.setState(ZerglingState.FREE);
+                status.setState(ZerglingState.IN_TRANSIT);
                 status.setDestination(dest);
-                Out.println("exploring : "+status.toString());
+//                Out.println("exploring : "+status.toString());
                 chief.bwapi.attack(status.getUnitID(),dest.x,dest.y);
             }
         }
     }
 
     private void attack(ZerglingStatus status, Unit target) {
-        Out.println("sending : " + status.toString());
+//        Out.println("sending : " + status.toString());
         status.setState(ZerglingState.ATTACKING);
         status.setTarget(target.getID());
         if(target.isVisible()) {
@@ -119,7 +119,7 @@ public class Commander {
             Point lastSeen = chief.getEnemyKeeper().getCachedLocation(target.getID());
             chief.bwapi.attack(status.getUnitID(), lastSeen.x,lastSeen.y);
         }
-        Out.println("sent : " + status.toString());
+//        Out.println("sent : " + status.toString());
     }
 
     private boolean shouldSwitchTarget(Unit to, Unit from) {
@@ -135,7 +135,7 @@ public class Commander {
     private void commandNoob(Unit unit, ZerglingStatus status, Point enemyHome) {
         status.setState(ZerglingState.IN_TRANSIT);
         status.setDestination(new Point(enemyHome.x,enemyHome.y));
-        Out.println("sent: "+status.toString());
+//        Out.println("sent: "+status.toString());
         chief.bwapi.attack(status.getUnitID(), enemyHome.x, enemyHome.y);
     }
 }

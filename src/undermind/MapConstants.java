@@ -114,7 +114,10 @@ public enum MapConstants {
     Fortress {
         @Override
         protected void innerSetStartLocations() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            startLocations.add(new Point(2623,3861));
+            startLocations.add(new Point(1498,261));
+            startLocations.add(new Point(156,2435));
+            startLocations.add(new Point(3899,1758));
         }
 
         @Override

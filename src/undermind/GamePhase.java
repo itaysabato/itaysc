@@ -116,7 +116,7 @@ enum GamePhase {
             Point initTile = null;
             for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
                 if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Overlord.ordinal()) {
-                        return  new Point(unit.getTileX(),unit.getTileY());
+                    return  new Point(unit.getTileX(),unit.getTileY());
 //                    initTile = new Point(unit.getTileX() - 5,unit.getTileY() - 5);
 //                    break;
                 }
@@ -196,6 +196,11 @@ enum GamePhase {
 
         private void scoutNext() {
             if(toScout == null || toScout.isEmpty()){
+                return;
+            }
+
+            if(toScout.size() == 1 && UndermindClient.getMyClient().getEnemyHome() == null){
+                UndermindClient.getMyClient().setEnemyHome(toScout.iterator().next());
                 return;
             }
 
