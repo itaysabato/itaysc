@@ -148,6 +148,7 @@ enum GamePhase {
     SCOUT {
         private int scout;
         private Set<Point> toScout;
+        public Point next;public static final int SCOUTED_RADIUS = 150;
 
         @Override
         protected void init() throws UndermindException {
@@ -157,6 +158,7 @@ enum GamePhase {
             if(toScout.size() == 1){
                 UndermindClient.getMyClient().setEnemyHome(toScout.iterator().next());
             }
+            next = null;
         }
 
         @Override
@@ -165,15 +167,15 @@ enum GamePhase {
                 return IDLE;
             }
 
-            //todo: optimise last location inference
             if(scout < 0){
                 chooseScout();
             }
 
             if(scout >= 0){
                 Unit scoutUnit = UndermindClient.getMyClient().bwapi.getUnit(scout);
-                if(poolStarted() && scoutUnit != null && (scoutUnit.isGatheringMinerals()  || scoutUnit.isIdle())) {
-                    scoutNext();
+                if(poolStarted() && scoutUnit != null
+                        && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
+                    scoutNext(scoutUnit);
                 }
             }
 
@@ -194,17 +196,19 @@ enum GamePhase {
             return  UndermindClient.getMyClient().bwapi.getUnit(poolDrone) == null || UndermindClient.getMyClient().bwapi.getUnit(poolDrone).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() || !UndermindClient.getMyClient().bwapi.getUnit(poolDrone).isExists();
         }
 
-        private void scoutNext() {
+        private void scoutNext(Unit scoutUnit) {
             if(toScout == null || toScout.isEmpty()){
+                Out.println("nothing to scout.");
                 return;
             }
 
             if(toScout.size() == 1 && UndermindClient.getMyClient().getEnemyHome() == null){
                 UndermindClient.getMyClient().setEnemyHome(toScout.iterator().next());
+                Out.println("Only one location left. setting enemy home to: "+ UndermindClient.getMyClient().getEnemyHome());
                 return;
             }
 
-            Point point = Collections.min(toScout, new Comparator<Point>() {
+            next = Collections.min(toScout, new Comparator<Point>() {
                 public int compare(Point o1, Point o2) {
                     double d1 = Point.distanceSq(o1.getX(),o1.getY(),UndermindClient.getMyClient().bwapi.getUnit(scout).getX(), UndermindClient.getMyClient().bwapi.getUnit(scout).getY());
                     double d2 = Point.distanceSq(o2.getX(),o2.getY(),UndermindClient.getMyClient().bwapi.getUnit(scout).getX(), UndermindClient.getMyClient().bwapi.getUnit(scout).getY());
@@ -212,9 +216,8 @@ enum GamePhase {
                             1 : (d1 < d2 ? -1 : 0);
                 }
             });
-
-            toScout.remove(point);
-            UndermindClient.getMyClient().bwapi.rightClick(scout,point.x,point.y);
+            toScout.remove(next);
+            UndermindClient.getMyClient().bwapi.rightClick(scout,next.x,next.y);
         }
 
         private void chooseScout() {

@@ -7,8 +7,8 @@ package undermind;
  */
 public enum UnitClass {
     HARMFUL,
-    SUPPLIER,
     WORKER,
+    SUPPLIER,
     MAIN,
     HARMLESS_STRUCTURE,
     HARMLESS_UNIT
