@@ -63,6 +63,15 @@ public class TestUndermindClient implements BWAPIEventListener {
                     Out.println("Overlord at (x,y)=("+unit.getX()+","+unit.getY()+").");
                 }
             }
+
+            for(Unit enemy : bwapi.getEnemyUnits()){
+                for(Unit unit: bwapi.getMyUnits()){
+                    if(UnitType.UnitTypes.values()[unit.getTypeID()] == UnitType.UnitTypes.Zerg_Zergling){
+                        bwapi.attack(unit.getID(),enemy.getX(),enemy.getY());
+                        break;
+                    }
+                }
+            }
         }
         catch(Exception e) {
             Out.println("Exception caught: "+e.getMessage());

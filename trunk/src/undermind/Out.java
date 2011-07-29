@@ -14,15 +14,19 @@ public class Out {
 
     static {
         out = System.out;
-//        try {
-//            out = new PrintStream(new FileOutputStream("log.txt"));
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            out = new PrintStream(new FileOutputStream("cache.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void println(String string) {
         out.println(string);
         out.flush();
+    }
+
+    public static void close() {
+        out.close();
     }
 }
