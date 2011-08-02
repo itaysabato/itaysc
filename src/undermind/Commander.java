@@ -39,13 +39,10 @@ public class Commander {
                     continue;
                 }
                 chief.bwapi.drawText(unit.getX() + 18,unit.getY(),status.getState().name(),false);
-
-                if(status.getState() != ZerglingState.RUNNING ){
-                    Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit,90);
-                    if(runner.shouldRun(unit,attackers)){
-                        runner.run(unit,status,attackers);
-                        continue;
-                    }
+                Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
+                if(runner.shouldRun(unit,attackers)){
+                    runner.run(unit,status,attackers);
+                    continue;
                 }
 
                 switch (status.getState()) {
@@ -58,9 +55,6 @@ public class Commander {
                         break;
 
                     case RUNNING:
-                        commandRunning(unit, status);
-                        break;
-
                     case ATTACKING:
                     case FREE:
                         active.add(status);
@@ -87,7 +81,9 @@ public class Commander {
 
     private void commandRunning(Unit unit, ZerglingStatus status) {
         if(unit != null && unit.isIdle()){
-            chief.bwapi.attack(status.getUnitID(), status.getDestination().x, status.getDestination().y);
+            if(!runner.run(unit,status,chief.getEnemyKeeper().getCloseAttackers(unit))){
+                status.setState(ZerglingState.FREE);
+            }
         }
     }
 
@@ -100,10 +96,10 @@ public class Commander {
             for(ZerglingStatus status: active){
                 if(status.getState() == ZerglingState.ATTACKING){
                     Unit unit = chief.bwapi.getUnit(status.getUnitID());
-                    if(unit != null && unit.isIdle()){
+                    if(unit != null && !unit.isIdle()){
                         Unit secondaryTarget = chief.bwapi.getUnit(status.getTarget());
                         if(secondaryTarget != null && shouldSwitchTarget(target,secondaryTarget)){
-                            Out.println("target switched to: "+target.getID());
+                            Out.println("target switched to: "+Utils.unitToString(target));
                             attack(status, target);
                         }
                     }
@@ -131,6 +127,7 @@ public class Commander {
 //        Out.println("sending : " + status.toString());
         status.setState(ZerglingState.ATTACKING);
         status.setTarget(target.getID());
+        status.setDestination(new Point(target.getX(),target.getY()));
         if(chief.bwapi.getUnit(target.getID()) != null && target.isVisible()) {
 //            Out.println("target visible: "+Utils.unitToString(target));
             chief.bwapi.attack(status.getUnitID(), target.getID());

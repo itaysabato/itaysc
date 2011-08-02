@@ -45,6 +45,9 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
                 status.setTarget(-1);
                 status.setState(ZerglingState.FREE);
             }
+            else if(target.isVisible()) {
+                status.setDestination(new Point(target.getX(),target.getY()));
+            }
         }
     }
 

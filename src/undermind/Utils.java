@@ -31,6 +31,9 @@ public class Utils {
 
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Terran_Supply_Depot.ordinal(),UnitClass.SUPPLIER);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Protoss_Pylon.ordinal(),UnitClass.SUPPLIER);
+        UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Egg.ordinal(),UnitClass.SUPPLIER);
+
+
 
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Terran_Command_Center.ordinal(),UnitClass.MAIN);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Protoss_Nexus.ordinal(),UnitClass.MAIN);

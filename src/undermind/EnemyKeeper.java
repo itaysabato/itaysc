@@ -16,6 +16,7 @@ public class EnemyKeeper {
     private Set<Unit> dangerousUnits;
 
     private static final double CLOSE = 1000;   //todo: bring it back?
+    private static final int RADIUS = 120;
 
     public EnemyKeeper(ChiefOfStaff chief) {
         this.chief = chief;
@@ -23,14 +24,17 @@ public class EnemyKeeper {
 
     public void loadEnemyUnits(ArrayList<Unit> enemyUnits) {
         clean();
-        dangerousUnits = new HashSet<Unit>();
 
         for(Unit unit: enemyUnits){
             if(!UndermindClient.getMyClient().isDestroyed(unit.getID())){
                 spottedEnemies.put(unit.getID(),unit);
-                if(Utils.classify(unit) == UnitClass.HARMFUL || unit.isAttacking() || unit.isStartingAttack()){
-                    dangerousUnits.add(unit);
-                }
+            }
+        }
+
+        dangerousUnits = new HashSet<Unit>();
+        for (Unit unit: spottedEnemies.values()){
+            if(Utils.classify(unit) == UnitClass.HARMFUL || unit.isAttacking() || unit.isStartingAttack()){
+                dangerousUnits.add(unit);
             }
         }
     }
@@ -95,15 +99,15 @@ public class EnemyKeeper {
         return dangerousUnits;
     }
 
-    public Set<Unit> getCloseAttackers(Unit myUnit, double radius) {
+    public Set<Unit> getCloseAttackers(Unit myUnit) {
         Set<Unit> closeAttackers = new HashSet<Unit>();
         for(Unit enemyUnit: dangerousUnits){
-            Out.println("checking if "+Utils.unitToString(enemyUnit)+"is close to "+Utils.unitToString(myUnit));
+//            Out.println("checking if "+Utils.unitToString(enemyUnit)+"is close to "+Utils.unitToString(myUnit));
             double d =Point.distance(myUnit.getX(),myUnit.getY(),enemyUnit.getX(),enemyUnit.getY());
-            Out.println("distance is: "+d);
-            if(d <= radius){
+//            Out.println("distance is: "+d);
+            if(d <= RADIUS){
                 closeAttackers.add(enemyUnit);
-                Out.println("yes");
+//                Out.println("yes");
             }
         }
         return closeAttackers;

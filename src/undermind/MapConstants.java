@@ -68,7 +68,7 @@ public enum MapConstants {
         protected void innerSetStartLocations() {
             startLocations.add(new Point(3136,3819));
             startLocations.add(new Point(3940,338));
-            startLocations.add(new Point(170,231));
+            startLocations.add(new Point(191,1447));
         }
 
         @Override
