@@ -23,6 +23,7 @@ public class UndermindClient implements BWAPIEventListener {
     private Point enemyHome;
     private Point enemyTemp;
     private Point myHome;
+    private Point myHomeTile;
     private MapConstants mapConstants;
     private Set<Integer> destroyed;
     private boolean isSlow;
@@ -184,5 +185,13 @@ public class UndermindClient implements BWAPIEventListener {
 
     public Point getEnemyTemp() {
         return enemyTemp;
+    }
+
+    public Point getMyHomeTile() {
+        return myHomeTile;
+    }
+
+    public void setMyHomeTile(Point myHomeTile) {
+        this.myHomeTile = myHomeTile;
     }
 }

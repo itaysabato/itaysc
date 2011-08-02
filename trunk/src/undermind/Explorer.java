@@ -11,6 +11,7 @@ import java.util.Random;
 public class Explorer {
     private static final Random random = new Random();
 
+    //todo: go to base locations
     public Point findDestination(double currentX, double currentY) {
         int x,y;
         do {

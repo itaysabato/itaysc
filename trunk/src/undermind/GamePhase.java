@@ -35,8 +35,11 @@ enum GamePhase {
 
         private void setHome() throws UndermindException {
             for(Unit unit: UndermindClient.getMyClient().bwapi.getMyUnits()){
-                UndermindClient.getMyClient().setMyHome(new Point(unit.getX(),unit.getY()));
-                return;
+                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Hatchery.ordinal()){
+                    UndermindClient.getMyClient().setMyHome(new Point(unit.getX(),unit.getY()));
+                    UndermindClient.getMyClient().setMyHomeTile(new Point(unit.getTileX(),unit.getTileY()));
+                    return;
+                }
             }
             throw new UndermindException("No Home!");
         }
@@ -64,15 +67,17 @@ enum GamePhase {
 
             final Point home = UndermindClient.getMyClient().getMyHome();
             for(int i = 0; i < result.length; i++){
-                result[i] = Collections.min(fields, new Comparator<Unit>() {
+                Unit minimalMineral = Collections.min(fields, new Comparator<Unit>() {
                     public int compare(Unit u1, Unit u2) {
-                    double d1 = Point.distance(u1.getX(),u1.getY(),home.x,home.y);
-                    double d2 = Point.distance(u2.getX(),u2.getY(),home.x,home.y);
+                        double d1 = Point.distance(u1.getX(), u1.getY(), home.x, home.y);
+                        double d2 = Point.distance(u2.getX(), u2.getY(), home.x, home.y);
 
-                    return d1 > d2 ?
-                            1 : (d1 < d2 ? -1 : 0);
+                        return d1 > d2 ?
+                                1 : (d1 < d2 ? -1 : 0);
                     }
-                }).getID();
+                });
+                result[i] = minimalMineral.getID();
+                fields.remove(minimalMineral);
             }
             return result;
         }
@@ -80,8 +85,6 @@ enum GamePhase {
 
     CREATE_POOL {
         private static final int POOL_PRICE = 200;
-        private Point poolTile;
-
         @Override
         protected void init() throws UndermindException {
             poolDrone = -1;
@@ -100,8 +103,7 @@ enum GamePhase {
                 }
             }
 
-            if( poolTile == null || !isGood(poolTile)){
-                //todo: make it work!
+            if( poolTile == null){
                 poolTile = findPoolTile();
             }
 
@@ -116,58 +118,50 @@ enum GamePhase {
         }
 
         private Point findPoolTile() throws UndermindException {
-            Point initTile = null;
             for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
                 if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Overlord.ordinal()) {
                     return  new Point(unit.getTileX(),unit.getTileY());
-//                    initTile = new Point(unit.getTileX() - 5,unit.getTileY() - 5);
-//                    break;
                 }
             }
-            if(initTile != null){
-                for(int i = 0; i < 10; i++){
-                    for(int j = 0; j < 10; j++){
-                        Point tile = new Point(initTile.x + i,initTile.y + j);
-                        if(isGood(tile)){
-                            return tile;
-                        }
-                    }
-                }
-            }
-            throw new UndermindException("no good tiles for spawning pool!");
-        }
-
-        private boolean isGood(Point tile) {
-            Map map = UndermindClient.getMyClient().bwapi.getMap();
-            return map.isBuildable(tile.x,tile.y)
-                    &&  map.isBuildable(tile.x +1,tile.y)
-                    &&  map.isBuildable(tile.x +2,tile.y)
-                    && map.isBuildable(tile.x,tile.y+1)
-                    &&  map.isBuildable(tile.x +1,tile.y+1)
-                    &&  map.isBuildable(tile.x +2,tile.y+1);
+            return UndermindClient.getMyClient().getMyHomeTile();
         }
     },
 
     SCOUT {
         private int scout;
         private Set<Point> toScout;
-        public Point next;public static final int SCOUTED_RADIUS = 150;
+        private Point next;
+        private boolean[][] canBuild = null;
+        private Point approximateCreepCorner = null;
+
+        private static final int SCOUTED_RADIUS = 150;
 
         @Override
         protected void init() throws UndermindException {
             scout = -1;
+            next = null;
+            canBuild = null;
+            approximateCreepCorner = new Point(UndermindClient.getMyClient().getMyHomeTile().x - 8,UndermindClient.getMyClient().getMyHomeTile().y - 5);
             toScout = Utils.getScoutingLocations(UndermindClient.getMyClient().bwapi);
             Out.println(toScout.toString());
             if(toScout.size() == 1){
                 UndermindClient.getMyClient().setEnemyHome(toScout.iterator().next());
             }
-            next = null;
         }
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
-            if(UndermindClient.getMyClient().getEnemyHome() != null){
+            if(poolStarted() && UndermindClient.getMyClient().getEnemyHome() != null){
                 return IDLE;
+            }
+
+            if(!poolStarted()){
+                Unit poolDroneUnit = UndermindClient.getMyClient().bwapi.getUnit(poolDrone);
+                if(poolDroneUnit != null && (poolDroneUnit.isIdle() || poolDroneUnit.isGatheringMinerals())){
+                    poolTile = tryNextTile();
+                    Out.println("pool has not started. trying different tile: "+poolTile);
+                    UndermindClient.getMyClient().bwapi.build(poolDrone, poolTile.x, poolTile.y, UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal());
+                }
             }
 
             if(scout < 0){
@@ -176,13 +170,46 @@ enum GamePhase {
 
             if(scout >= 0){
                 Unit scoutUnit = UndermindClient.getMyClient().bwapi.getUnit(scout);
-                if(poolStarted() && scoutUnit != null
+                if(scoutUnit != null
                         && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
                     scoutNext(scoutUnit);
                 }
             }
 
             return this;
+        }
+
+        private Point tryNextTile() throws UndermindException {
+            if(canBuild == null) {
+                canBuild = new boolean[12][20];
+                for(boolean[] line: canBuild){
+                    Arrays.fill(line,true);
+                }
+                for(Unit unit: UndermindClient.getMyClient().bwapi.getMyUnits()){
+                    if(unit.getTypeID() != UnitType.UnitTypes.Zerg_Overlord.ordinal()){
+                        int x = unit.getTileX() - approximateCreepCorner.x;
+                        int y = unit.getTileY() - approximateCreepCorner.y;
+                        if(0 <= x && 0 <= y && y < canBuild.length && x < canBuild[0].length){
+                            canBuild[y][x] = false;
+                        }
+                    }
+                }
+            }
+
+            for(int i = 0; i < canBuild.length - 1; i++){
+                for(int j = 0; j < canBuild[0].length - 2; j++){
+                    if(isGoodTile(i,j)){
+                        canBuild[i][j] = false;
+                        return new Point(j + approximateCreepCorner.x, i + approximateCreepCorner.y);
+                    }
+                }
+            }
+            throw new UndermindException("No damn tiles to build!!!");
+        }
+
+        private boolean isGoodTile(int i, int j) {
+            return canBuild[i][j] && canBuild[i][j+1] && canBuild[i][j+2]
+                           && canBuild[i+1][j] && canBuild[i+1][j+1] && canBuild[i+1][j+2];
         }
 
         private boolean poolStarted() {
@@ -248,6 +275,8 @@ enum GamePhase {
     };
 
     protected int poolDrone = -1;
+    protected Point poolTile = null;
+
 
     public abstract GamePhase gameUpdate() throws UndermindException;
     protected abstract  void  init() throws UndermindException;
