@@ -18,7 +18,7 @@ public class Utils {
     private static final java.util.Map<String, MapConstants> MAP_CONSTANTS_MAP = new HashMap<String, MapConstants>();
     private static final java.util.Map<Integer,UnitClass> UNIT_CLASS_MAP = new HashMap<Integer, UnitClass>();
     private static final int HOME_RADIUS = 300;
-    private static final int DETECTION_RADIUS = 150;
+    private static final int DETECTION_RADIUS = 100;
 
     static {
         for(MapConstants mapConstants: MapConstants.values()){
@@ -57,7 +57,9 @@ public class Utils {
 
     public static UnitClass classify(Unit unit) {
         UnitClass unitClass = UNIT_CLASS_MAP.get(unit.getTypeID());
-        Out.println("unit class is: "+unitClass+" type is: "+ UnitType.UnitTypes.values()[unit.getTypeID()]);
+        if(unit.isAttacking() && unitClass == UnitClass.WORKER){
+            unitClass =   UnitClass.ATTACKING_WORKER;
+        }
         return unitClass == null ? UnitClass.HARMLESS_UNIT : unitClass;
     }
 
@@ -99,7 +101,7 @@ public class Utils {
     }
 
     public static String unitToString(Unit unit) {
-        return "[ Unit: id="+unit.getID()+", type="+ UnitType.UnitTypes.values()[unit.getTypeID()]+", classification="+classify(unit)+"]";
+        return "[ Unit: id="+unit.getID()+", type="+ UnitType.UnitTypes.values()[unit.getTypeID()]+", classification="+classify(unit)+", position=("+unit.getX()+","+unit.getY()+")]";
     }
 
     public static boolean isGone(Unit enemy, JNIBWAPI bwapi) {
@@ -114,5 +116,13 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static String unitsToString(Set<Unit> units) {
+        String s = "{";
+        for (Unit unit: units){
+            s = s+unitToString(unit)+";";
+        }
+        return s+"}";
     }
 }

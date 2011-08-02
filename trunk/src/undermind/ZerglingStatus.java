@@ -15,7 +15,7 @@ public class ZerglingStatus {
 
     @Override
     public String toString() {
-        return "[ id="+unitID+" state="+state+" destination="+destination+" target="+target+" ]";
+        return "[ZerglingStatus: id="+unitID+" state="+state+" destination="+destination+" target="+target+" ]";
     }
 
     public ZerglingStatus(int unitID) {

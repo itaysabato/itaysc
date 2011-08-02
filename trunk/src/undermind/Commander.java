@@ -1,11 +1,11 @@
 package undermind;
 
 import eisbot.proxy.model.Unit;
-import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -15,14 +15,15 @@ import java.util.List;
 public class Commander {
     private final ChiefOfStaff chief;
     private final Explorer explorer;
-    private final Priorityzer priorityzer;
+    private final Runner runner;
 
     public Commander(ChiefOfStaff chiefOfStaff) {
         chief = chiefOfStaff;
         explorer = new Explorer();
-        priorityzer = new Priorityzer();
+        runner = new Runner(chiefOfStaff);
     }
 
+    //TODO: unjam units
     public void issueCommands() {
 //        Out.println("issuing commands");
         Point enemyHome = UndermindClient.getMyClient().getEnemyHome();
@@ -39,13 +40,25 @@ public class Commander {
                 }
                 chief.bwapi.drawText(unit.getX() + 18,unit.getY(),status.getState().name(),false);
 
+                if(status.getState() != ZerglingState.RUNNING ){
+                    Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit,90);
+                    if(runner.shouldRun(unit,attackers)){
+                        runner.run(unit,status,attackers);
+                        continue;
+                    }
+                }
+
                 switch (status.getState()) {
                     case NOOB:
-                        commandNoob(unit, status, enemyHome);
+                        commandNoob(status, enemyHome);
                         break;
 
                     case IN_TRANSIT:
                         commandInTransit(unit, status);
+                        break;
+
+                    case RUNNING:
+                        commandRunning(unit, status);
                         break;
 
                     case ATTACKING:
@@ -54,6 +67,7 @@ public class Commander {
                         centroidX += unit.getX();
                         centroidY += unit.getY();
                         break;
+
                 }
             }
 
@@ -63,19 +77,26 @@ public class Commander {
                 doSomthing(active, centroidX, centroidY);
             }
         }
-        else if(UndermindClient.getMyClient().getEnemyTemp() != null){
-            Out.println("going for temp");
-            for(ZerglingStatus status: chief.getZerglingKeeper()){
-                commandNoob(chief.bwapi.getUnit(status.getUnitID()),status,UndermindClient.getMyClient().getEnemyTemp());
-            }
+//        else if(UndermindClient.getMyClient().getEnemyTemp() != null){
+//            Out.println("going for temp");
+//            for(ZerglingStatus status: chief.getZerglingKeeper()){
+//                commandNoob(chief.bwapi.getUnit(status.getUnitID()),status,UndermindClient.getMyClient().getEnemyTemp());
+//            }
+//        }
+    }
+
+    private void commandRunning(Unit unit, ZerglingStatus status) {
+        if(unit != null && unit.isIdle()){
+            chief.bwapi.attack(status.getUnitID(), status.getDestination().x, status.getDestination().y);
         }
     }
 
     private void doSomthing(List<ZerglingStatus> active, double centroidX, double centroidY) {
+        chief.getPrioritizer().preProcess(chief.getEnemyKeeper());
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
 
         if(target != null){
-            Out.println("chosen target is: "+target.getID()+"of type: "+ UnitType.UnitTypes.values()[target.getTypeID()]);
+//            Out.println("chosen target is: "+target.getID()+"of type: "+ UnitType.UnitTypes.values()[target.getTypeID()]);
             for(ZerglingStatus status: active){
                 if(status.getState() == ZerglingState.ATTACKING){
                     Unit unit = chief.bwapi.getUnit(status.getUnitID());
@@ -111,11 +132,11 @@ public class Commander {
         status.setState(ZerglingState.ATTACKING);
         status.setTarget(target.getID());
         if(chief.bwapi.getUnit(target.getID()) != null && target.isVisible()) {
-            Out.println("target visible: "+Utils.unitToString(target));
+//            Out.println("target visible: "+Utils.unitToString(target));
             chief.bwapi.attack(status.getUnitID(), target.getID());
         }
         else {
-            Out.println("target not visible"+Utils.unitToString(target));
+//            Out.println("target not visible"+Utils.unitToString(target));
             chief.bwapi.attack(status.getUnitID(), target.getX(),target.getY());
         }
     }
@@ -130,7 +151,7 @@ public class Commander {
         }
     }
 
-    private void commandNoob(Unit unit, ZerglingStatus status, Point enemyHome) {
+    private void commandNoob(ZerglingStatus status, Point enemyHome) {
         status.setState(ZerglingState.IN_TRANSIT);
         status.setDestination(new Point(enemyHome.x,enemyHome.y));
 //        Out.println("sent: "+status.toString());

@@ -4,6 +4,9 @@ import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Created By: Itay Sabato<br/>
  * Date: 14/07/11 <br/>
@@ -25,8 +28,8 @@ public class ChiefOfStaff {
     }
 
     public void gameUpdate() {
-        loadMyUnits();
         loadEnemyUnits();
+        loadMyUnits();
         issueCommands();
     }
 

@@ -101,6 +101,7 @@ enum GamePhase {
             }
 
             if( poolTile == null || !isGood(poolTile)){
+                //todo: make it work!
                 poolTile = findPoolTile();
             }
 
