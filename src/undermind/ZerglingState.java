@@ -9,5 +9,6 @@ public enum ZerglingState {
     NOOB,
     IN_TRANSIT,
     ATTACKING,
-    FREE
+    FREE,
+    RUNNING
 }

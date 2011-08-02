@@ -1,7 +1,6 @@
 package undermind;
 
 import eisbot.proxy.model.Unit;
-import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
 import java.util.*;
@@ -14,6 +13,8 @@ import java.util.*;
 public class EnemyKeeper {
     private  final ChiefOfStaff chief;
     private Map<Integer, Unit> spottedEnemies = new HashMap<Integer, Unit>();
+    private Set<Unit> dangerousUnits;
+
     private static final double CLOSE = 1000;   //todo: bring it back?
 
     public EnemyKeeper(ChiefOfStaff chief) {
@@ -22,9 +23,14 @@ public class EnemyKeeper {
 
     public void loadEnemyUnits(ArrayList<Unit> enemyUnits) {
         clean();
+        dangerousUnits = new HashSet<Unit>();
+
         for(Unit unit: enemyUnits){
             if(!UndermindClient.getMyClient().isDestroyed(unit.getID())){
                 spottedEnemies.put(unit.getID(),unit);
+                if(Utils.classify(unit) == UnitClass.HARMFUL || unit.isAttacking() || unit.isStartingAttack()){
+                    dangerousUnits.add(unit);
+                }
             }
         }
     }
@@ -48,7 +54,7 @@ public class EnemyKeeper {
         }
         else {
 //           chief. bwapi.setGameSpeed(-1);
-            Out.println("NOT empty!");
+//            Out.println("NOT empty!");
         }
         return Collections.min(filtered, new Comparator<Unit>() {
             public int compare(Unit u1, Unit u2) {
@@ -74,8 +80,8 @@ public class EnemyKeeper {
             Unit unit = UndermindClient.getMyClient().bwapi.getUnit(enemy.getKey());
 
             if(unit == null){
-                 unit = enemy.getValue();
-                Out.println("using stored unit: "+Utils.unitToString(unit));
+                unit = enemy.getValue();
+//                Out.println("using stored unit: "+Utils.unitToString(unit));
                 chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,0,false,false);
             }
             if(!unit.isInvincible() && !Utils.isFlyer(unit)){
@@ -83,5 +89,23 @@ public class EnemyKeeper {
             }
         }
         return filtered;
+    }
+
+    public Set<Unit> getDangerousUnits() {
+        return dangerousUnits;
+    }
+
+    public Set<Unit> getCloseAttackers(Unit myUnit, double radius) {
+        Set<Unit> closeAttackers = new HashSet<Unit>();
+        for(Unit enemyUnit: dangerousUnits){
+            Out.println("checking if "+Utils.unitToString(enemyUnit)+"is close to "+Utils.unitToString(myUnit));
+            double d =Point.distance(myUnit.getX(),myUnit.getY(),enemyUnit.getX(),enemyUnit.getY());
+            Out.println("distance is: "+d);
+            if(d <= radius){
+                closeAttackers.add(enemyUnit);
+                Out.println("yes");
+            }
+        }
+        return closeAttackers;
     }
 }
