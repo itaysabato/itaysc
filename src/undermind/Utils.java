@@ -25,6 +25,15 @@ public class Utils {
             MAP_CONSTANTS_MAP.put(mapConstants.getHash(),mapConstants);
         }
 
+        for(UnitType.UnitTypes type: UnitType.UnitTypes.values()){
+              if(isStructure(type.ordinal())){
+                  UNIT_CLASS_MAP.put(type.ordinal(),UnitClass.HARMLESS_STRUCTURE);
+              }
+            else {
+                  UNIT_CLASS_MAP.put(type.ordinal(),UnitClass.HARMLESS_UNIT);
+              }
+        }
+
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Drone.ordinal(),UnitClass.WORKER);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Terran_SCV.ordinal(),UnitClass.WORKER);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Protoss_Probe.ordinal(),UnitClass.WORKER);
@@ -33,13 +42,10 @@ public class Utils {
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Protoss_Pylon.ordinal(),UnitClass.SUPPLIER);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Egg.ordinal(),UnitClass.SUPPLIER);
 
-
-
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Terran_Command_Center.ordinal(),UnitClass.MAIN);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Protoss_Nexus.ordinal(),UnitClass.MAIN);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Hatchery.ordinal(),UnitClass.MAIN);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Lair.ordinal(),UnitClass.MAIN);
-
 
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Zergling.ordinal(),UnitClass.HARMFUL);
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Hydralisk.ordinal(),UnitClass.HARMFUL);
@@ -63,26 +69,30 @@ public class Utils {
         if(unit.isAttacking() && unitClass == UnitClass.WORKER){
             unitClass =   UnitClass.ATTACKING_WORKER;
         }
-        return unitClass == null ? UnitClass.HARMLESS_UNIT : unitClass;
+        return unitClass;
     }
 
     public static boolean isStructure(Unit unit) {
-        return isZergStructure(unit) || isTerranStructure(unit) || isProtossStructure(unit);
+        return isZergStructure(unit.getTypeID()) || isTerranStructure(unit.getTypeID()) || isProtossStructure(unit.getTypeID());
     }
 
-    private static boolean isProtossStructure(Unit unit) {
-        return UnitType.UnitTypes.Protoss_Nexus.ordinal() <= unit.getTypeID()
-                && unit.getTypeID() <= UnitType.UnitTypes.Protoss_Shield_Battery.ordinal();
+    public static boolean isStructure(int unitTypeID) {
+        return isZergStructure(unitTypeID) || isTerranStructure(unitTypeID) || isProtossStructure(unitTypeID);
     }
 
-    private static boolean isTerranStructure(Unit unit) {
-        return UnitType.UnitTypes.Zerg_Infested_Command_Center.ordinal() <= unit.getTypeID()
-                && unit.getTypeID() <= UnitType.UnitTypes.Zerg_Extractor.ordinal();
+    private static boolean isProtossStructure(int unitTypeID) {
+        return UnitType.UnitTypes.Protoss_Nexus.ordinal() <= unitTypeID
+                && unitTypeID <= UnitType.UnitTypes.Protoss_Shield_Battery.ordinal();
     }
 
-    private static boolean isZergStructure(Unit unit) {
-        return UnitType.UnitTypes.Terran_Command_Center.ordinal() <= unit.getTypeID()
-                && unit.getTypeID() <= UnitType.UnitTypes.Terran_Bunker.ordinal();
+    private static boolean isTerranStructure(int unitTypeID) {
+        return UnitType.UnitTypes.Zerg_Infested_Command_Center.ordinal() <= unitTypeID
+                && unitTypeID <= UnitType.UnitTypes.Zerg_Extractor.ordinal();
+    }
+
+    private static boolean isZergStructure(int unitTypeID) {
+        return UnitType.UnitTypes.Terran_Command_Center.ordinal() <= unitTypeID
+                && unitTypeID <= UnitType.UnitTypes.Terran_Bunker.ordinal();
     }
 
     public static Set<Point> getScoutingLocations(JNIBWAPI bwapi) {
@@ -127,5 +137,9 @@ public class Utils {
             s = s+unitToString(unit)+";";
         }
         return s+"}";
+    }
+
+    public static boolean isNearHome(Unit unit) {
+        return HOME_RADIUS >= Point.distance(unit.getX(),unit.getY(), UndermindClient.getMyClient().getMyHome().x, UndermindClient.getMyClient().getMyHome().y);
     }
 }

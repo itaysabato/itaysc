@@ -4,6 +4,8 @@ import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
+import java.util.LinkedList;
+
 /**
  * Created By: Itay Sabato<br/>
  * Date: 14/07/11 <br/>
@@ -37,7 +39,7 @@ public class Attacker {
         }
 
         if(canSpwan){
-            if(bwapi.getSelf().getSupplyTotal() < bwapi.getSelf().getSupplyUsed() + 2 && bwapi.getSelf().getMinerals() >= 100){
+            if(bwapi.getSelf().getSupplyTotal() < bwapi.getSelf().getSupplyUsed() + 3 && bwapi.getSelf().getMinerals() >= 100){
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
                         bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Overlord.ordinal());
@@ -46,12 +48,18 @@ public class Attacker {
                 }
             }
             if(bwapi.getSelf().getMinerals() >= 150 && bwapi.getSelf().getSupplyTotal() >= bwapi.getSelf().getSupplyUsed() + 3){
+                LinkedList<Unit> larvas = new LinkedList<Unit>();
                 for(Unit unit: bwapi.getMyUnits()){
-                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
-                        bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
+                    if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal() && !UndermindClient.getMyClient().isDestroyed(unit.getID())){
+                        larvas.add(unit);
                     }
                 }
-                spwaned = true;
+                if(larvas.size() >= 3){
+                    for(Unit larva: larvas){
+                        bwapi.morph(larva.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
+                        spwaned = true;
+                    }
+                }
             }
 
         }

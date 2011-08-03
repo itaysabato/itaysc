@@ -14,9 +14,11 @@ import java.util.Map;
  */
 public class ZerglingKeeper implements Iterable<ZerglingStatus> {
     private Map<Integer,ZerglingStatus> zerglingStatusMap = new HashMap<Integer, ZerglingStatus>();
+    private int NOOBCount;
     private static final int CLOSE = 10;
 
     public void clean() {
+        NOOBCount = 0;
         Iterator<Map.Entry<Integer,ZerglingStatus>> i = zerglingStatusMap.entrySet().iterator();
         while(i.hasNext()){
             if(UndermindClient.getMyClient().isDestroyed(i.next().getKey())){
@@ -31,6 +33,7 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
         }
         ZerglingStatus status = zerglingStatusMap.get(zergling.getID());
         if(status == null){
+            NOOBCount++;
             zerglingStatusMap.put(zergling.getID(),new ZerglingStatus(zergling.getID()));
 //            Out.println("kept zergling: "+zergling.getID());
         }
@@ -49,10 +52,17 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
                 status.setDestination(new Point(target.getX(),target.getY()));
             }
         }
+        else if(status.getState() == ZerglingState.NOOB){
+            NOOBCount++;
+        }
     }
 
     public Iterator<ZerglingStatus> iterator() {
         return zerglingStatusMap.values().iterator();
+    }
+
+    public int getNOOBCount() {
+        return NOOBCount;
     }
 }
 
