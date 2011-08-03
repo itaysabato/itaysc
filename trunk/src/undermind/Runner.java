@@ -38,7 +38,7 @@ public class Runner {
         }
 //        Out.println("got attackers for: "+Utils.unitToString(unit));
 //        Out.println("attackers: "+Utils.unitsToString(attackers));
-        double dangerLevel = chief.getPrioritizer().getDangerLevel(attackers,true);
+        double dangerLevel = chief.getPrioritizer().getDangerLevel(attackers,false);
         return dangerLevel > 2;
     }
 
@@ -98,7 +98,7 @@ public class Runner {
     private void runAway(Unit unit, ZerglingStatus status, Point runTo) {
         status.setState(ZerglingState.RUNNING);
         status.setDestination(runTo);
-        Out.println("running: "+Utils.unitToString(unit)+status);
+//        Out.println("running: "+Utils.unitToString(unit)+status);
         chief.bwapi.move(status.getUnitID(), runTo.x, runTo.y);
     }
 }

@@ -34,7 +34,7 @@ public class Priorityzer implements Comparator<Unit> {
                 dangerLevel += 0.75;
             }
             else if(combative.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
-                dangerLevel += 0.5;
+                dangerLevel += 0.25;
             }
             else if(countWorkers){
                 if(combative.getTypeID() == UnitType.UnitTypes.Protoss_Probe.ordinal()){
@@ -76,6 +76,18 @@ public class Priorityzer implements Comparator<Unit> {
     }
 
     public int compare(Unit u1, Unit u2) {
+        boolean nearHome1 = Utils.isNearHome(u1);
+        boolean nearHome2 = Utils.isNearHome(u2);
+
+        if(nearHome1 || nearHome2){
+            if(nearHome1 && nearHome2){
+                return 0;
+            }
+            else {
+                return nearHome1 ? -1 : 1;
+            }
+        }
+
         UnitClass unitClass1 =  Utils.classify(u1);
         UnitClass unitClass2 =  Utils.classify(u2);
         return unitClassPriorities.get(unitClass1) - unitClassPriorities.get(unitClass2);

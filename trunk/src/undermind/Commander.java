@@ -16,6 +16,8 @@ public class Commander {
     private final ChiefOfStaff chief;
     private final Explorer explorer;
     private final Runner runner;
+    private int[] batches = {6,6,6,6,6};
+    private int batchIndex = 0;
 
     public Commander(ChiefOfStaff chiefOfStaff) {
         chief = chiefOfStaff;
@@ -26,6 +28,7 @@ public class Commander {
     //TODO: unjam units
     public void issueCommands() {
 //        Out.println("issuing commands");
+        boolean sentNOOBs = false;
         Point enemyHome = UndermindClient.getMyClient().getEnemyHome();
 
         if(enemyHome != null){
@@ -47,7 +50,10 @@ public class Commander {
 
                 switch (status.getState()) {
                     case NOOB:
-                        commandNoob(status, enemyHome);
+                        if(chief.getZerglingKeeper().getNOOBCount()  >= batches[batchIndex]){
+                            sentNOOBs = true;
+                            commandNoob(status, enemyHome);
+                        }
                         break;
 
                     case IN_TRANSIT:
@@ -68,7 +74,7 @@ public class Commander {
             if(active.size() > 0){
                 centroidX = centroidX / active.size();
                 centroidY = centroidY / active.size();
-                doSomthing(active, (int) centroidX, (int) centroidY);
+                doSomething(active, (int) centroidX, (int) centroidY);
             }
         }
         else if(UndermindClient.getMyClient().getEnemyTemp() != null){
@@ -76,6 +82,9 @@ public class Commander {
             for(ZerglingStatus status: chief.getZerglingKeeper()){
                 commandNoob(status,UndermindClient.getMyClient().getEnemyTemp());
             }
+        }
+        if(sentNOOBs && batchIndex < batches.length -1){
+            batchIndex++;
         }
     }
 
@@ -87,11 +96,16 @@ public class Commander {
         }
     }
 
-    private void doSomthing(List<ZerglingStatus> active, int centroidX, int centroidY) {
+    private void doSomething(List<ZerglingStatus> active, int centroidX, int centroidY) {
         chief.getPrioritizer().preProcess(chief.getEnemyKeeper());
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
 
         if(target != null){
+
+            if(Utils.isNearHome(target)){
+                Out.println("targeting near home unit: "+Utils.unitToString(target));
+            }
+
             for(ZerglingStatus status: active){
                 if(status.getState() == ZerglingState.ATTACKING){
                     Unit unit = chief.bwapi.getUnit(status.getUnitID());
