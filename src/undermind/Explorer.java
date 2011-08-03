@@ -1,7 +1,10 @@
 package undermind;
 
+import eisbot.proxy.model.BaseLocation;
+
 import java.awt.*;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -10,13 +13,58 @@ import java.util.Random;
  */
 public class Explorer {
     private static final Random random = new Random();
+    private List<Point> toExplore = null;
+    private int height;
+    private int width;
 
-    //todo: go to base locations
-    public Point findDestination(double currentX, double currentY) {
+    private static final int HOME_RADIUS = 300;
+
+    public void init() {
+        height = 3000;
+        width = 3000;
+
+        List<BaseLocation> temp = UndermindClient.getMyClient().bwapi.getMap().getBaseLocations();
+        toExplore = new LinkedList<Point>();
+        for(BaseLocation baseLocation: temp){
+            Point point = new Point(baseLocation.getX(),baseLocation.getY());
+            if(HOME_RADIUS < Point.distance(point.x,point.y,UndermindClient.getMyClient().getMyHome().x,UndermindClient.getMyClient().getMyHome().y)){
+                toExplore.add(point);
+            }
+            else {
+                Out.println(point+" was filtered from exploring for being home");
+            }
+        }
+
+    }
+
+    public Point findDestination(final int currentX, final int currentY) {
+        if(toExplore == null){
+            init();
+        }
+
+        if(toExplore.isEmpty()){
+            init();
+            return findRandomDestination(currentX,currentY);
+        }
+        else {
+            Point result = Collections.min(toExplore, new Comparator<Point>() {
+                public int compare(Point o1, Point o2) {
+                    double d1 = Point.distanceSq(o1.getX(),o1.getY(),currentX, currentY);
+                    double d2 = Point.distanceSq(o2.getX(),o2.getY(),currentX, currentY);
+                    return d1 > d2 ?
+                            1 : (d1 < d2 ? -1 : 0);
+                }
+            });
+            toExplore.remove(result);
+            return result;
+        }
+    }
+
+    public Point findRandomDestination(int currentX, int currentY) {
         int x,y;
         do {
-            x = UndermindClient.getMyClient().getEnemyHome().x + random.nextInt(1000) - 500;
-            y = UndermindClient.getMyClient().getEnemyHome().y + random.nextInt(1000) - 500;
+            x = currentX + random.nextInt(height) - (height/2);
+            y = currentY + random.nextInt(width) - (width/2);
         } while(x < 0 || y < 0);
         return new Point(x,y);
     }

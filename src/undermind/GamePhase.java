@@ -164,18 +164,19 @@ enum GamePhase {
                 }
             }
 
-            if(scout < 0){
-                chooseScout();
-            }
+            if(UndermindClient.getMyClient().getEnemyHome() == null) {
+                if(scout < 0){
+                    chooseScout();
+                }
 
-            if(scout >= 0){
-                Unit scoutUnit = UndermindClient.getMyClient().bwapi.getUnit(scout);
-                if(scoutUnit != null
-                        && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
-                    scoutNext(scoutUnit);
+                if(scout >= 0){
+                    Unit scoutUnit = UndermindClient.getMyClient().bwapi.getUnit(scout);
+                    if(scoutUnit != null
+                            && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
+                        scoutNext(scoutUnit);
+                    }
                 }
             }
-
             return this;
         }
 
@@ -209,7 +210,7 @@ enum GamePhase {
 
         private boolean isGoodTile(int i, int j) {
             return canBuild[i][j] && canBuild[i][j+1] && canBuild[i][j+2]
-                           && canBuild[i+1][j] && canBuild[i+1][j+1] && canBuild[i+1][j+2];
+                    && canBuild[i+1][j] && canBuild[i+1][j+1] && canBuild[i+1][j+2];
         }
 
         private boolean poolStarted() {
