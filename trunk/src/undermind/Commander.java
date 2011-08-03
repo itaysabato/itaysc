@@ -68,15 +68,15 @@ public class Commander {
             if(active.size() > 0){
                 centroidX = centroidX / active.size();
                 centroidY = centroidY / active.size();
-                doSomthing(active, centroidX, centroidY);
+                doSomthing(active, (int) centroidX, (int) centroidY);
             }
         }
-//        else if(UndermindClient.getMyClient().getEnemyTemp() != null){
-//            Out.println("going for temp");
-//            for(ZerglingStatus status: chief.getZerglingKeeper()){
-//                commandNoob(chief.bwapi.getUnit(status.getUnitID()),status,UndermindClient.getMyClient().getEnemyTemp());
-//            }
-//        }
+        else if(UndermindClient.getMyClient().getEnemyTemp() != null){
+            Out.println("going for temp");
+            for(ZerglingStatus status: chief.getZerglingKeeper()){
+                commandNoob(status,UndermindClient.getMyClient().getEnemyTemp());
+            }
+        }
     }
 
     private void commandRunning(Unit unit, ZerglingStatus status) {
@@ -87,12 +87,11 @@ public class Commander {
         }
     }
 
-    private void doSomthing(List<ZerglingStatus> active, double centroidX, double centroidY) {
+    private void doSomthing(List<ZerglingStatus> active, int centroidX, int centroidY) {
         chief.getPrioritizer().preProcess(chief.getEnemyKeeper());
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
 
         if(target != null){
-//            Out.println("chosen target is: "+target.getID()+"of type: "+ UnitType.UnitTypes.values()[target.getTypeID()]);
             for(ZerglingStatus status: active){
                 if(status.getState() == ZerglingState.ATTACKING){
                     Unit unit = chief.bwapi.getUnit(status.getUnitID());
@@ -117,7 +116,7 @@ public class Commander {
             for(ZerglingStatus status: active){
                 status.setState(ZerglingState.IN_TRANSIT);
                 status.setDestination(dest);
-//                Out.println("exploring : "+status.toString());
+                Out.println("exploring : "+status.toString());
                 chief.bwapi.attack(status.getUnitID(),dest.x,dest.y);
             }
         }
