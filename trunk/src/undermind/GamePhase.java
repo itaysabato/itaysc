@@ -170,7 +170,7 @@ enum GamePhase {
     },
 
     SCOUT {
-        private int scout;
+//        private int scout;
         private Set<Point> toScout;
         private Point next;
         private boolean[][] canBuild = null;
@@ -207,17 +207,17 @@ enum GamePhase {
             }
 
 //            if(UndermindClient.getMyClient().getEnemyHome() == null) {
-                if(scout < 0){
-                    chooseScout();
-                }
+            if(scout < 0){
+                chooseScout();
+            }
 
-                if(scout >= 0){
-                    Unit scoutUnit = UndermindClient.getMyClient().bwapi.getUnit(scout);
-                    if(scoutUnit != null
-                            && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
-                        scoutNext(scoutUnit);
-                    }
+            if(scout >= 0){
+                Unit scoutUnit = UndermindClient.getMyClient().bwapi.getUnit(scout);
+                if(scoutUnit != null
+                        && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
+                    scoutNext(scoutUnit);
                 }
+            }
 //            }
             return this;
         }
@@ -303,6 +303,10 @@ enum GamePhase {
                 }
             }
         }
+
+        public int getScout() {
+            return scout;
+        }
     },
 
     IDLE {
@@ -321,12 +325,16 @@ enum GamePhase {
     protected Point poolTile = null;
     protected int[] minerals;
     protected static final int DRONE_COUNT = 5;
-
+    protected int scout;
 
     public abstract GamePhase gameUpdate() throws UndermindException;
     protected abstract  void  init() throws UndermindException;
 
     public static GamePhase getInitialPhase()  {
         return INIT;
+    }
+
+    public int getScout() {
+        return scout;
     }
 }

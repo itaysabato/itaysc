@@ -91,7 +91,7 @@ public class EnemyKeeper {
             if(unit == null){
                 unit = enemy.getValue();
 //                Out.println("using stored unit: "+Utils.unitToString(unit));
-                chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,0,false,false);
+                chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,BWColor.WHITE,false,false);
             }
             if(!unit.isInvincible() && !Utils.isFlyer(unit) && !unit.isLifted()){
                 filtered.add(unit);

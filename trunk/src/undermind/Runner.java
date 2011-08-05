@@ -34,14 +34,12 @@ public class Runner {
     }
 
     public boolean shouldRun(Unit unit, Set<Unit> attackers) {
-//        Out.println("checking attackers for: "+Utils.unitToString(unit));
         if(attackers.isEmpty()){
             return false;
         }
-//        Out.println("got attackers for: "+Utils.unitToString(unit));
-//        Out.println("attackers: "+Utils.unitsToString(attackers));
-        double dangerLevel = chief.getPrioritizer().getDangerLevel(attackers,false);
-        return dangerLevel > 3;
+
+        double dangerLevel = chief.getPrioritizer().getDangerLevel(attackers,true);
+        return dangerLevel > 0;
     }
 
     public boolean run(Unit unit, ZerglingStatus status, Set<Unit> attackers) {

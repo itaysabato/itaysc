@@ -25,9 +25,8 @@ public class Attacker {
     }
 
     public void gameUpdate() {
-        if(spwaned){
-            chief.gameUpdate();
-        }
+
+        chief.gameUpdate();
 
         if(!canSpwan){
             for(Unit unit: bwapi.getMyUnits()){
