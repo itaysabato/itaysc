@@ -18,7 +18,7 @@ public class ChiefOfStaff {
 
     public ChiefOfStaff(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
-        zerglingKeeper = new ZerglingKeeper();
+        zerglingKeeper = new ZerglingKeeper(this);
         enemyKeeper = new EnemyKeeper(this);
         commander = new Commander(this);
         prioritizer = new Priorityzer(this);

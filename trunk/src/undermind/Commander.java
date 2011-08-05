@@ -133,7 +133,7 @@ public class Commander {
                         Out.println("secondary id: "+status.getTarget());
                         Out.println("secondary is: "+Utils.unitToString(secondaryTarget));
 
-                        if(secondaryTarget == null || shouldSwitchTarget(target,secondaryTarget)){
+                        if(shouldSwitchTarget(target,secondaryTarget)){
                             Out.println("target switched to: "+Utils.unitToString(target));
                             attack(status, target);
                         }

@@ -15,7 +15,12 @@ import java.util.Map;
 public class ZerglingKeeper implements Iterable<ZerglingStatus> {
     private Map<Integer,ZerglingStatus> zerglingStatusMap = new HashMap<Integer, ZerglingStatus>();
     private int NOOBCount;
+    private final ChiefOfStaff chief;
     private static final int CLOSE = 60;
+
+    public ZerglingKeeper(ChiefOfStaff chief) {
+        this.chief = chief;
+    }
 
     public void clean() {
         NOOBCount = 0;
@@ -46,8 +51,7 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
             status.setState(ZerglingState.FREE);
         }
         else if(status.getState() == ZerglingState.ATTACKING){
-            if(UndermindClient.getMyClient().isDestroyed(status.getTarget())){
-//                Out.println("attacking a different target: "+zergling.getTargetUnitID());
+            if(chief.getEnemyKeeper().getEnemyUnit(status.getTarget()) == null){
                 status.setTarget(-1);
                 status.setState(ZerglingState.FREE);
             }
