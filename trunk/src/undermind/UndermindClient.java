@@ -163,6 +163,7 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitMorph(int unitID) {
+        Out.println("morped: "+ Utils.unitToString(bwapi.getUnit(unitID)));
     }
 
     public Point getEnemyHome() {

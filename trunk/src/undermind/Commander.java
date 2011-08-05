@@ -18,9 +18,9 @@ public class Commander {
     private final ChiefOfStaff chief;
     private final Explorer explorer;
     private final Runner runner;
-    private int[] batches = {6,6,6,12};
+    private int[] batches = {6,6,12};
     private int batchIndex = 0;
-    private long counter = 0;
+//    private long counter = 0;
     private static final int ATTACK_DIST = 60;
 
     public Commander(ChiefOfStaff chiefOfStaff) {
@@ -114,52 +114,40 @@ public class Commander {
                 attack(status,target);
             }
 
-            if(counter == 0){
-                for(ZerglingStatus status: active){
-                    attack(status,target);
-                }
-            }
-            counter = (counter + 1) % 4;
-//            for(ZerglingStatus status: active){
-//                if(status.getState() == ZerglingState.ATTACKING){
-//                    Unit unit = chief.bwapi.getUnit(status.getUnitID());
-//                    if(unit != null && !unit.isIdle()){
-//                        Unit secondaryTarget = null;
-//                        if(unit.isAttacking()){
-//                                secondaryTarget = chief.bwapi.getUnit(unit.getTargetUnitID());
-//                        }
-//                        if(secondaryTarget == null) {
-//                            Out.println("no attacking target.");
-//                            secondaryTarget = chief.bwapi.getUnit(status.getTarget());
-//                            if(secondaryTarget == null){
-//                                Out.println("no seen target.");
-//                                secondaryTarget = chief.getEnemyKeeper().getEnemyUnit(status.getTarget());
-//                            }
-//                        }
-//                        Out.println("secondery target is: "+ Utils.unitToString(secondaryTarget));
-//                        if(secondaryTarget != null && shouldSwitchTarget(target,secondaryTarget)){
-//                            Out.println("target switched to: "+Utils.unitToString(target));
-//                            attack(status, target);
-//                        }
-//                    }
-//                    else {
-//                        attack(status,target);
-//                    }
-//                }
-//                else if(status.getState() ==ZerglingState.RUNNING){
-//                    Unit unit = chief.bwapi.getUnit(status.getUnitID());
-//                    if(unit != null && ATTACK_DIST >= Point.distance(unit.getX(),unit.getY(),target.getX(),target.getY())){
-//                        attack(status,target);
-//                    }
-//                    else {
-//                        status.setTarget(target.getID());
-//                        status.setDestination(new Point(target.getX(),target.getY()));
-//                    }
-//                }
-//                else {
+//            if(counter == 0){
+//                for(ZerglingStatus status: active){
 //                    attack(status,target);
 //                }
 //            }
+//            counter = (counter + 1) % 4;
+            for(ZerglingStatus status: active){
+                if(status.getState() == ZerglingState.ATTACKING){
+                    Unit unit = chief.bwapi.getUnit(status.getUnitID());
+                    if(unit != null && !unit.isIdle()){
+                        Unit secondaryTarget = chief.bwapi.getUnit(status.getTarget());
+                        if(secondaryTarget != null && shouldSwitchTarget(target,secondaryTarget)){
+                            Out.println("target switched to: "+Utils.unitToString(target));
+                            attack(status, target);
+                        }
+                    }
+                    else {
+                        attack(status,target);
+                    }
+                }
+                else if(status.getState() ==ZerglingState.RUNNING){
+                    Unit unit = chief.bwapi.getUnit(status.getUnitID());
+                    if(unit != null && ATTACK_DIST >= Point.distance(unit.getX(),unit.getY(),target.getX(),target.getY())){
+                        attack(status,target);
+                    }
+                    else {
+                        status.setTarget(target.getID());
+                        status.setDestination(new Point(target.getX(),target.getY()));
+                    }
+                }
+                else {
+                    attack(status,target);
+                }
+            }
         }
         else {
             Point dest = explorer.findDestination(centroidX,centroidY);
