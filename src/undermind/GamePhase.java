@@ -16,7 +16,6 @@ import java.util.List;
 enum GamePhase {
     INIT {
         private static final int MINERAL_DIST = 600;
-        private static final int DRONE_COUNT = 4;
 
         @Override
         protected void init() throws UndermindException {
@@ -28,9 +27,10 @@ enum GamePhase {
             setHome();
             collectMinerals();
 
-            CREATE_POOL.init();
-            Out.println("changed phase to CREATE_POOL");
-            return CREATE_POOL;
+            MAKE_DRONE.minerals = minerals;
+            MAKE_DRONE.init();
+            Out.println("changed phase to MAKE_DRONE");
+            return MAKE_DRONE;
         }
 
         private void setHome() throws UndermindException {
@@ -45,7 +45,7 @@ enum GamePhase {
         }
 
         private void collectMinerals() throws UndermindException {
-            int[] minerals = findMinerals();
+            minerals = findMinerals();
             int i = 0;
 
             for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
@@ -80,6 +80,48 @@ enum GamePhase {
                 fields.remove(minimalMineral);
             }
             return result;
+        }
+    },
+
+    MAKE_DRONE {
+        int newDroneID;
+
+        @Override
+        protected void init() throws UndermindException {
+            newDroneID = -1;
+        }
+
+        @Override
+        public GamePhase gameUpdate() throws UndermindException {
+            if(newDroneID < 0){
+                newDroneID = morphDrone();
+            }
+
+            if(newDroneID >= 0){
+                if(UndermindClient.getMyClient().bwapi.getUnit(newDroneID).isGatheringMinerals()){
+                    CREATE_POOL.init();
+                    Out.println("changed phase to CREATE_POOL");
+                    return CREATE_POOL;
+                }
+                else if(UndermindClient.getMyClient().bwapi.getUnit(newDroneID).getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
+                    Out.println("drone: "+UndermindClient.getMyClient().bwapi.getUnit(newDroneID).getTypeID());
+                    UndermindClient.getMyClient().bwapi.rightClick(newDroneID, minerals[DRONE_COUNT-1]);
+                }
+            }
+            return this;
+        }
+
+        private int morphDrone() {
+            for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
+                if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()) {
+                    if (UndermindClient.getMyClient().bwapi.getSelf().getMinerals() >= 50) {
+                        Out.println("larva is: "+Utils.unitToString(unit));
+                        UndermindClient.getMyClient().bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Drone.ordinal());
+                        return unit.getID();
+                    }
+                }
+            }
+            return -1;
         }
     },
 
@@ -151,9 +193,9 @@ enum GamePhase {
 
         @Override
         public GamePhase gameUpdate() throws UndermindException {
-            if(poolStarted() && UndermindClient.getMyClient().getEnemyHome() != null){
-                return IDLE;
-            }
+//            if(poolStarted() && UndermindClient.getMyClient().getEnemyHome() != null){
+//                return IDLE;
+//            }
 
             if(!poolStarted()){
                 Unit poolDroneUnit = UndermindClient.getMyClient().bwapi.getUnit(poolDrone);
@@ -164,7 +206,7 @@ enum GamePhase {
                 }
             }
 
-            if(UndermindClient.getMyClient().getEnemyHome() == null) {
+//            if(UndermindClient.getMyClient().getEnemyHome() == null) {
                 if(scout < 0){
                     chooseScout();
                 }
@@ -176,7 +218,7 @@ enum GamePhase {
                         scoutNext(scoutUnit);
                     }
                 }
-            }
+//            }
             return this;
         }
 
@@ -277,6 +319,8 @@ enum GamePhase {
 
     protected int poolDrone = -1;
     protected Point poolTile = null;
+    protected int[] minerals;
+    protected static final int DRONE_COUNT = 5;
 
 
     public abstract GamePhase gameUpdate() throws UndermindException;

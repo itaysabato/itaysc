@@ -114,6 +114,9 @@ public class Utils {
     }
 
     public static String unitToString(Unit unit) {
+        if(unit == null){
+            return "null unit";
+        }
         return "[ Unit: id="+unit.getID()+", type="+ UnitType.UnitTypes.values()[unit.getTypeID()]+", classification="+classify(unit)+", position=("+unit.getX()+","+unit.getY()+")]";
     }
 

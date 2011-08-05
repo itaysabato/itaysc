@@ -45,7 +45,7 @@ public class Attacker {
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
                         bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Overlord.ordinal());
                         mineralCount -= 100;
-                        break;
+                        return;
                     }
                 }
             }
@@ -63,7 +63,6 @@ public class Attacker {
                     }
                 }
             }
-
         }
     }
 }
