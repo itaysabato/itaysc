@@ -15,6 +15,11 @@ import java.util.Set;
  */
 public class Priorityzer implements Comparator<Unit> {
     private Map<UnitClass,Integer> unitClassPriorities = new EnumMap<UnitClass, Integer>(UnitClass.class);
+    private final ChiefOfStaff chief;
+
+    public Priorityzer(ChiefOfStaff chief) {
+        this.chief = chief;
+    }
 
     public void preProcess(EnemyKeeper enemyKeeper){
         double dangerLevel = getDangerLevel(enemyKeeper.getDangerousUnits(),false);
@@ -33,9 +38,6 @@ public class Priorityzer implements Comparator<Unit> {
             else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Firebat.ordinal()){
                 dangerLevel += 0.75;
             }
-            else if(combative.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
-                dangerLevel += 0.25;
-            }
             else if(countWorkers){
                 if(combative.getTypeID() == UnitType.UnitTypes.Protoss_Probe.ordinal()){
                     dangerLevel += 0.7;
@@ -52,18 +54,18 @@ public class Priorityzer implements Comparator<Unit> {
     }
 
     private void setPriorities(double dangerLevel) {
-        if(dangerLevel > 2){
-            unitClassPriorities.put(UnitClass.WORKER,0);
-            unitClassPriorities.put(UnitClass.ATTACKING_WORKER,1);
-            unitClassPriorities.put(UnitClass.HARMFUL,2);
-            unitClassPriorities.put(UnitClass.SUPPLIER,3);
-        }
-        else if(dangerLevel == 0){
+        if(dangerLevel == 0){
             unitClassPriorities.put(UnitClass.ATTACKING_WORKER,0);
             unitClassPriorities.put(UnitClass.SUPPLIER,1);
             unitClassPriorities.put(UnitClass.WORKER,2);
             unitClassPriorities.put(UnitClass.HARMFUL,3);
         }
+//        else if(dangerLevel > 3){
+//            unitClassPriorities.put(UnitClass.WORKER,0);
+//            unitClassPriorities.put(UnitClass.ATTACKING_WORKER,1);
+//            unitClassPriorities.put(UnitClass.HARMFUL,2);
+//            unitClassPriorities.put(UnitClass.SUPPLIER,3);
+//        }
         else {
             unitClassPriorities.put(UnitClass.HARMFUL,0);
             unitClassPriorities.put(UnitClass.ATTACKING_WORKER,1);
@@ -88,8 +90,16 @@ public class Priorityzer implements Comparator<Unit> {
             }
         }
 
+        if(u1.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal() && u2.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal()){
+            double d1 = chief.getEnemyKeeper().minimalGatewayDistance(u1);
+            double d2 = chief.getEnemyKeeper().minimalGatewayDistance(u2);
+            return d1 > d2 ?
+                    1 : (d1 < d2 ? -1 : 0);
+        }
+
         UnitClass unitClass1 =  Utils.classify(u1);
         UnitClass unitClass2 =  Utils.classify(u2);
+
         return unitClassPriorities.get(unitClass1) - unitClassPriorities.get(unitClass2);
     }
 }

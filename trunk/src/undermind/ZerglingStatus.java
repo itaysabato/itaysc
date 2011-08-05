@@ -8,10 +8,11 @@ import java.awt.*;
  * Time: 15:15 <br/>
  */
 public class ZerglingStatus {
+    private final int unitID;
     private ZerglingState state = ZerglingState.NOOB;
     private Point destination = null;
     private int target = -1;
-    private final int unitID;
+    private Point runningDestination;
 
     @Override
     public String toString() {
@@ -48,5 +49,13 @@ public class ZerglingStatus {
 
     public int getUnitID() {
         return unitID;
+    }
+
+    public Point getRunningDestination() {
+        return runningDestination;
+    }
+
+    public void setRunningDestination(Point runningDestination) {
+        this.runningDestination = runningDestination;
     }
 }

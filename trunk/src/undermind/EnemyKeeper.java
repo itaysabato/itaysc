@@ -1,6 +1,8 @@
 package undermind;
 
 import eisbot.proxy.model.Unit;
+import eisbot.proxy.types.UnitType;
+import eisbot.proxy.util.BWColor;
 
 import java.awt.*;
 import java.util.*;
@@ -16,7 +18,7 @@ public class EnemyKeeper {
     private Set<Unit> dangerousUnits;
 
     private static final double CLOSE = 1000;   //todo: bring it back?
-    private static final int RADIUS = 120;
+    private static final int RADIUS = 150;
 
     public EnemyKeeper(ChiefOfStaff chief) {
         this.chief = chief;
@@ -27,6 +29,9 @@ public class EnemyKeeper {
 
         for(Unit unit: enemyUnits){
             if(!UndermindClient.getMyClient().isDestroyed(unit.getID())){
+                if(unit.isUnpowered()){
+                    chief.bwapi.drawCircle(unit.getX(),unit.getY(),50, BWColor.RED,true,false);
+                }
                 spottedEnemies.put(unit.getID(),unit);
             }
         }
@@ -88,7 +93,7 @@ public class EnemyKeeper {
 //                Out.println("using stored unit: "+Utils.unitToString(unit));
                 chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,0,false,false);
             }
-            if(!unit.isInvincible() && !Utils.isFlyer(unit)){
+            if(!unit.isInvincible() && !Utils.isFlyer(unit) && !unit.isLifted()){
                 filtered.add(unit);
             }
         }
@@ -111,5 +116,22 @@ public class EnemyKeeper {
             }
         }
         return closeAttackers;
+    }
+
+    public double minimalGatewayDistance(Unit pylon) {
+        double minD = Double.MAX_VALUE;
+        for(Unit unit: spottedEnemies.values()){
+                 if(unit.getTypeID() == UnitType.UnitTypes.Protoss_Gateway.ordinal()){
+                             double d = Point.distance(pylon.getX(),pylon.getY(),unit.getX(),unit.getY());
+                     if(d < minD){
+                         minD = d;
+                     }
+                 }
+        }
+        return minD;
+    }
+
+    public Unit getEnemyUnit(int unitID) {
+        return spottedEnemies.get(unitID);
     }
 }

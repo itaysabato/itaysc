@@ -16,6 +16,7 @@ public class Explorer {
     private List<Point> toExplore = null;
     private int height;
     private int width;
+    private int distance = 100;
 
     private static final int HOME_RADIUS = 300;
 
@@ -62,10 +63,15 @@ public class Explorer {
 
     public Point findRandomDestination(int currentX, int currentY) {
         int x,y;
+        if(distance > height){
+            distance = 100;
+        }
         do {
-            x = currentX + random.nextInt(height) - (height/2);
-            y = currentY + random.nextInt(width) - (width/2);
+            x = currentX + random.nextInt(distance) - (distance/2);
+            y = currentY + random.nextInt(distance) - (distance/2);
         } while(x < 0 || y < 0);
+
+        distance += 100;
         return new Point(x,y);
     }
 }

@@ -14,15 +14,17 @@ import java.util.List;
  * Time: 23:17 <br/>
  */
 public class Runner {
+    private static int RUN_DIST = 200;
+    private static final int RUN_DIAG = (int) (RUN_DIST / 1.4142);
     private static final Point[] getAways = {
-            new Point(100,0),
-            new Point(0,100),
-            new Point(0,-100),
-            new Point(-100,0),
-            new Point(-71,-71),
-            new Point(-71,71),
-            new Point(71,-71),
-            new Point(71,71)
+            new Point(RUN_DIST,0),
+            new Point(0,RUN_DIST),
+            new Point(0,-RUN_DIST),
+            new Point(-RUN_DIST,0),
+            new Point(-RUN_DIAG,-RUN_DIAG),
+            new Point(-RUN_DIAG,RUN_DIAG),
+            new Point(RUN_DIAG,-RUN_DIAG),
+            new Point(RUN_DIAG,RUN_DIAG)
     };
     private final ChiefOfStaff chief;
     private static final int CLOSER = 10;
@@ -39,13 +41,12 @@ public class Runner {
 //        Out.println("got attackers for: "+Utils.unitToString(unit));
 //        Out.println("attackers: "+Utils.unitsToString(attackers));
         double dangerLevel = chief.getPrioritizer().getDangerLevel(attackers,false);
-        return dangerLevel > 2;
+        return dangerLevel > 3;
     }
 
     public boolean run(Unit unit, ZerglingStatus status, Set<Unit> attackers) {
         Point2D bestDestination = findBestDestination(unit,status,attackers);
         if(bestDestination == null){
-            Out.println("no where to run!!! ahhhhaaa!!!!");
             return false;
         }
         else {
@@ -83,6 +84,7 @@ public class Runner {
                 return trajectory.getP2();
             }
         }
+        Out.println("no where to run!!! ahhhhaaa!!!!");
         return trajectories.get(0).getP2();
     }
 
@@ -97,8 +99,8 @@ public class Runner {
 
     private void runAway(Unit unit, ZerglingStatus status, Point runTo) {
         status.setState(ZerglingState.RUNNING);
-        status.setDestination(runTo);
-//        Out.println("running: "+Utils.unitToString(unit)+status);
+        status.setRunningDestination(runTo);
+        Out.println("running: "+Utils.unitToString(unit)+status);
         chief.bwapi.move(status.getUnitID(), runTo.x, runTo.y);
     }
 }

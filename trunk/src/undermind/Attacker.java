@@ -39,15 +39,17 @@ public class Attacker {
         }
 
         if(canSpwan){
-            if(bwapi.getSelf().getSupplyTotal() < bwapi.getSelf().getSupplyUsed() + 3 && bwapi.getSelf().getMinerals() >= 100){
+            int mineralCount = bwapi.getSelf().getMinerals();
+            if(bwapi.getSelf().getSupplyTotal() < bwapi.getSelf().getSupplyUsed() + 3 && mineralCount >= 100){
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
                         bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Overlord.ordinal());
+                        mineralCount -= 100;
                         break;
                     }
                 }
             }
-            if(bwapi.getSelf().getMinerals() >= 150 && bwapi.getSelf().getSupplyTotal() >= bwapi.getSelf().getSupplyUsed() + 3){
+            if(mineralCount >= 150 && bwapi.getSelf().getSupplyTotal() >= bwapi.getSelf().getSupplyUsed() + 3){
                 LinkedList<Unit> larvas = new LinkedList<Unit>();
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal() && !UndermindClient.getMyClient().isDestroyed(unit.getID())){
