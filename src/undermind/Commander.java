@@ -57,7 +57,6 @@ public class Commander {
                             commandNoob(status, enemyHome);
                         }
                         if(chief.getZerglingKeeper().getNOOBCount()  >= batches[batchIndex]){
-                            Out.println("NOOBCount is: "+chief.getZerglingKeeper().getNOOBCount());
                             sentNOOBs = true;
                             commandNoob(status, enemyHome);
                         }
@@ -86,7 +85,6 @@ public class Commander {
             }
         }
         else if(UndermindClient.getMyClient().getEnemyTemp() != null){
-            Out.println("going for temp");
             for(ZerglingStatus status: chief.getZerglingKeeper()){
                 commandNoob(status,UndermindClient.getMyClient().getEnemyTemp());
             }
@@ -101,9 +99,6 @@ public class Commander {
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
 
         if(target != null){
-            if(Utils.isNearHome(target)){
-                Out.println("targeting near home unit: "+Utils.unitToString(target));
-            }
 
             for(ZerglingStatus status: transits){
                 attack(status,target);
@@ -149,23 +144,22 @@ public class Commander {
                 attack(status,currentTarget);
             }
         }
-        else {
-            attack(status,target);
-        }
+//  commented out == not stupid:
+//        else {
+//            attack(status,target);
+//        }
     }
 
     private void attack(ZerglingStatus status, Unit target) {
-        Out.println("sending : " + status.toString());
         status.setState(ZerglingState.ATTACKING);
         status.setTarget(target.getID());
         status.setDestination(new Point(target.getX(),target.getY()));
         if(chief.bwapi.getUnit(target.getID()) != null && target.isVisible()) {
-            Out.println("target visible: "+Utils.unitToString(target));
             chief.bwapi.attack(status.getUnitID(), target.getID());
         }
         else {
-            Out.println("target not visible"+Utils.unitToString(target));
-            chief.bwapi.attack(status.getUnitID(), target.getX(),target.getY());
+            status.setState(ZerglingState.FREE);
+            chief.bwapi.move(status.getUnitID(), target.getX(),target.getY());
         }
     }
 
