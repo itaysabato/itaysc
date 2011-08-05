@@ -3,7 +3,6 @@ package undermind;
 import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
-import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -56,25 +55,34 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void gameStarted() {
         try {
-            bwapi.enableUserInput();
-            bwapi.drawIDs(true);
-            bwapi.drawTargets(true);
-            bwapi.drawHealth(false);
             bwapi.setGameSpeed(0);
-            isSlow = false;
             bwapi.loadMapData(true);
-            currentPhase = GamePhase.getInitialPhase();
-            attacker = new Attacker(bwapi);
-            destroyed = new HashSet<Integer>();
-            mapConstants = Utils.getMapConstantsFor(bwapi.getMap().getHash());
-            enemyHome = null;
-            myHome = null;
-            Out.println("map is: ["+mapConstants+"]");
+            extraStuff();
+            initFields();
         }
         catch (Exception e){
             System.err.println("Exception caught: "+e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void extraStuff() {
+        bwapi.enableUserInput();
+        bwapi.drawIDs(true);
+        bwapi.drawTargets(true);
+        bwapi.drawHealth(false);
+    }
+
+    private void initFields() {
+        isSlow = false;
+        currentPhase = GamePhase.getInitialPhase();
+        attacker = new Attacker(bwapi);
+        destroyed = new HashSet<Integer>();
+        mapConstants = Utils.getMapConstantsFor(bwapi.getMap().getHash());
+        enemyHome = null;
+        enemyTemp = null;
+        myHome = null;
+        Out.println("map is: ["+mapConstants+"]");
     }
 
     public void gameUpdate() {
@@ -128,7 +136,7 @@ public class UndermindClient implements BWAPIEventListener {
                     enemyHome = new Point(unit.getX(),unit.getY());
                     Out.println("discovered enemyHome at: "+enemyHome);
                 }
-                else {
+                else if(enemyTemp != null) {
                     enemyTemp =  new Point(unit.getX(),unit.getY());
                     Out.println("discovered enemyTemp at: "+enemyTemp);
                 }
