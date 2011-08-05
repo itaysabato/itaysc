@@ -36,6 +36,9 @@ public class ChiefOfStaff {
              if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
                  zerglingKeeper.updateZergling(unit);
              }
+            else if(unit.getID() == GamePhase.SCOUT.getScout()){
+                 zerglingKeeper.updateZergling(unit);
+             }
         }
     }
 

@@ -159,6 +159,7 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitDestroy(int unitID) {
+        Out.println("destroyed: "+Utils.unitToString(bwapi.getUnit(unitID)));
         destroyed.add(unitID);
     }
 

@@ -43,16 +43,19 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
         }
         else if(status.getState() == ZerglingState.RUNNING &&
                 (zergling.isAttacking() || CLOSE >= Point.distance(status.getRunningDestination().x,status.getRunningDestination().y,zergling.getX(),zergling.getY()))){
-               status.setState(ZerglingState.FREE);
+            status.setState(ZerglingState.FREE);
         }
         else if(status.getState() == ZerglingState.ATTACKING){
-            Unit target = UndermindClient.getMyClient().bwapi.getUnit(status.getTarget());
-            if(target == null || UndermindClient.getMyClient().isDestroyed(target.getID())){
+            if(UndermindClient.getMyClient().isDestroyed(status.getTarget())){
+//                Out.println("attacking a different target: "+zergling.getTargetUnitID());
                 status.setTarget(-1);
                 status.setState(ZerglingState.FREE);
             }
-            else if(target.isVisible()) {
-                status.setDestination(new Point(target.getX(),target.getY()));
+            else{
+                Unit target = UndermindClient.getMyClient().bwapi.getUnit(status.getTarget());
+                if(target != null && target.isVisible()) {
+                    status.setDestination(new Point(target.getX(),target.getY()));
+                }
             }
         }
         else if(status.getState() == ZerglingState.NOOB){

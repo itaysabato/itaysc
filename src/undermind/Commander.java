@@ -1,6 +1,7 @@
 package undermind;
 
 import eisbot.proxy.model.Unit;
+import eisbot.proxy.types.UnitType;
 import sun.plugin.dom.css.Counter;
 
 import javax.rmi.CORBA.Util;
@@ -18,9 +19,9 @@ public class Commander {
     private final ChiefOfStaff chief;
     private final Explorer explorer;
     private final Runner runner;
-    private int[] batches = {6,6,12};
+    private int[] batches = {6,6,6,6};
     private int batchIndex = 0;
-//    private long counter = 0;
+    //    private long counter = 0;
     private static final int ATTACK_DIST = 60;
 
     public Commander(ChiefOfStaff chiefOfStaff) {
@@ -48,12 +49,16 @@ public class Commander {
                 }
                 chief.bwapi.drawText(unit.getX() + 18,unit.getY(),status.getState().name(),false);
                 Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
-//                if(runner.shouldRun(unit,attackers)){
-//                    runner.run(unit,status,attackers);
-//                }
+                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal() && runner.shouldRun(unit,attackers)){
+                    runner.run(unit,status,attackers);
+                    continue;
+                }
 
                 switch (status.getState()) {
                     case NOOB:
+                        if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
+                            commandNoob(status, enemyHome);
+                        }
                         if(chief.getZerglingKeeper().getNOOBCount()  >= batches[batchIndex]){
                             Out.println("NOOBCount is: "+chief.getZerglingKeeper().getNOOBCount());
                             sentNOOBs = true;
@@ -124,10 +129,16 @@ public class Commander {
                 if(status.getState() == ZerglingState.ATTACKING){
                     Unit unit = chief.bwapi.getUnit(status.getUnitID());
                     if(unit != null && !unit.isIdle()){
-                        Unit secondaryTarget = chief.bwapi.getUnit(status.getTarget());
-                        if(secondaryTarget != null && shouldSwitchTarget(target,secondaryTarget)){
+                        Unit secondaryTarget = chief.getEnemyKeeper().getEnemyUnit(status.getTarget());
+                        Out.println("secondary id: "+status.getTarget());
+                        Out.println("secondary is: "+Utils.unitToString(secondaryTarget));
+
+                        if(secondaryTarget == null || shouldSwitchTarget(target,secondaryTarget)){
                             Out.println("target switched to: "+Utils.unitToString(target));
                             attack(status, target);
+                        }
+                        else {
+                            attack(status, secondaryTarget);
                         }
                     }
                     else {
@@ -161,16 +172,16 @@ public class Commander {
     }
 
     private void attack(ZerglingStatus status, Unit target) {
-//        Out.println("sending : " + status.toString());
+        Out.println("sending : " + status.toString());
         status.setState(ZerglingState.ATTACKING);
         status.setTarget(target.getID());
         status.setDestination(new Point(target.getX(),target.getY()));
         if(chief.bwapi.getUnit(target.getID()) != null && target.isVisible()) {
-//            Out.println("target visible: "+Utils.unitToString(target));
+            Out.println("target visible: "+Utils.unitToString(target));
             chief.bwapi.attack(status.getUnitID(), target.getID());
         }
         else {
-//            Out.println("target not visible"+Utils.unitToString(target));
+            Out.println("target not visible"+Utils.unitToString(target));
             chief.bwapi.attack(status.getUnitID(), target.getX(),target.getY());
         }
     }
