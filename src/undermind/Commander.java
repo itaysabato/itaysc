@@ -19,9 +19,8 @@ public class Commander {
     private final ChiefOfStaff chief;
     private final Explorer explorer;
     private final Runner runner;
-    private int[] batches = {6,6,6,6};
+    private int[] batches = {6};
     private int batchIndex = 0;
-    //    private long counter = 0;
     private static final int ATTACK_DIST = 60;
 
     public Commander(ChiefOfStaff chiefOfStaff) {
@@ -32,12 +31,10 @@ public class Commander {
 
     //TODO: unjam units
     public void issueCommands() {
-//        Out.println("issuing commands");
         boolean sentNOOBs = false;
         Point enemyHome = UndermindClient.getMyClient().getEnemyHome();
 
         if(enemyHome != null){
-//            Out.println("got enemy home");
             List<ZerglingStatus> active = new ArrayList<ZerglingStatus>();
             List<ZerglingStatus> transits = new ArrayList<ZerglingStatus>();
             double centroidX = 0, centroidY = 0;
@@ -49,7 +46,7 @@ public class Commander {
                 }
                 chief.bwapi.drawText(unit.getX() + 18,unit.getY(),status.getState().name(),false);
                 Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
-                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal() && runner.shouldRun(unit,attackers)){
+                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal() && runner.shouldRun(unit, attackers)){
                     runner.run(unit,status,attackers);
                     continue;
                 }
@@ -99,18 +96,11 @@ public class Commander {
         }
     }
 
-    private void commandRunning(Unit unit, ZerglingStatus status) {
-        if(unit != null && unit.isIdle()){
-            chief.bwapi.move(status.getUnitID(), status.getDestination().x, status.getDestination().y);
-        }
-    }
-
     private void doSomething(List<ZerglingStatus> active, List<ZerglingStatus> transits, int centroidX, int centroidY) {
         chief.getPrioritizer().preProcess(chief.getEnemyKeeper());
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
 
         if(target != null){
-            Out.println("target is: "+Utils.unitToString(target));
             if(Utils.isNearHome(target)){
                 Out.println("targeting near home unit: "+Utils.unitToString(target));
             }
@@ -119,31 +109,9 @@ public class Commander {
                 attack(status,target);
             }
 
-//            if(counter == 0){
-//                for(ZerglingStatus status: active){
-//                    attack(status,target);
-//                }
-//            }
-//            counter = (counter + 1) % 4;
             for(ZerglingStatus status: active){
                 if(status.getState() == ZerglingState.ATTACKING){
-                    Unit unit = chief.bwapi.getUnit(status.getUnitID());
-                    if(unit != null && !unit.isIdle()){
-                        Unit secondaryTarget = chief.getEnemyKeeper().getEnemyUnit(status.getTarget());
-                        Out.println("secondary id: "+status.getTarget());
-                        Out.println("secondary is: "+Utils.unitToString(secondaryTarget));
-
-                        if(shouldSwitchTarget(target,secondaryTarget)){
-                            Out.println("target switched to: "+Utils.unitToString(target));
-                            attack(status, target);
-                        }
-                        else {
-                            attack(status, secondaryTarget);
-                        }
-                    }
-                    else {
-                        attack(status,target);
-                    }
+                    handleAttacking(target, status);
                 }
                 else if(status.getState() ==ZerglingState.RUNNING){
                     Unit unit = chief.bwapi.getUnit(status.getUnitID());
@@ -165,9 +133,24 @@ public class Commander {
             for(ZerglingStatus status: active){
                 status.setState(ZerglingState.IN_TRANSIT);
                 status.setDestination(dest);
-//                Out.println("exploring : "+status.toString());
                 chief.bwapi.attack(status.getUnitID(), dest.x, dest.y);
             }
+        }
+    }
+
+    private void handleAttacking(Unit target, ZerglingStatus status) {
+        Unit unit = chief.bwapi.getUnit(status.getUnitID());
+        if(unit != null && !unit.isIdle()){
+            Unit currentTarget = chief.getEnemyKeeper().getEnemyUnit(status.getTarget());
+            if(shouldSwitchTarget(target,currentTarget)){
+                attack(status, target);
+            }
+            else {
+                attack(status,currentTarget);
+            }
+        }
+        else {
+            attack(status,target);
         }
     }
 
@@ -199,7 +182,6 @@ public class Commander {
     private void commandNoob(ZerglingStatus status, Point enemyHome) {
         status.setState(ZerglingState.IN_TRANSIT);
         status.setDestination(new Point(enemyHome.x,enemyHome.y));
-//        Out.println("sent: "+status.toString());
         chief.bwapi.attack(status.getUnitID(), enemyHome.x, enemyHome.y);
     }
 }
