@@ -58,17 +58,12 @@ public class EnemyKeeper {
         Set<Unit> filtered = filterEnemies();
 
         if(filtered.isEmpty()){
-//            Out.println("empty!");
             return null;
         }
-        else {
-//           chief. bwapi.setGameSpeed(-1);
-//            Out.println("NOT empty!");
-        }
+
         return Collections.min(filtered, new Comparator<Unit>() {
             public int compare(Unit u1, Unit u2) {
                 int priorityComparison = chief.getPrioritizer().compare(u1,u2);
-//                 Out.println("comparison: "+priorityComparison);
                 if(priorityComparison == 0){
                     double d1 = Point.distance(u1.getX(),u1.getY(),x,y);
                     double d2 = Point.distance(u2.getX(),u2.getY(),x,y);
@@ -90,7 +85,6 @@ public class EnemyKeeper {
 
             if(unit == null){
                 unit = enemy.getValue();
-//                Out.println("using stored unit: "+Utils.unitToString(unit));
                 chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,BWColor.WHITE,false,false);
             }
             if(!unit.isInvincible() && !Utils.isFlyer(unit) && !unit.isLifted()){
@@ -107,12 +101,9 @@ public class EnemyKeeper {
     public Set<Unit> getCloseAttackers(Unit myUnit) {
         Set<Unit> closeAttackers = new HashSet<Unit>();
         for(Unit enemyUnit: spottedEnemies.values()){
-//            Out.println("checking if "+Utils.unitToString(enemyUnit)+"is close to "+Utils.unitToString(myUnit));
             double d =Point.distance(myUnit.getX(),myUnit.getY(),enemyUnit.getX(),enemyUnit.getY());
-//            Out.println("distance is: "+d);
             if(d <= RADIUS){
                 closeAttackers.add(enemyUnit);
-//                Out.println("yes");
             }
         }
         return closeAttackers;
