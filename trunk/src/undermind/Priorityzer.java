@@ -35,6 +35,9 @@ public class Priorityzer implements Comparator<Unit> {
              else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Bunker.ordinal()){
                 dangerLevel += 0.1;
             }
+            else if(combative.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
+                dangerLevel += 0.5;
+            }
             else if(countWorkers){
                 if(combative.getTypeID() == UnitType.UnitTypes.Protoss_Probe.ordinal()){
                     dangerLevel += 0.7;

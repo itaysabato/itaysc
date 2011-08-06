@@ -1,6 +1,7 @@
 package undermind;
 
 import eisbot.proxy.model.Unit;
+import eisbot.proxy.types.UnitType;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -38,8 +39,10 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
         }
         ZerglingStatus status = zerglingStatusMap.get(zergling.getID());
         if(status == null){
-            NOOBCount++;
-            zerglingStatusMap.put(zergling.getID(),new ZerglingStatus(zergling.getID()));
+            if(zergling.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
+                NOOBCount++;
+            }
+            zerglingStatusMap.put(zergling.getID(), new ZerglingStatus(zergling.getID()));
 //            Out.println("kept zergling: "+zergling.getID());
         }
         else if(status.getState() == ZerglingState.IN_TRANSIT &&
@@ -47,7 +50,8 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
             status.setState(ZerglingState.FREE);
         }
         else if(status.getState() == ZerglingState.RUNNING &&
-                (zergling.isAttacking() || CLOSE >= Point.distance(status.getRunningDestination().x,status.getRunningDestination().y,zergling.getX(),zergling.getY()))){
+                (zergling.isIdle() || zergling.isAttacking() || CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY()))){
+            status.setDestination(null);
             status.setState(ZerglingState.FREE);
         }
         else if(status.getState() == ZerglingState.ATTACKING){

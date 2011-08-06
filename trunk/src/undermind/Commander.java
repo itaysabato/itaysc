@@ -45,10 +45,12 @@ public class Commander {
                     continue;
                 }
                 chief.bwapi.drawText(unit.getX() + 18,unit.getY(),status.getState().name(),false);
-                Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
-                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal() && runner.shouldRun(unit, attackers)){
-                    runner.run(unit,status,attackers);
-                    continue;
+                if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
+                    Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
+                    if(runner.shouldRun(unit, attackers)){
+                        runner.run(unit,status,attackers);
+                        continue;
+                    }
                 }
 
                 switch (status.getState()) {
@@ -69,6 +71,7 @@ public class Commander {
 
                     //todo: do not include previously in transit zerglings
                     case RUNNING:
+                        break;
                     case ATTACKING:
                     case FREE:
                         active.add(status);
