@@ -118,17 +118,16 @@ public class EnemyKeeper {
         return closeAttackers;
     }
 
-    public double minimalGatewayDistance(Unit pylon) {
-        double minD = Double.MAX_VALUE;
+    public int getPoweringCount(Unit pylon) {
+        int poweringCount = 0;
         for(Unit unit: spottedEnemies.values()){
-                 if(unit.getTypeID() == UnitType.UnitTypes.Protoss_Gateway.ordinal()){
-                             double d = Point.distance(pylon.getX(),pylon.getY(),unit.getX(),unit.getY());
-                     if(d < minD){
-                         minD = d;
-                     }
+                 if(unit.getTypeID() != UnitType.UnitTypes.Protoss_Nexus.ordinal()
+                         && Utils.isProtossStructure(unit.getTypeID())
+                         && Utils.isPowering(pylon,unit)){
+                        poweringCount++;
                  }
         }
-        return minD;
+        return poweringCount;
     }
 
     public Unit getEnemyUnit(int unitID) {

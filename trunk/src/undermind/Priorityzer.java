@@ -4,8 +4,6 @@ import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 
 import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -59,10 +57,10 @@ public class Priorityzer implements Comparator<Unit> {
         }
 
         if(u1.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal() && u2.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal()){
-            double d1 = chief.getEnemyKeeper().minimalGatewayDistance(u1);
-            double d2 = chief.getEnemyKeeper().minimalGatewayDistance(u2);
-            return d1 > d2 ?
-                    1 : (d1 < d2 ? -1 : 0);
+            double poweringCount1 = chief.getEnemyKeeper().getPoweringCount(u1);
+            double poweringCount2 = chief.getEnemyKeeper().getPoweringCount(u2);
+            return poweringCount1 > poweringCount2 ?
+                    -1 : (poweringCount1 < poweringCount2 ? 1 : 0);
         }
 
 //        if((u1.isAttacking() || u1.isStartingAttack()) != (u2.isAttacking() || u2.isStartingAttack())){

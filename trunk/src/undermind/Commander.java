@@ -21,7 +21,6 @@ public class Commander {
     private final Runner runner;
     private int[] batches = {6};
     private int batchIndex = 0;
-    private static final int ATTACK_DIST = 60;
 
     public Commander(ChiefOfStaff chiefOfStaff) {
         chief = chiefOfStaff;
@@ -58,7 +57,7 @@ public class Commander {
                         if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
                             commandNoob(status, enemyHome);
                         }
-                        if(chief.getZerglingKeeper().getNOOBCount()  >= batches[batchIndex]){
+                        else if(chief.getZerglingKeeper().getNOOBCount()  >= batches[batchIndex]){
                             sentNOOBs = true;
                             commandNoob(status, enemyHome);
                         }
@@ -115,16 +114,6 @@ public class Commander {
             for(ZerglingStatus status: active){
                 if(status.getState() == ZerglingState.ATTACKING){
                     handleAttacking(target, status);
-                }
-                else if(status.getState() ==ZerglingState.RUNNING){
-                    Unit unit = chief.bwapi.getUnit(status.getUnitID());
-                    if(unit != null && ATTACK_DIST >= Point.distance(unit.getX(),unit.getY(),target.getX(),target.getY())){
-                        attack(status,target);
-                    }
-                    else {
-                        status.setTarget(target.getID());
-                        status.setDestination(new Point(target.getX(),target.getY()));
-                    }
                 }
                 else {
                     attack(status,target);
