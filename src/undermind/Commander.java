@@ -69,8 +69,6 @@ public class Commander {
                         break;
 
                     //todo: do not include previously in transit zerglings
-                    case RUNNING:
-                        break;
                     case ATTACKING:
                     case FREE:
                         active.add(status);

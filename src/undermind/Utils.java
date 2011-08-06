@@ -31,7 +31,7 @@ public class Utils {
 
     private static final java.util.Map<String, MapConstants> MAP_CONSTANTS_MAP = new HashMap<String, MapConstants>();
     private static final java.util.Map<Integer,UnitClass> UNIT_CLASS_MAP = new HashMap<Integer, UnitClass>();
-    private static final int HOME_RADIUS = 300;
+    private static final int HOME_RADIUS = 500;
     private static final int DETECTION_RADIUS = 200;
 
     static {
