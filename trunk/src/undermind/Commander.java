@@ -67,6 +67,7 @@ public class Commander {
                         commandInTransit(unit, status);
                         break;
 
+                    //todo: do not include previously in transit zerglings
                     case RUNNING:
                     case ATTACKING:
                     case FREE:
@@ -89,6 +90,11 @@ public class Commander {
                 commandNoob(status,UndermindClient.getMyClient().getEnemyTemp());
             }
         }
+        if(sentNOOBs){
+            UndermindClient.getMyClient().numBatches++;
+        }
+
+
         if(sentNOOBs && batchIndex < batches.length -1){
             batchIndex++;
         }
@@ -154,7 +160,7 @@ public class Commander {
         }
         else {
             status.setState(ZerglingState.FREE);
-            chief.bwapi.move(status.getUnitID(), target.getX(),target.getY());
+            chief.bwapi.attack(status.getUnitID(), target.getX(), target.getY());
         }
     }
 
