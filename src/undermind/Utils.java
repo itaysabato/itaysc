@@ -15,6 +15,20 @@ import java.util.Set;
  * Time: 16:57 <br/>
  */
 public class Utils {
+
+    private static  final boolean[][] IS_POWERED = {
+            {false,false,false,false,true,true,true,true,true,true,false,false,false,false,false},
+            {false,true,true,true,true,true,true,true,true,true,true,true,true,false,false},
+            {true,true,true,true,true,true,true,true,true,true,true,true,true,true,false},
+            {true,true,true,true,true,false,false,false,false,false,true,true,true,true,true},
+            {true,true,true,true,true,false,false,false,false,false,true,true,true,true,true},
+            {true,true,true,true,true,false,false,false,false,false,true,true,true,true,true},
+            {true,true,true,true,true,false,false,false,false,false,true,true,true,true,true},
+            {true,true,true,true,true,true,true,true,true,true,true,true,true,true,false},
+            {false,true,true,true,true,true,true,true,true,true,true,true,true,false,false},
+            {false,false,false,false,true,true,true,true,true,true,false,false,false,false,false}
+    };
+
     private static final java.util.Map<String, MapConstants> MAP_CONSTANTS_MAP = new HashMap<String, MapConstants>();
     private static final java.util.Map<Integer,UnitClass> UNIT_CLASS_MAP = new HashMap<Integer, UnitClass>();
     private static final int HOME_RADIUS = 300;
@@ -80,7 +94,7 @@ public class Utils {
         return isZergStructure(unitTypeID) || isTerranStructure(unitTypeID) || isProtossStructure(unitTypeID);
     }
 
-    private static boolean isProtossStructure(int unitTypeID) {
+    public static boolean isProtossStructure(int unitTypeID) {
         return UnitType.UnitTypes.Protoss_Nexus.ordinal() <= unitTypeID
                 && unitTypeID <= UnitType.UnitTypes.Protoss_Shield_Battery.ordinal();
     }
@@ -144,5 +158,14 @@ public class Utils {
 
     public static boolean isNearHome(Unit unit) {
         return HOME_RADIUS >= Point.distance(unit.getX(),unit.getY(), UndermindClient.getMyClient().getMyHome().x, UndermindClient.getMyClient().getMyHome().y);
+    }
+
+    public static boolean isPowering(Unit pylon, Unit protossBuilding) {
+        Point fieldCorner = new Point(pylon.getTileX() - 8, pylon.getTileY() - 5);
+        int x = protossBuilding.getTileX() - fieldCorner.x;
+        int y = protossBuilding.getTileY() - fieldCorner.y;
+
+        return 0 <= x && x < IS_POWERED[0].length && 0 <= y && y < IS_POWERED.length
+                && IS_POWERED[y][x];
     }
 }
