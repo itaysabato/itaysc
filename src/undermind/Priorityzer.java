@@ -62,9 +62,9 @@ public class Priorityzer implements Comparator<Unit> {
                     1 : (d1 < d2 ? -1 : 0);
         }
 
-        if((u1.isAttacking() || u1.isStartingAttack()) != (u2.isAttacking() || u2.isStartingAttack())){
-                return (u1.isAttacking() || u1.isStartingAttack()) ? -1 : 1;
-        }
+//        if((u1.isAttacking() || u1.isStartingAttack()) != (u2.isAttacking() || u2.isStartingAttack())){
+//                return (u1.isAttacking() || u1.isStartingAttack()) ? -1 : 1;
+//        }
 
         UnitClass unitClass1 =  Utils.classify(u1);
         UnitClass unitClass2 =  Utils.classify(u2);

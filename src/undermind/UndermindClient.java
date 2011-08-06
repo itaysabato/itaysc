@@ -30,6 +30,7 @@ public class UndermindClient implements BWAPIEventListener {
 
     private long clock;
     private long exceeds;
+    public int numBatches;
 
     private UndermindClient() {
         bwapi = new JNIBWAPI(this);
@@ -71,6 +72,7 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     private void extraStuff() {
+        numBatches = 0;
         clock = Calendar.getInstance().getTimeInMillis();
         exceeds = 0;
         bwapi.enableUserInput();
@@ -126,6 +128,7 @@ public class UndermindClient implements BWAPIEventListener {
     public void matchEnded(boolean winner) {
         Out.println("winner: "+winner);
         Out.println("exceeds: "+exceeds);
+        Out.println("numBatches: "+numBatches);
     }
 
     public void playerLeft(int id) {
@@ -171,7 +174,7 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitDestroy(int unitID) {
-        Out.println("destroyed: "+Utils.unitToString(bwapi.getUnit(unitID)));
+        Out.println("destroyed: "+unitID);
         destroyed.add(unitID);
     }
 
