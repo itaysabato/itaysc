@@ -18,7 +18,7 @@ public class EnemyKeeper {
     private Set<Unit> dangerousUnits;
 
     private static final double CLOSE = 1000;   //todo: bring it back?
-    private static final int RADIUS = 150;
+    private static final int RADIUS = 100;
 
     public EnemyKeeper(ChiefOfStaff chief) {
         this.chief = chief;
@@ -106,7 +106,7 @@ public class EnemyKeeper {
 
     public Set<Unit> getCloseAttackers(Unit myUnit) {
         Set<Unit> closeAttackers = new HashSet<Unit>();
-        for(Unit enemyUnit: dangerousUnits){
+        for(Unit enemyUnit: spottedEnemies.values()){
 //            Out.println("checking if "+Utils.unitToString(enemyUnit)+"is close to "+Utils.unitToString(myUnit));
             double d =Point.distance(myUnit.getX(),myUnit.getY(),enemyUnit.getX(),enemyUnit.getY());
 //            Out.println("distance is: "+d);
