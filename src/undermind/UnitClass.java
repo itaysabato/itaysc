@@ -9,7 +9,6 @@ public enum UnitClass {
     HARMFUL,
     SUPPLIER,
     WORKER,
-    ATTACKING_WORKER,
     MAIN,
     HARMLESS_STRUCTURE,
     HARMLESS_UNIT

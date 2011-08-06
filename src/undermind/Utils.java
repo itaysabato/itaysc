@@ -65,11 +65,7 @@ public class Utils {
     }
 
     public static UnitClass classify(Unit unit) {
-        UnitClass unitClass = UNIT_CLASS_MAP.get(unit.getTypeID());
-        if(unit.isAttacking() && unitClass == UnitClass.WORKER){
-            unitClass =   UnitClass.ATTACKING_WORKER;
-        }
-        return unitClass;
+        return UNIT_CLASS_MAP.get(unit.getTypeID());
     }
 
     public static boolean isStructure(Unit unit) {

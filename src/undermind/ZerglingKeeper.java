@@ -51,7 +51,7 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
             status.setState(ZerglingState.FREE);
         }
         else if(status.getState() == ZerglingState.ATTACKING){
-            if(chief.getEnemyKeeper().getEnemyUnit(status.getTarget()) == null){
+            if(chief.getEnemyKeeper().getEnemyUnit(status.getTarget()) == null || zergling.isIdle()){
                 status.setTarget(-1);
                 status.setState(ZerglingState.FREE);
             }

@@ -81,7 +81,7 @@ public class Commander {
             if(active.size() > 0){
                 centroidX = centroidX / active.size();
                 centroidY = centroidY / active.size();
-                doSomething(active, transits, (int) centroidX, (int) centroidY);
+                doSomething(active, transits, centroidX, centroidY);
             }
         }
         else if(UndermindClient.getMyClient().getEnemyTemp() != null){
@@ -94,8 +94,7 @@ public class Commander {
         }
     }
 
-    private void doSomething(List<ZerglingStatus> active, List<ZerglingStatus> transits, int centroidX, int centroidY) {
-        chief.getPrioritizer().preProcess(chief.getEnemyKeeper());
+    private void doSomething(List<ZerglingStatus> active, List<ZerglingStatus> transits, double centroidX, double centroidY) {
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
 
         if(target != null){
@@ -140,14 +139,10 @@ public class Commander {
             if(shouldSwitchTarget(target,currentTarget)){
                 attack(status, target);
             }
-            else {
-                attack(status,currentTarget);
-            }
         }
-//  commented out == not stupid:
-//        else {
-//            attack(status,target);
-//        }
+        else {
+            attack(status,target);
+        }
     }
 
     private void attack(ZerglingStatus status, Unit target) {

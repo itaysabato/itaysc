@@ -5,6 +5,7 @@ import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 
 import java.awt.*;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +27,9 @@ public class UndermindClient implements BWAPIEventListener {
     private MapConstants mapConstants;
     private Set<Integer> destroyed;
     private boolean isSlow;
+
+    private long clock;
+    private long exceeds;
 
     private UndermindClient() {
         bwapi = new JNIBWAPI(this);
@@ -67,6 +71,8 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     private void extraStuff() {
+        clock = Calendar.getInstance().getTimeInMillis();
+        exceeds = 0;
         bwapi.enableUserInput();
         bwapi.drawIDs(true);
         bwapi.drawTargets(true);
@@ -87,6 +93,11 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void gameUpdate() {
         try {
+            if(clock - Calendar.getInstance().getTimeInMillis() > 41) {
+                exceeds++;
+            }
+            clock = Calendar.getInstance().getTimeInMillis();
+
             currentPhase = currentPhase.gameUpdate();
             if(currentPhase.ordinal() >= GamePhase.SCOUT.ordinal()){
                 attacker.gameUpdate();
@@ -114,6 +125,7 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void matchEnded(boolean winner) {
         Out.println("winner: "+winner);
+        Out.println("exceeds: "+exceeds);
     }
 
     public void playerLeft(int id) {
