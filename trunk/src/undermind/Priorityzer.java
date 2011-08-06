@@ -14,16 +14,10 @@ import java.util.Set;
  * Time: 15:43 <br/>
  */
 public class Priorityzer implements Comparator<Unit> {
-    private Map<UnitClass,Integer> unitClassPriorities = new EnumMap<UnitClass, Integer>(UnitClass.class);
     private final ChiefOfStaff chief;
 
     public Priorityzer(ChiefOfStaff chief) {
         this.chief = chief;
-    }
-
-    public void preProcess(EnemyKeeper enemyKeeper){
-        double dangerLevel = getDangerLevel(enemyKeeper.getDangerousUnits(),false);
-        setPriorities(dangerLevel);
     }
 
     public double getDangerLevel(Set<Unit> dangerousUnits, boolean countWorkers) {
@@ -56,41 +50,9 @@ public class Priorityzer implements Comparator<Unit> {
         return dangerLevel;
     }
 
-    private void setPriorities(double dangerLevel) {
-        if(dangerLevel == 0){
-            unitClassPriorities.put(UnitClass.ATTACKING_WORKER,0);
-            unitClassPriorities.put(UnitClass.SUPPLIER,1);
-            unitClassPriorities.put(UnitClass.WORKER,2);
-            unitClassPriorities.put(UnitClass.HARMFUL,3);
-        }
-//        else if(dangerLevel > 3){
-//            unitClassPriorities.put(UnitClass.WORKER,0);
-//            unitClassPriorities.put(UnitClass.ATTACKING_WORKER,1);
-//            unitClassPriorities.put(UnitClass.HARMFUL,2);
-//            unitClassPriorities.put(UnitClass.SUPPLIER,3);
-//        }
-        else {
-            unitClassPriorities.put(UnitClass.HARMFUL,0);
-            unitClassPriorities.put(UnitClass.ATTACKING_WORKER,1);
-            unitClassPriorities.put(UnitClass.WORKER,2);
-            unitClassPriorities.put(UnitClass.SUPPLIER,3);
-        }
-        unitClassPriorities.put(UnitClass.MAIN,4);
-        unitClassPriorities.put(UnitClass.HARMLESS_STRUCTURE,5);
-        unitClassPriorities.put(UnitClass.HARMLESS_UNIT,6);
-    }
-
     public int compare(Unit u1, Unit u2) {
-        boolean nearHome1 = Utils.isNearHome(u1);
-        boolean nearHome2 = Utils.isNearHome(u2);
-
-        if(nearHome1 || nearHome2){
-            if(nearHome1 && nearHome2){
-                return 0;
-            }
-            else {
-                return nearHome1 ? -1 : 1;
-            }
+        if(Utils.isNearHome(u1) != Utils.isNearHome(u2)){
+                return Utils.isNearHome(u1) ? -1 : 1;
         }
 
         if(u1.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal() && u2.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal()){
@@ -100,9 +62,13 @@ public class Priorityzer implements Comparator<Unit> {
                     1 : (d1 < d2 ? -1 : 0);
         }
 
+        if((u1.isAttacking() || u1.isStartingAttack()) != (u2.isAttacking() || u2.isStartingAttack())){
+                return (u1.isAttacking() || u1.isStartingAttack()) ? -1 : 1;
+        }
+
         UnitClass unitClass1 =  Utils.classify(u1);
         UnitClass unitClass2 =  Utils.classify(u2);
 
-        return unitClassPriorities.get(unitClass1) - unitClassPriorities.get(unitClass2);
+        return unitClass1.ordinal() - unitClass2.ordinal();
     }
 }

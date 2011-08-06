@@ -38,14 +38,14 @@ public class Explorer {
 
     }
 
-    public Point findDestination(final int currentX, final int currentY) {
+    public Point findDestination(final double currentX, final double currentY) {
         if(toExplore == null){
             init();
         }
 
         if(toExplore.isEmpty()){
             init();
-            return findRandomDestination(currentX,currentY);
+            return findRandomDestination((int)currentX,(int)currentY);
         }
         else {
             Point result = Collections.min(toExplore, new Comparator<Point>() {
