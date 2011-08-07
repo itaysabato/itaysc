@@ -1,22 +1,22 @@
-package undermind;
+package undermind.strategy;
 
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
-
-import java.util.LinkedList;
+import undermind.UndermindClient;
+import undermind.utilities.Out;
 
 /**
  * Created By: Itay Sabato<br/>
  * Date: 14/07/11 <br/>
  * Time: 13:18 <br/>
  */
-public class Attacker {
+public class AttackProducer {
     private JNIBWAPI bwapi;
     private ChiefOfStaff chief;
     private boolean canSpwan;
 
-    public Attacker(JNIBWAPI bwapi) {
+    public AttackProducer(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
         chief = new ChiefOfStaff(bwapi);
         canSpwan = false;
@@ -29,7 +29,7 @@ public class Attacker {
         if(!canSpwan){
             for(Unit unit: bwapi.getMyUnits()){
                 if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() && unit.isCompleted()){
-                    Out.println("updated spawning pool "+unit.getID());
+                    Out.println("updated spawning pool " + unit.getID());
                     canSpwan = true;
                 }
             }

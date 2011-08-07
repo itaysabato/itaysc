@@ -1,4 +1,4 @@
-package undermind;
+package undermind.utilities;
 
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.BaseLocation;

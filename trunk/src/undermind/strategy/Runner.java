@@ -1,6 +1,11 @@
-package undermind;
+package undermind.strategy;
 
 import eisbot.proxy.model.Unit;
+import undermind.dast.ZerglingStatus;
+import undermind.strategy.ChiefOfStaff;
+import undermind.utilities.Out;
+import undermind.utilities.Utils;
+import undermind.utilities.ZerglingState;
 
 import java.awt.*;
 import java.util.Set;
@@ -67,7 +72,7 @@ public class Runner {
         Point runTo = new Point(getAway.x + unit.getX(), getAway.y + unit.getY());
         status.setState(ZerglingState.RUNNING);
         status.setDestination(runTo);
-        Out.println("running: "+Utils.unitToString(unit)+status);
+        Out.println("running: " + Utils.unitToString(unit) + status);
         chief.bwapi.move(status.getUnitID(), runTo.x, runTo.y);
     }
 }

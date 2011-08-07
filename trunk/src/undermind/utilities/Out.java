@@ -1,4 +1,4 @@
-package undermind;
+package undermind.utilities;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

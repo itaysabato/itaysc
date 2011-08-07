@@ -1,8 +1,11 @@
-package undermind;
+package undermind.strategy;
 
-import eisbot.proxy.model.Map;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+import undermind.UndermindClient;
+import undermind.utilities.Out;
+import undermind.utilities.UndermindException;
+import undermind.utilities.Utils;
 
 import java.awt.*;
 import java.util.*;
@@ -13,7 +16,7 @@ import java.util.List;
  * Date: 10/07/2011 <br/>
  * Time: 21:25:00 <br/>
  */
-enum GamePhase {
+public enum PreparationPhase {
     INIT {
         private static final int MINERAL_DIST = 600;
 
@@ -23,7 +26,7 @@ enum GamePhase {
         }
 
         @Override
-        public GamePhase gameUpdate() throws UndermindException {
+        public PreparationPhase gameUpdate() throws UndermindException {
             setHome();
             collectMinerals();
 
@@ -92,7 +95,7 @@ enum GamePhase {
         }
 
         @Override
-        public GamePhase gameUpdate() throws UndermindException {
+        public PreparationPhase gameUpdate() throws UndermindException {
             if(newDroneID < 0){
                 newDroneID = morphDrone();
             }
@@ -134,7 +137,7 @@ enum GamePhase {
         }
 
         @Override
-        public GamePhase gameUpdate() throws UndermindException {
+        public PreparationPhase gameUpdate() throws UndermindException {
             if(poolDrone < 0){
                 for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
                     if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()) {
@@ -192,7 +195,7 @@ enum GamePhase {
         }
 
         @Override
-        public GamePhase gameUpdate() throws UndermindException {
+        public PreparationPhase gameUpdate() throws UndermindException {
 //            if(poolStarted() && UndermindClient.getMyClient().getEnemyHome() != null){
 //                return IDLE;
 //            }
@@ -218,7 +221,7 @@ enum GamePhase {
                     scoutNext(scoutUnit);
                 }
                 else if(scoutUnit != null && scoutUnit.isIdle()){
-                    UndermindClient.getMyClient().bwapi.rightClick(scout,next.x,next.y);
+                    UndermindClient.getMyClient().bwapi.rightClick(scout, next.x, next.y);
                 }
             }
 //            }
@@ -301,7 +304,7 @@ enum GamePhase {
                 if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
                         && unit.getID() != poolDrone) {
                     scout = unit.getID();
-                    Out.println("scout id: "+scout);
+                    Out.println("scout id: " + scout);
                     break;
                 }
             }
@@ -319,7 +322,7 @@ enum GamePhase {
         }
 
         @Override
-        public GamePhase gameUpdate() throws UndermindException {
+        public PreparationPhase gameUpdate() throws UndermindException {
             return this;
         }
     };
@@ -330,10 +333,10 @@ enum GamePhase {
     protected static final int DRONE_COUNT = 5;
     protected int scout;
 
-    public abstract GamePhase gameUpdate() throws UndermindException;
+    public abstract PreparationPhase gameUpdate() throws UndermindException;
     protected abstract  void  init() throws UndermindException;
 
-    public static GamePhase getInitialPhase()  {
+    public static PreparationPhase getInitialPhase()  {
         return INIT;
     }
 

@@ -1,8 +1,12 @@
-package undermind;
+package undermind.dast;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import eisbot.proxy.util.BWColor;
+import undermind.strategy.ChiefOfStaff;
+import undermind.UndermindClient;
+import undermind.utilities.UnitClass;
+import undermind.utilities.Utils;
 
 import java.awt.*;
 import java.util.*;
@@ -150,7 +154,7 @@ public class EnemyKeeper {
                  if(unit.getTypeID() != UnitType.UnitTypes.Protoss_Nexus.ordinal()
                          && unit.getTypeID() != UnitType.UnitTypes.Protoss_Pylon.ordinal()
                          && Utils.isProtossStructure(unit.getTypeID())
-                         && Utils.isPowering(pylon,unit)){
+                         && Utils.isPowering(pylon, unit)){
                         poweringCount++;
                  }
         }

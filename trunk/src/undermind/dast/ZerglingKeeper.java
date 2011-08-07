@@ -1,7 +1,10 @@
-package undermind;
+package undermind.dast;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+import undermind.strategy.ChiefOfStaff;
+import undermind.UndermindClient;
+import undermind.utilities.ZerglingState;
 
 import java.awt.*;
 import java.util.HashMap;

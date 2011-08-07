@@ -4,6 +4,11 @@ import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+import undermind.strategy.AttackProducer;
+import undermind.strategy.PreparationPhase;
+import undermind.utilities.Out;
+import undermind.utilities.UndermindException;
+import undermind.utilities.Utils;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -17,13 +22,13 @@ public class TestUndermindClient implements BWAPIEventListener {
 //    }
 
     private final JNIBWAPI bwapi;
-    private GamePhase currentPhase = null;
-    private Attacker attacker = null;
+    private PreparationPhase currentPhase = null;
+    private AttackProducer attackProducer = null;
 
     private TestUndermindClient() throws UndermindException {
         bwapi = new JNIBWAPI(this);
-        currentPhase = GamePhase.getInitialPhase();
-        attacker = new Attacker(bwapi);
+        currentPhase = PreparationPhase.getInitialPhase();
+        attackProducer = new AttackProducer(bwapi);
     }
 
     public static void main(String[] arguments) {
@@ -53,7 +58,7 @@ public class TestUndermindClient implements BWAPIEventListener {
 		bwapi.enablePerfectInformation();
         bwapi.setGameSpeed(0);
         bwapi.loadMapData(true);
-        Out.println("map is: ["+Utils.getMapConstantsFor(bwapi.getMap().getHash())+"]");
+        Out.println("map is: ["+ Utils.getMapConstantsFor(bwapi.getMap().getHash())+"]");
     }
 
     public void gameUpdate() {
@@ -90,13 +95,13 @@ public class TestUndermindClient implements BWAPIEventListener {
     public void matchEnded(boolean winner) {
         Out.println("winner: "+winner);
         try {
-            currentPhase = GamePhase.getInitialPhase();
+            currentPhase = PreparationPhase.getInitialPhase();
         }
         catch(Exception e) {
             Out.println("Exception caught: "+e.getMessage());
             e.printStackTrace();
         }
-        attacker = new Attacker(bwapi);
+        attackProducer = new AttackProducer(bwapi);
     }
 
     public void playerLeft(int id) {
@@ -142,7 +147,7 @@ public class TestUndermindClient implements BWAPIEventListener {
 
     public void unitMorph(int unitID) {
         if(bwapi.getUnit(unitID).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
-            Out.println("morphed spawning pool: "+unitID+" completed: "+bwapi.getUnit(unitID).isCompleted());
+            Out.println("morphed spawning pool: " + unitID + " completed: " + bwapi.getUnit(unitID).isCompleted());
         }
     }
 }
