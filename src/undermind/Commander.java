@@ -28,7 +28,6 @@ public class Commander {
         runner = new Runner(chiefOfStaff);
     }
 
-    //TODO: unjam units
     public void issueCommands() {
         boolean sentNOOBs = false;
         Point enemyHome = UndermindClient.getMyClient().getEnemyHome();
@@ -68,7 +67,6 @@ public class Commander {
                         commandInTransit(unit, status);
                         break;
 
-                    //todo: do not include previously in transit zerglings
                     case ATTACKING:
                     case FREE:
                         active.add(status);
@@ -93,7 +91,6 @@ public class Commander {
         if(sentNOOBs){
             UndermindClient.getMyClient().numBatches++;
         }
-
 
         if(sentNOOBs && batchIndex < batches.length -1){
             batchIndex++;
