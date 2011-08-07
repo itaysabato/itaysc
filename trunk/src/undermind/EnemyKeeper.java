@@ -16,9 +16,11 @@ public class EnemyKeeper {
     private  final ChiefOfStaff chief;
     private Map<Integer, Unit> spottedEnemies = new HashMap<Integer, Unit>();
     private Set<Unit> dangerousUnits;
+    private Rectangle enemyHomeBounds;
 
     private static final double CLOSE = 1000;   //todo: bring it back?
     private static final int RADIUS = 100;
+    private static final int EXTRA = 500;
 
     public EnemyKeeper(ChiefOfStaff chief) {
         this.chief = chief;
@@ -30,18 +32,48 @@ public class EnemyKeeper {
         for(Unit unit: enemyUnits){
             if(!UndermindClient.getMyClient().isDestroyed(unit.getID())){
                 if(unit.isUnpowered()){
-                    chief.bwapi.drawCircle(unit.getX(),unit.getY(),50, BWColor.RED,true,false);
+                    chief.bwapi.drawCircle(unit.getX(),unit.getY(),40, BWColor.RED,true,false);
                 }
                 spottedEnemies.put(unit.getID(),unit);
             }
         }
 
+        enemyHomeBounds = null;
         dangerousUnits = new HashSet<Unit>();
+
         for (Unit unit: spottedEnemies.values()){
             if(Utils.classify(unit) == UnitClass.HARMFUL || unit.isAttacking() || unit.isStartingAttack()){
                 dangerousUnits.add(unit);
             }
+            if(Utils.isStructure(unit)){
+                if(enemyHomeBounds == null){
+                    enemyHomeBounds = new Rectangle(new Point(unit.getX(),unit.getY()));
+                }
+                else {
+                    enemyHomeBounds.add(new Point(unit.getX(),unit.getY()));
+                }
+            }
         }
+
+        if(enemyHomeBounds != null){
+             chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,BWColor.RED,false);
+            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.RED,false);
+            chief.bwapi.drawLine(enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.RED,false);
+
+            enemyHomeBounds = new Rectangle(enemyHomeBounds.x - EXTRA,enemyHomeBounds.y - EXTRA, enemyHomeBounds.width + (2*EXTRA), enemyHomeBounds.height + (2*EXTRA));
+
+            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,BWColor.GREEN,false);
+            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.GREEN,false);
+            chief.bwapi.drawLine(enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.GREEN,false);
+        }
+
+        //todo: remove
+        for (Unit unit: spottedEnemies.values()){
+            if(!chief.getPrioritizer().withinBounds(unit)){
+                chief.bwapi.drawCircle(unit.getX(),unit.getY(),40, BWColor.YELLOW,false,false);
+            }
+        }
+
     }
 
     private void clean() {
@@ -123,5 +155,9 @@ public class EnemyKeeper {
 
     public Unit getEnemyUnit(int unitID) {
         return spottedEnemies.get(unitID);
+    }
+
+    public Rectangle getEnemyHomeBounds() {
+        return enemyHomeBounds;
     }
 }

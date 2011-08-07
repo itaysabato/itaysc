@@ -30,7 +30,7 @@ public class Priorityzer implements Comparator<Unit> {
             else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Firebat.ordinal()){
                 dangerLevel += 0.75;
             }
-             else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Bunker.ordinal()){
+            else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Bunker.ordinal()){
                 dangerLevel += 0.1;
             }
             else if(combative.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
@@ -52,9 +52,9 @@ public class Priorityzer implements Comparator<Unit> {
     }
 
     public int compare(Unit u1, Unit u2) {
-        if(Utils.isNearHome(u1) != Utils.isNearHome(u2)){
-                return Utils.isNearHome(u1) ? -1 : 1;
-        }
+//        if(Utils.isNearHome(u1) != Utils.isNearHome(u2)){
+//                return Utils.isNearHome(u1) ? -1 : 1;
+//        }
 
         if(u1.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal() && u2.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal()){
             double poweringCount1 = chief.getEnemyKeeper().getPoweringCount(u1);
@@ -63,13 +63,19 @@ public class Priorityzer implements Comparator<Unit> {
                     -1 : (poweringCount1 < poweringCount2 ? 1 : 0);
         }
 
-//        if((u1.isAttacking() || u1.isStartingAttack()) != (u2.isAttacking() || u2.isStartingAttack())){
-//                return (u1.isAttacking() || u1.isStartingAttack()) ? -1 : 1;
-//        }
+        if(withinBounds(u1) != withinBounds(u2)){
+            return withinBounds(u1) ? -1 : 1;
+        }
 
         UnitClass unitClass1 =  Utils.classify(u1);
         UnitClass unitClass2 =  Utils.classify(u2);
 
         return unitClass1.ordinal() - unitClass2.ordinal();
+    }
+
+    boolean withinBounds(Unit unit) {
+        return chief.getEnemyKeeper().getEnemyHomeBounds() == null
+                || Utils.isNearHome(unit)
+                || chief.getEnemyKeeper().getEnemyHomeBounds().contains(unit.getX(), unit.getY());
     }
 }
