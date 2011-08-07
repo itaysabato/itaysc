@@ -42,7 +42,6 @@ public class Explorer {
 
         if(toExplore.isEmpty()){
             init();
-//            return findRandomDestination((int)currentX,(int)currentY);
         }
         Point result = Collections.min(toExplore, new Comparator<Point>() {
             public int compare(Point o1, Point o2) {
