@@ -58,9 +58,14 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
             }
         }
         else if(status.getState() == ZerglingState.RUNNING &&
-                (zergling.isIdle() || zergling.isAttacking() || CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY()))){
+                (zergling.isIdle() || zergling.isAttacking()
+                        || CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY())
+                        || status.isStuck(zergling))){
+
+            status.setPreviousLocation(new Point(zergling.getX(),zergling.getY()));
+            status.setHangCount(0);
             status.setDestination(null);
-            status.setState(ZerglingState.FREE);
+            status.setState(ZerglingState.RAN);
         }
         else if(status.getState() == ZerglingState.ATTACKING){
             if(chief.getEnemyKeeper().getEnemyUnit(status.getTarget()) == null || zergling.isIdle()){

@@ -217,6 +217,9 @@ enum GamePhase {
                         && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
                     scoutNext(scoutUnit);
                 }
+                else if(scoutUnit != null && scoutUnit.isIdle()){
+                    UndermindClient.getMyClient().bwapi.rightClick(scout,next.x,next.y);
+                }
             }
 //            }
             return this;

@@ -1,6 +1,7 @@
 package undermind;
 
 import eisbot.proxy.model.BaseLocation;
+import eisbot.proxy.util.BWColor;
 
 import java.awt.*;
 import java.util.*;
@@ -29,7 +30,11 @@ public class Explorer {
         }
     }
 
-    public Point findDestination(final double currentX, final double currentY) {
+    public Point findDestination(final double aroundX, final double aroundY, boolean isDrone) {
+        if(isDrone){
+            return findRandomDestination((int)aroundX,(int)aroundY);
+        }
+
         if(toExplore == null){
             init();
         }
@@ -50,11 +55,11 @@ public class Explorer {
         return result;
     }
 
-    public Point findRandomDestination(int currentX, int currentY) {
+    public Point findRandomDestination(int aroundX, int aroundY) {
         int x,y;
         do {
-            x = currentX + random.nextInt(500) - (250);
-            y = currentY + random.nextInt(500) - (250);
+            x = aroundX + random.nextInt(500) - (250);
+            y = aroundY + random.nextInt(500) - (250);
         } while(x < 0 || y < 0);
 
         return new Point(x,y);
