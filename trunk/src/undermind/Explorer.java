@@ -14,28 +14,20 @@ import java.util.List;
 public class Explorer {
     private static final Random random = new Random();
     private List<Point> toExplore = null;
-    private int height;
-    private int width;
     private int distance = 100;
 
-    private static final int HOME_RADIUS = 300;
+    private static final int RANDOMS = 10;
 
     public void init() {
-        height = 3000;
-        width = 3000;
-
         List<BaseLocation> temp = UndermindClient.getMyClient().bwapi.getMap().getBaseLocations();
         toExplore = new LinkedList<Point>();
         for(BaseLocation baseLocation: temp){
             Point point = new Point(baseLocation.getX(),baseLocation.getY());
-            if(HOME_RADIUS < Point.distance(point.x,point.y,UndermindClient.getMyClient().getMyHome().x,UndermindClient.getMyClient().getMyHome().y)){
-                toExplore.add(point);
-            }
-            else {
-                Out.println(point+" was filtered from exploring for being home");
+            toExplore.add(point);
+            for(int i = 0; i < RANDOMS; i++){
+                toExplore.add(findRandomDestination(point.x,point.y));
             }
         }
-
     }
 
     public Point findDestination(final double currentX, final double currentY) {
@@ -50,8 +42,8 @@ public class Explorer {
         else {
             Point result = Collections.min(toExplore, new Comparator<Point>() {
                 public int compare(Point o1, Point o2) {
-                    double d1 = Point.distanceSq(o1.getX(),o1.getY(),currentX, currentY);
-                    double d2 = Point.distanceSq(o2.getX(),o2.getY(),currentX, currentY);
+                    double d1 = Point.distanceSq(o1.getX(),o1.getY(),UndermindClient.getMyClient().getEnemyHome().x, UndermindClient.getMyClient().getEnemyHome().y);
+                    double d2 = Point.distanceSq(o2.getX(),o2.getY(),UndermindClient.getMyClient().getEnemyHome().x, UndermindClient.getMyClient().getEnemyHome().y);
                     return d1 > d2 ?
                             1 : (d1 < d2 ? -1 : 0);
                 }
@@ -63,15 +55,11 @@ public class Explorer {
 
     public Point findRandomDestination(int currentX, int currentY) {
         int x,y;
-        if(distance > height){
-            distance = 100;
-        }
         do {
-            x = currentX + random.nextInt(distance) - (distance/2);
-            y = currentY + random.nextInt(distance) - (distance/2);
+            x = currentX + random.nextInt(500) - (250);
+            y = currentY + random.nextInt(500) - (250);
         } while(x < 0 || y < 0);
 
-        distance += 100;
         return new Point(x,y);
     }
 }

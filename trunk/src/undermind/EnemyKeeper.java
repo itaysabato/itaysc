@@ -18,7 +18,6 @@ public class EnemyKeeper {
     private Set<Unit> dangerousUnits;
     private Rectangle enemyHomeBounds;
 
-    private static final double CLOSE = 1000;   //todo: bring it back?
     private static final int RADIUS = 100;
     private static final int EXTRA = 500;
 

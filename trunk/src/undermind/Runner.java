@@ -43,7 +43,7 @@ public class Runner {
         double maxDist = 0;
         int bestGetAway = -1;
 
-    //TODO: run towards target
+    //TODO: run towards choke point
         for(int i = 0; i < getAways.length; i++){
             Point runTo = new Point(unit.getX()+getAways[i].x, unit.getY()+getAways[i].y);
             double d = 0;
