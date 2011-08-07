@@ -19,7 +19,7 @@ public class Commander {
     private final ChiefOfStaff chief;
     private final Explorer explorer;
     private final Runner runner;
-    private int[] batches = {6};
+    private int[] batches = {2};
     private int batchIndex = 0;
 
     public Commander(ChiefOfStaff chiefOfStaff) {

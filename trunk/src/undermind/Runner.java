@@ -11,7 +11,7 @@ import java.util.Set;
  * Time: 23:17 <br/>
  */
 public class Runner {
-    private static int RUN_DIST = 200;
+    private static int RUN_DIST = 100;
     private static final int RUN_DIAG = (int) (RUN_DIST / 1.4142);
     private static final Point[] getAways = {
             new Point(RUN_DIST,0),
