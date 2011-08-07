@@ -43,11 +43,19 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
                 NOOBCount++;
             }
             zerglingStatusMap.put(zergling.getID(), new ZerglingStatus(zergling.getID()));
-//            Out.println("kept zergling: "+zergling.getID());
         }
         else if(status.getState() == ZerglingState.IN_TRANSIT &&
                 (zergling.isAttacking() || CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY()))){
             status.setState(ZerglingState.FREE);
+        }
+        else if(status.getState() == ZerglingState.EXPLORING){
+            if(zergling.isAttacking()
+                    || CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY())
+                    || status.isStuck(zergling)){
+                status.setState(ZerglingState.FREE);
+                status.setPreviousLocation(new Point(zergling.getX(),zergling.getY()));
+                status.setHangCount(0);
+            }
         }
         else if(status.getState() == ZerglingState.RUNNING &&
                 (zergling.isIdle() || zergling.isAttacking() || CLOSE >= Point.distance(status.getDestination().x,status.getDestination().y,zergling.getX(),zergling.getY()))){

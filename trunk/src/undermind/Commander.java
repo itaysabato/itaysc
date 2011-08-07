@@ -67,6 +67,11 @@ public class Commander {
                         commandInTransit(unit, status);
                         break;
 
+                    case EXPLORING:
+                        transits.add(status);
+                        commandExploring(unit, status);
+                        break;
+
                     case ATTACKING:
                     case FREE:
                         active.add(status);
@@ -103,7 +108,10 @@ public class Commander {
         if(target != null){
 
             for(ZerglingStatus status: transits){
-                attack(status,target);
+                Unit unit = chief.bwapi.getUnit(status.getUnitID());
+                status.setPreviousLocation(new Point(unit.getX(),unit.getY()));
+                status.setHangCount(0);
+                attack(status, target);
             }
 
             for(ZerglingStatus status: active){
@@ -118,8 +126,11 @@ public class Commander {
         else {
             Point dest = explorer.findDestination(centroidX,centroidY);
             for(ZerglingStatus status: active){
-                status.setState(ZerglingState.IN_TRANSIT);
+                status.setState(ZerglingState.EXPLORING);
                 status.setDestination(dest);
+                Unit unit = chief.bwapi.getUnit(status.getUnitID());
+                status.setPreviousLocation(new Point(unit.getX(),unit.getY()));
+                status.setHangCount(0);
                 chief.bwapi.attack(status.getUnitID(), dest.x, dest.y);
             }
         }
@@ -153,6 +164,12 @@ public class Commander {
 
     private boolean shouldSwitchTarget(Unit to, Unit from) {
         return to.getID() != from.getID() && chief.getPrioritizer().compare(to,from) < 0;
+    }
+
+    private void commandExploring(Unit unit, ZerglingStatus status) {
+        if(unit != null && unit.isIdle()){
+            chief.bwapi.attack(status.getUnitID(), status.getDestination().x, status.getDestination().y);
+        }
     }
 
     private void commandInTransit(Unit unit, ZerglingStatus status) {

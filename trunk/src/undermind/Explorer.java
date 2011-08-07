@@ -14,9 +14,8 @@ import java.util.List;
 public class Explorer {
     private static final Random random = new Random();
     private List<Point> toExplore = null;
-    private int distance = 100;
 
-    private static final int RANDOMS = 10;
+    private static final int RANDOMS = 11;
 
     public void init() {
         List<BaseLocation> temp = UndermindClient.getMyClient().bwapi.getMap().getBaseLocations();
@@ -37,20 +36,18 @@ public class Explorer {
 
         if(toExplore.isEmpty()){
             init();
-            return findRandomDestination((int)currentX,(int)currentY);
+//            return findRandomDestination((int)currentX,(int)currentY);
         }
-        else {
-            Point result = Collections.min(toExplore, new Comparator<Point>() {
-                public int compare(Point o1, Point o2) {
-                    double d1 = Point.distanceSq(o1.getX(),o1.getY(),UndermindClient.getMyClient().getEnemyHome().x, UndermindClient.getMyClient().getEnemyHome().y);
-                    double d2 = Point.distanceSq(o2.getX(),o2.getY(),UndermindClient.getMyClient().getEnemyHome().x, UndermindClient.getMyClient().getEnemyHome().y);
-                    return d1 > d2 ?
-                            1 : (d1 < d2 ? -1 : 0);
-                }
-            });
-            toExplore.remove(result);
-            return result;
-        }
+        Point result = Collections.min(toExplore, new Comparator<Point>() {
+            public int compare(Point o1, Point o2) {
+                double d1 = Point.distanceSq(o1.getX(),o1.getY(),UndermindClient.getMyClient().getEnemyHome().x, UndermindClient.getMyClient().getEnemyHome().y);
+                double d2 = Point.distanceSq(o2.getX(),o2.getY(),UndermindClient.getMyClient().getEnemyHome().x, UndermindClient.getMyClient().getEnemyHome().y);
+                return d1 > d2 ?
+                        1 : (d1 < d2 ? -1 : 0);
+            }
+        });
+        toExplore.remove(result);
+        return result;
     }
 
     public Point findRandomDestination(int currentX, int currentY) {
