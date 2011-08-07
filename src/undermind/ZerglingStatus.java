@@ -18,7 +18,7 @@ public class ZerglingStatus {
     private Point previousLocation;
     private long hangCount;
     private static final int HANG_RADIUS = 75;
-    private static final long HANG_LIMIT = 500;
+    private static final long HANG_LIMIT = 400;
 
     @Override
     public String toString() {

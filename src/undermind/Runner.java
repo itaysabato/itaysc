@@ -11,7 +11,7 @@ import java.util.Set;
  * Time: 23:17 <br/>
  */
 public class Runner {
-    private static int RUN_DIST = 100;
+    private static int RUN_DIST = 150;
     private static final int RUN_DIAG = (int) (RUN_DIST / 1.4142);
     private static final Point[] getAways = {
             new Point(RUN_DIST,0),
@@ -43,7 +43,7 @@ public class Runner {
         double maxDist = 0;
         int bestGetAway = -1;
 
-    //TODO: run towards choke point
+        //TODO: run towards choke point
         for(int i = 0; i < getAways.length; i++){
             Point runTo = new Point(unit.getX()+getAways[i].x, unit.getY()+getAways[i].y);
             double d = 0;
@@ -62,6 +62,8 @@ public class Runner {
     }
 
     private void runAway(Unit unit, ZerglingStatus status, Point getAway) {
+        status.setPreviousLocation(new Point(unit.getX(),unit.getY()));
+        status.setHangCount(0);
         Point runTo = new Point(getAway.x + unit.getX(), getAway.y + unit.getY());
         status.setState(ZerglingState.RUNNING);
         status.setDestination(runTo);

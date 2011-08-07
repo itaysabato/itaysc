@@ -6,9 +6,8 @@ import sun.plugin.dom.css.Counter;
 
 import javax.rmi.CORBA.Util;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -44,19 +43,14 @@ public class Commander {
                 }
                 chief.bwapi.drawText(unit.getX() + 18,unit.getY(),status.getState().name(),false);
                 if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
-                    Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
-                    if(runner.shouldRun(unit, attackers)){
-                        runner.run(unit,status,attackers);
-                        continue;
-                    }
+                    handleDrone(status, unit);
+                    continue;
                 }
 
                 switch (status.getState()) {
                     case NOOB:
-                        if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
-                            commandNoob(status, enemyHome);
-                        }
-                        else if(chief.getZerglingKeeper().getNOOBCount()  >= batches[batchIndex]){
+                        commandNoob(status, enemyHome);
+                        if(chief.getZerglingKeeper().getNOOBCount()  >= batches[batchIndex]){
                             sentNOOBs = true;
                             commandNoob(status, enemyHome);
                         }
@@ -85,7 +79,7 @@ public class Commander {
             if(active.size() > 0){
                 centroidX = centroidX / active.size();
                 centroidY = centroidY / active.size();
-                doSomething(active, transits, centroidX, centroidY);
+                doSomething(active, transits, centroidX, centroidY, false);
             }
         }
         else if(UndermindClient.getMyClient().getEnemyTemp() != null){
@@ -102,11 +96,38 @@ public class Commander {
         }
     }
 
-    private void doSomething(List<ZerglingStatus> active, List<ZerglingStatus> transits, double centroidX, double centroidY) {
-        Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY);
+    private void handleDrone(ZerglingStatus status, Unit unit) {
+        Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
+        if(runner.shouldRun(unit, attackers)){
+            runner.run(unit,status,attackers);
+            return;
+        }
 
-        if(target != null){
+        switch (status.getState()) {
+            case NOOB:
+                commandNoob(status, UndermindClient.getMyClient().getEnemyHome());
+                break;
 
+            case IN_TRANSIT:
+                commandInTransit(unit, status);
+                break;
+
+            case EXPLORING:
+                commandExploring(unit, status);
+                break;
+
+            case RAN:
+            case ATTACKING:
+            case FREE:
+                doSomething(Collections.singletonList(status), Collections.<ZerglingStatus>emptyList(), unit.getX(), unit.getY(), true);
+                break;
+        }
+    }
+
+    private void doSomething(List<ZerglingStatus> active, List<ZerglingStatus> transits, double centroidX, double centroidY, boolean isDrone) {
+        Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY,isDrone);
+
+        if(target != null && (!isDrone || active.get(0).getState() != ZerglingState.RAN)){
             for(ZerglingStatus status: transits){
                 Unit unit = chief.bwapi.getUnit(status.getUnitID());
                 status.setPreviousLocation(new Point(unit.getX(),unit.getY()));
@@ -124,7 +145,12 @@ public class Commander {
             }
         }
         else {
-            Point dest = explorer.findDestination(centroidX,centroidY);
+            Point enemyMain = chief.getEnemyKeeper().getEnemyMain();
+            if(enemyMain == null){
+                enemyMain = new Point((int)centroidX,(int)centroidY);
+            }
+            Point dest = explorer.findDestination(enemyMain.x,enemyMain.y,isDrone);
+            Out.println("dest: "+dest);
             for(ZerglingStatus status: active){
                 status.setState(ZerglingState.EXPLORING);
                 status.setDestination(dest);

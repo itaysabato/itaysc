@@ -52,9 +52,6 @@ public class Priorityzer implements Comparator<Unit> {
     }
 
     public int compare(Unit u1, Unit u2) {
-         if(chief.getZerglingKeeper().hasOnlyDrone() && (Utils.isStructure(u1) != Utils.isStructure(u2))){
-             return Utils.isStructure(u1) ? -1 : 1;
-         }
 
         if(u1.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal() && u2.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal()){
             double poweringCount1 = chief.getEnemyKeeper().getPoweringCount(u1);
@@ -63,12 +60,16 @@ public class Priorityzer implements Comparator<Unit> {
                     -1 : (poweringCount1 < poweringCount2 ? 1 : 0);
         }
 
+        UnitClass unitClass1 =  Utils.classify(u1);
+        UnitClass unitClass2 =  Utils.classify(u2);
+
+        if((unitClass1 == UnitClass.HARMFUL) != (unitClass2 == UnitClass.HARMFUL)){
+            return (unitClass1 == UnitClass.HARMFUL) ? -1 : 1;
+        }
+
         if(withinBounds(u1) != withinBounds(u2)){
             return withinBounds(u1) ? -1 : 1;
         }
-
-        UnitClass unitClass1 =  Utils.classify(u1);
-        UnitClass unitClass2 =  Utils.classify(u2);
 
         return unitClass1.ordinal() - unitClass2.ordinal();
     }

@@ -18,8 +18,9 @@ public class EnemyKeeper {
     private Set<Unit> dangerousUnits;
     private Rectangle enemyHomeBounds;
 
-    private static final int RADIUS = 100;
+    private static final int RADIUS = 150;
     private static final int EXTRA = 500;
+    private Point enemyMain = null;
 
     public EnemyKeeper(ChiefOfStaff chief) {
         this.chief = chief;
@@ -34,6 +35,9 @@ public class EnemyKeeper {
                     chief.bwapi.drawCircle(unit.getX(),unit.getY(),40, BWColor.RED,true,false);
                 }
                 spottedEnemies.put(unit.getID(),unit);
+            }
+            if(Utils.classify(unit) == UnitClass.MAIN && enemyMain == null){
+                   enemyMain = new Point(unit.getX(),unit.getY());
             }
         }
 
@@ -85,8 +89,8 @@ public class EnemyKeeper {
         }
     }
 
-    public Unit getCloseTarget(final double x, final double y) {
-        Set<Unit> filtered = filterEnemies();
+    public Unit getCloseTarget(final double x, final double y, boolean isDrone) {
+        Set<Unit> filtered = filterEnemies(isDrone);
 
         if(filtered.isEmpty()){
             return null;
@@ -109,7 +113,7 @@ public class EnemyKeeper {
         });
     }
 
-    private Set<Unit> filterEnemies() {
+    private Set<Unit> filterEnemies(boolean isDrone) {
         Set<Unit> filtered = new HashSet<Unit>();
         for(Map.Entry<Integer, Unit> enemy: spottedEnemies.entrySet()){
             Unit unit = UndermindClient.getMyClient().bwapi.getUnit(enemy.getKey());
@@ -118,7 +122,7 @@ public class EnemyKeeper {
                 unit = enemy.getValue();
                 chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,BWColor.WHITE,false,false);
             }
-            if(!unit.isInvincible() && !Utils.isFlyer(unit) && !unit.isLifted()){
+            if(!unit.isInvincible() && !Utils.isFlyer(unit) && !unit.isLifted() && (!isDrone || Utils.isStructure(unit))){
                 filtered.add(unit);
             }
         }
@@ -144,6 +148,7 @@ public class EnemyKeeper {
         int poweringCount = 0;
         for(Unit unit: spottedEnemies.values()){
                  if(unit.getTypeID() != UnitType.UnitTypes.Protoss_Nexus.ordinal()
+                         && unit.getTypeID() != UnitType.UnitTypes.Protoss_Pylon.ordinal()
                          && Utils.isProtossStructure(unit.getTypeID())
                          && Utils.isPowering(pylon,unit)){
                         poweringCount++;
@@ -158,5 +163,10 @@ public class EnemyKeeper {
 
     public Rectangle getEnemyHomeBounds() {
         return enemyHomeBounds;
+    }
+
+
+    public Point getEnemyMain() {
+        return enemyMain;
     }
 }

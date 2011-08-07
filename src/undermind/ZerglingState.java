@@ -11,5 +11,6 @@ public enum ZerglingState {
     ATTACKING,
     FREE,
     EXPLORING,
-    RUNNING
+    RUNNING ,
+    RAN
 }
