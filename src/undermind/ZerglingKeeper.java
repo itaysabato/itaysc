@@ -78,5 +78,10 @@ public class ZerglingKeeper implements Iterable<ZerglingStatus> {
     public int getNOOBCount() {
         return NOOBCount;
     }
+
+    public boolean hasOnlyDrone() {
+        return zerglingStatusMap.size() == 1
+                && chief.bwapi.getUnit(zerglingStatusMap.values().iterator().next().getUnitID()).getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal();
+    }
 }
 
