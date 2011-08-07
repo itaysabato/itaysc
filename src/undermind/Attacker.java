@@ -15,13 +15,11 @@ public class Attacker {
     private JNIBWAPI bwapi;
     private ChiefOfStaff chief;
     private boolean canSpwan;
-    private boolean spwaned;
 
     public Attacker(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
         chief = new ChiefOfStaff(bwapi);
         canSpwan = false;
-        spwaned = false;
     }
 
     public void gameUpdate() {
@@ -39,26 +37,18 @@ public class Attacker {
 
         if(canSpwan){
             int mineralCount = bwapi.getSelf().getMinerals();
-            if(bwapi.getSelf().getSupplyTotal() < bwapi.getSelf().getSupplyUsed() + 3 && mineralCount >= 100){
+            if(bwapi.getSelf().getSupplyTotal() <= bwapi.getSelf().getSupplyUsed() && mineralCount >= 100){
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
                         bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Overlord.ordinal());
-                        mineralCount -= 100;
                         return;
                     }
                 }
             }
-            if(mineralCount >= 150 && bwapi.getSelf().getSupplyTotal() >= bwapi.getSelf().getSupplyUsed() + 3){
-                LinkedList<Unit> larvas = new LinkedList<Unit>();
+            if(mineralCount >= 50 && bwapi.getSelf().getSupplyTotal() > bwapi.getSelf().getSupplyUsed()){
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal() && !UndermindClient.getMyClient().isDestroyed(unit.getID())){
-                        larvas.add(unit);
-                    }
-                }
-                if(larvas.size() >= 3){
-                    for(Unit larva: larvas){
-                        bwapi.morph(larva.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
-                        spwaned = true;
+                        bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Zergling.ordinal());
                     }
                 }
             }
