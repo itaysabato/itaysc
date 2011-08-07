@@ -52,9 +52,9 @@ public class Priorityzer implements Comparator<Unit> {
     }
 
     public int compare(Unit u1, Unit u2) {
-//        if(Utils.isNearHome(u1) != Utils.isNearHome(u2)){
-//                return Utils.isNearHome(u1) ? -1 : 1;
-//        }
+         if(chief.getZerglingKeeper().hasOnlyDrone() && (Utils.isStructure(u1) != Utils.isStructure(u2))){
+             return Utils.isStructure(u1) ? -1 : 1;
+         }
 
         if(u1.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal() && u2.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal()){
             double poweringCount1 = chief.getEnemyKeeper().getPoweringCount(u1);
