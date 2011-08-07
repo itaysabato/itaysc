@@ -115,7 +115,6 @@ public class Utils {
     public static Set<Point> getScoutingLocations(JNIBWAPI bwapi) {
         Set<Point> locations = UndermindClient.getMyClient().getMapConstants().getStartLocations(bwapi);
         Iterator<Point> i = locations.iterator();
-        Out.println(locations.toString());
         while(i.hasNext()){
             Point point = i.next();
             if(HOME_RADIUS >= Point.distance(point.x,point.y,UndermindClient.getMyClient().getMyHome().x,UndermindClient.getMyClient().getMyHome().y)){

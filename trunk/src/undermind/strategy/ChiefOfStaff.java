@@ -4,7 +4,7 @@ import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import undermind.dast.EnemyKeeper;
-import undermind.dast.ZerglingKeeper;
+import undermind.dast.MyUnitKeeper;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -13,14 +13,14 @@ import undermind.dast.ZerglingKeeper;
  */
 public class ChiefOfStaff {
     public final JNIBWAPI bwapi;
-    private ZerglingKeeper zerglingKeeper;
+    private MyUnitKeeper myUnitKeeper;
     private EnemyKeeper enemyKeeper;
     private Commander commander;
     private Priorityzer prioritizer;
 
     public ChiefOfStaff(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
-        zerglingKeeper = new ZerglingKeeper(this);
+        myUnitKeeper = new MyUnitKeeper(this);
         enemyKeeper = new EnemyKeeper(this);
         commander = new Commander(this);
         prioritizer = new Priorityzer(this);
@@ -33,13 +33,10 @@ public class ChiefOfStaff {
     }
 
     private void loadMyUnits() {
-        zerglingKeeper.clean();
+        myUnitKeeper.clean();
         for(Unit unit: bwapi.getMyUnits()){
-             if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
-                 zerglingKeeper.updateZergling(unit);
-             }
-            else if(unit.getID() == PreparationPhase.SCOUT.getScout()){
-                 zerglingKeeper.updateZergling(unit);
+             if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal() || unit.getID() == PreparationPhase.SCOUT.getScout()){
+                 myUnitKeeper.updateUnit(unit);
              }
         }
     }
@@ -52,20 +49,12 @@ public class ChiefOfStaff {
         commander.issueCommands();
     }
 
-    public ZerglingKeeper getZerglingKeeper() {
-        return zerglingKeeper;
-    }
-
-    public void setZerglingKeeper(ZerglingKeeper zerglingKeeper) {
-        this.zerglingKeeper = zerglingKeeper;
+    public MyUnitKeeper getMyUnitKeeper() {
+        return myUnitKeeper;
     }
 
     public EnemyKeeper getEnemyKeeper() {
         return enemyKeeper;
-    }
-
-    public void setEnemyKeeper(EnemyKeeper enemyKeeper) {
-        this.enemyKeeper = enemyKeeper;
     }
 
     public Priorityzer getPrioritizer() {

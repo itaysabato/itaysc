@@ -19,7 +19,6 @@ import java.util.*;
 public class EnemyKeeper {
     private  final ChiefOfStaff chief;
     private Map<Integer, Unit> spottedEnemies = new HashMap<Integer, Unit>();
-    private Set<Unit> dangerousUnits;
     private Rectangle enemyHomeBounds;
 
     private static final int RADIUS = 150;
@@ -41,17 +40,12 @@ public class EnemyKeeper {
                 spottedEnemies.put(unit.getID(),unit);
             }
             if(Utils.classify(unit) == UnitClass.MAIN && enemyMain == null){
-                   enemyMain = new Point(unit.getX(),unit.getY());
+                enemyMain = new Point(unit.getX(),unit.getY());
             }
         }
 
         enemyHomeBounds = null;
-        dangerousUnits = new HashSet<Unit>();
-
         for (Unit unit: spottedEnemies.values()){
-            if(Utils.classify(unit) == UnitClass.HARMFUL || unit.isAttacking() || unit.isStartingAttack()){
-                dangerousUnits.add(unit);
-            }
             if(Utils.isStructure(unit)){
                 if(enemyHomeBounds == null){
                     enemyHomeBounds = new Rectangle(new Point(unit.getX(),unit.getY()));
@@ -63,7 +57,7 @@ public class EnemyKeeper {
         }
 
         if(enemyHomeBounds != null){
-             chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,BWColor.RED,false);
+            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,BWColor.RED,false);
             chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.RED,false);
             chief.bwapi.drawLine(enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.RED,false);
 
@@ -133,16 +127,19 @@ public class EnemyKeeper {
         return filtered;
     }
 
-    public Set<Unit> getDangerousUnits() {
-        return dangerousUnits;
-    }
-
     public Set<Unit> getCloseAttackers(Unit myUnit) {
         Set<Unit> closeAttackers = new HashSet<Unit>();
         for(Unit enemyUnit: spottedEnemies.values()){
-            double d =Point.distance(myUnit.getX(),myUnit.getY(),enemyUnit.getX(),enemyUnit.getY());
-            if(d <= RADIUS){
-                closeAttackers.add(enemyUnit);
+            UnitClass unitClass = Utils.classify(enemyUnit);
+
+            if(unitClass == UnitClass.HARMFUL
+                    || unitClass == UnitClass.ATTACKING_WORKER
+                    || unitClass == UnitClass.WORKER){
+
+                double d =Point.distance(myUnit.getX(),myUnit.getY(),enemyUnit.getX(),enemyUnit.getY());
+                if(d <= RADIUS){
+                    closeAttackers.add(enemyUnit);
+                }
             }
         }
         return closeAttackers;
@@ -151,12 +148,12 @@ public class EnemyKeeper {
     public int getPoweringCount(Unit pylon) {
         int poweringCount = 0;
         for(Unit unit: spottedEnemies.values()){
-                 if(unit.getTypeID() != UnitType.UnitTypes.Protoss_Nexus.ordinal()
-                         && unit.getTypeID() != UnitType.UnitTypes.Protoss_Pylon.ordinal()
-                         && Utils.isProtossStructure(unit.getTypeID())
-                         && Utils.isPowering(pylon, unit)){
-                        poweringCount++;
-                 }
+            if(unit.getTypeID() != UnitType.UnitTypes.Protoss_Nexus.ordinal()
+                    && unit.getTypeID() != UnitType.UnitTypes.Protoss_Pylon.ordinal()
+                    && Utils.isProtossStructure(unit.getTypeID())
+                    && Utils.isPowering(pylon, unit)){
+                poweringCount++;
+            }
         }
         return poweringCount;
     }

@@ -1,7 +1,7 @@
 package undermind.dast;
 
 import eisbot.proxy.model.Unit;
-import undermind.utilities.ZerglingState;
+import undermind.utilities.MyUnitState;
 
 import java.awt.*;
 
@@ -10,12 +10,11 @@ import java.awt.*;
  * Date: 21/07/11 <br/>
  * Time: 15:15 <br/>
  */
-public class ZerglingStatus {
+public class MyUnitStatus {
     private final int unitID;
-    private ZerglingState state = ZerglingState.NOOB;
+    private MyUnitState state = MyUnitState.NOOB;
     private Point destination = null;
     private int target = -1;
-    private Point runningDestination;
     private Point previousLocation;
     private long hangCount;
     private static final int HANG_RADIUS = 75;
@@ -23,10 +22,10 @@ public class ZerglingStatus {
 
     @Override
     public String toString() {
-        return "[ZerglingStatus: id="+unitID+" state="+state+" destination="+destination+" target="+target+" ]";
+        return "[MyUnitStatus: id="+unitID+" state="+state+" destination="+destination+" target="+target+" ]";
     }
 
-    public ZerglingStatus(int unitID) {
+    public MyUnitStatus(int unitID) {
         this.unitID = unitID;
     }
 
@@ -38,11 +37,11 @@ public class ZerglingStatus {
         this.destination = destination;
     }
 
-    public ZerglingState getState() {
+    public MyUnitState getState() {
         return state;
     }
 
-    public void setState(ZerglingState state) {
+    public void setState(MyUnitState state) {
         this.state = state;
     }
 
@@ -58,20 +57,8 @@ public class ZerglingStatus {
         return unitID;
     }
 
-    public Point getPreviousLocation() {
-        return previousLocation;
-    }
-
     public void setPreviousLocation(Point previousLocation) {
         this.previousLocation = previousLocation;
-    }
-
-    public Point getRunningDestination() {
-        return runningDestination;
-    }
-
-    public void setRunningDestination(Point runningDestination) {
-        this.runningDestination = runningDestination;
     }
 
     public boolean isStuck(Unit unit) {

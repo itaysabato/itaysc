@@ -3,7 +3,6 @@ package undermind.strategy;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import undermind.UndermindClient;
-import undermind.utilities.Out;
 import undermind.utilities.UndermindException;
 import undermind.utilities.Utils;
 
@@ -18,12 +17,8 @@ import java.util.List;
  */
 public enum PreparationPhase {
     INIT {
-        private static final int MINERAL_DIST = 600;
-
         @Override
-        protected void init() throws UndermindException {
-
-        }
+        protected void init() throws UndermindException {}
 
         @Override
         public PreparationPhase gameUpdate() throws UndermindException {
@@ -32,7 +27,6 @@ public enum PreparationPhase {
 
             MAKE_DRONE.minerals = minerals;
             MAKE_DRONE.init();
-            Out.println("changed phase to MAKE_DRONE");
             return MAKE_DRONE;
         }
 
@@ -103,11 +97,9 @@ public enum PreparationPhase {
             if(newDroneID >= 0){
                 if(UndermindClient.getMyClient().bwapi.getUnit(newDroneID).isGatheringMinerals()){
                     CREATE_POOL.init();
-                    Out.println("changed phase to CREATE_POOL");
                     return CREATE_POOL;
                 }
                 else if(UndermindClient.getMyClient().bwapi.getUnit(newDroneID).getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
-                    Out.println("drone: "+UndermindClient.getMyClient().bwapi.getUnit(newDroneID).getTypeID());
                     UndermindClient.getMyClient().bwapi.rightClick(newDroneID, minerals[DRONE_COUNT-1]);
                 }
             }
@@ -118,7 +110,6 @@ public enum PreparationPhase {
             for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
                 if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()) {
                     if (UndermindClient.getMyClient().bwapi.getSelf().getMinerals() >= 50) {
-                        Out.println("larva is: "+Utils.unitToString(unit));
                         UndermindClient.getMyClient().bwapi.morph(unit.getID(), UnitType.UnitTypes.Zerg_Drone.ordinal());
                         return unit.getID();
                     }
@@ -142,7 +133,6 @@ public enum PreparationPhase {
                 for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
                     if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()) {
                         poolDrone = unit.getID();
-                        Out.println("poolDrone id: "+poolDrone);
                         break;
                     }
                 }
@@ -156,7 +146,6 @@ public enum PreparationPhase {
                 UndermindClient.getMyClient().bwapi.build(poolDrone, poolTile.x, poolTile.y, UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal());
                 SCOUT.init();
                 SCOUT.poolDrone = poolDrone;
-                Out.println("changed phase to SCOUT");
                 return SCOUT;
             }
             return this;
@@ -173,7 +162,6 @@ public enum PreparationPhase {
     },
 
     SCOUT {
-//        private int scout;
         private Set<Point> toScout;
         private Point next;
         private boolean[][] canBuild = null;
@@ -188,7 +176,6 @@ public enum PreparationPhase {
             canBuild = null;
             approximateCreepCorner = new Point(UndermindClient.getMyClient().getMyHomeTile().x - 8,UndermindClient.getMyClient().getMyHomeTile().y - 5);
             toScout = Utils.getScoutingLocations(UndermindClient.getMyClient().bwapi);
-            Out.println(toScout.toString());
             if(toScout.size() == 1){
                 UndermindClient.getMyClient().setEnemyHome(toScout.iterator().next());
             }
@@ -196,25 +183,20 @@ public enum PreparationPhase {
 
         @Override
         public PreparationPhase gameUpdate() throws UndermindException {
-//            if(poolStarted() && UndermindClient.getMyClient().getEnemyHome() != null){
-//                return IDLE;
-//            }
 
             if(!poolStarted()){
                 Unit poolDroneUnit = UndermindClient.getMyClient().bwapi.getUnit(poolDrone);
                 if(poolDroneUnit != null && (poolDroneUnit.isIdle() || poolDroneUnit.isGatheringMinerals())){
                     poolTile = tryNextTile();
-                    Out.println("pool has not started. trying different tile: "+poolTile);
                     UndermindClient.getMyClient().bwapi.build(poolDrone, poolTile.x, poolTile.y, UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal());
                 }
             }
 
-//            if(UndermindClient.getMyClient().getEnemyHome() == null) {
             if(scout < 0){
                 chooseScout();
             }
 
-            if(scout >= 0){
+            if(scout >= 0 && UndermindClient.getMyClient().getEnemyHome() == null){
                 Unit scoutUnit = UndermindClient.getMyClient().bwapi.getUnit(scout);
                 if(scoutUnit != null
                         && (next == null || SCOUTED_RADIUS >= Point.distance(scoutUnit.getX(),scoutUnit.getY(),next.x,next.y))) {
@@ -224,7 +206,7 @@ public enum PreparationPhase {
                     UndermindClient.getMyClient().bwapi.rightClick(scout, next.x, next.y);
                 }
             }
-//            }
+
             return this;
         }
 
@@ -262,35 +244,23 @@ public enum PreparationPhase {
         }
 
         private boolean poolStarted() {
-//            if( UndermindClient.getMyClient().bwapi.getUnit(poolDrone) == null){
-//                Out.println("poolDrone null");
-//            }
-//            else if(UndermindClient.getMyClient().bwapi.getUnit(poolDrone).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()){
-//                Out.println("poolDrone became pool");
-//            }
-//            else if(!UndermindClient.getMyClient().bwapi.getUnit(poolDrone).isExists()){
-//                Out.println("poolDrone not exists");
-//            }
-
             return  UndermindClient.getMyClient().bwapi.getUnit(poolDrone) == null || UndermindClient.getMyClient().bwapi.getUnit(poolDrone).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() || !UndermindClient.getMyClient().bwapi.getUnit(poolDrone).isExists();
         }
 
-        private void scoutNext(Unit scoutUnit) {
+        private void scoutNext(final Unit scoutUnit) {
             if(toScout == null || toScout.isEmpty()){
-                Out.println("nothing to scout.");
                 return;
             }
 
             if(toScout.size() == 1 && UndermindClient.getMyClient().getEnemyHome() == null){
                 UndermindClient.getMyClient().setEnemyHome(toScout.iterator().next());
-                Out.println("Only one location left. setting enemy home to: "+ UndermindClient.getMyClient().getEnemyHome());
                 return;
             }
 
             next = Collections.min(toScout, new Comparator<Point>() {
                 public int compare(Point o1, Point o2) {
-                    double d1 = Point.distanceSq(o1.getX(),o1.getY(),UndermindClient.getMyClient().bwapi.getUnit(scout).getX(), UndermindClient.getMyClient().bwapi.getUnit(scout).getY());
-                    double d2 = Point.distanceSq(o2.getX(),o2.getY(),UndermindClient.getMyClient().bwapi.getUnit(scout).getX(), UndermindClient.getMyClient().bwapi.getUnit(scout).getY());
+                    double d1 = Point.distanceSq(o1.getX(),o1.getY(),scoutUnit.getX(), scoutUnit.getY());
+                    double d2 = Point.distanceSq(o2.getX(),o2.getY(),scoutUnit.getX(), scoutUnit.getY());
                     return d1 > d2 ?
                             1 : (d1 < d2 ? -1 : 0);
                 }
@@ -304,7 +274,6 @@ public enum PreparationPhase {
                 if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
                         && unit.getID() != poolDrone) {
                     scout = unit.getID();
-                    Out.println("scout id: " + scout);
                     break;
                 }
             }
@@ -312,18 +281,6 @@ public enum PreparationPhase {
 
         public int getScout() {
             return scout;
-        }
-    },
-
-    IDLE {
-        @Override
-        protected void init() throws UndermindException {
-
-        }
-
-        @Override
-        public PreparationPhase gameUpdate() throws UndermindException {
-            return this;
         }
     };
 

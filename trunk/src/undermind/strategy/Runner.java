@@ -1,11 +1,9 @@
 package undermind.strategy;
 
 import eisbot.proxy.model.Unit;
-import undermind.dast.ZerglingStatus;
-import undermind.strategy.ChiefOfStaff;
-import undermind.utilities.Out;
+import undermind.dast.MyUnitStatus;
 import undermind.utilities.Utils;
-import undermind.utilities.ZerglingState;
+import undermind.utilities.MyUnitState;
 
 import java.awt.*;
 import java.util.Set;
@@ -34,17 +32,7 @@ public class Runner {
         this.chief = chief;
     }
 
-    public boolean shouldRun(Unit unit, Set<Unit> attackers) {
-        if(attackers.isEmpty()){
-            return false;
-        }
-
-        double dangerLevel = chief.getPrioritizer().getDangerLevel(attackers,true);
-        return dangerLevel > 0;
-    }
-
-    public void run(Unit unit, ZerglingStatus status, Set<Unit> attackers) {
-        Out.println("finding where to run: "+Utils.unitToString(unit));
+    public void run(Unit unit, MyUnitStatus status, Set<Unit> attackers) {
         double maxDist = 0;
         int bestGetAway = -1;
 
@@ -66,13 +54,12 @@ public class Runner {
         }
     }
 
-    private void runAway(Unit unit, ZerglingStatus status, Point getAway) {
+    private void runAway(Unit unit, MyUnitStatus status, Point getAway) {
         status.setPreviousLocation(new Point(unit.getX(),unit.getY()));
         status.setHangCount(0);
         Point runTo = new Point(getAway.x + unit.getX(), getAway.y + unit.getY());
-        status.setState(ZerglingState.RUNNING);
+        status.setState(MyUnitState.RUNNING);
         status.setDestination(runTo);
-        Out.println("running: " + Utils.unitToString(unit) + status);
         chief.bwapi.move(status.getUnitID(), runTo.x, runTo.y);
     }
 }

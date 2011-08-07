@@ -6,7 +6,6 @@ import eisbot.proxy.model.Unit;
 import undermind.strategy.AttackProducer;
 import undermind.strategy.PreparationPhase;
 import undermind.utilities.MapConstants;
-import undermind.utilities.Out;
 import undermind.utilities.Utils;
 
 import java.awt.*;
@@ -43,15 +42,11 @@ public class UndermindClient implements BWAPIEventListener {
 
     public static void main(String[] arguments) {
         try {
-            Out.println("this is NOT a test!");
             myClient.start();
         }
         catch(Exception e) {
             System.err.println("Exception caught: "+e.getMessage());
             e.printStackTrace();
-        }
-        finally {
-            Out.close();
         }
     }
 
@@ -95,7 +90,6 @@ public class UndermindClient implements BWAPIEventListener {
         enemyHome = null;
         enemyTemp = null;
         myHome = null;
-        Out.println("map is: ["+mapConstants+"]");
     }
 
     public void gameUpdate() {
@@ -111,7 +105,7 @@ public class UndermindClient implements BWAPIEventListener {
             }
         }
         catch(Exception e) {
-            Out.println("Exception caught: "+e.getMessage());
+            System.err.println("Exception caught: "+e.getMessage());
             e.printStackTrace();
         }
     }
@@ -131,9 +125,9 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void matchEnded(boolean winner) {
-        Out.println("winner: "+winner);
-        Out.println("exceeds: "+exceeds);
-        Out.println("numBatches: "+numBatches);
+        System.out.println("winner: "+winner);
+        System.out.println("exceeds: "+exceeds);
+        System.out.println("numBatches: "+numBatches);
     }
 
     public void playerLeft(int id) {
@@ -154,11 +148,9 @@ public class UndermindClient implements BWAPIEventListener {
             if( bwapi.getPlayer(unit.getPlayerID()).isEnemy()){
                 if(Utils.isStructure(bwapi.getUnit(unitID))){
                     enemyHome = new Point(unit.getX(),unit.getY());
-                    Out.println("discovered enemyHome at: "+enemyHome);
                 }
                 else if(enemyTemp != null) {
                     enemyTemp =  new Point(unit.getX(),unit.getY());
-                    Out.println("discovered enemyTemp at: "+enemyTemp);
                 }
             }
         }
@@ -179,13 +171,10 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitDestroy(int unitID) {
-        Out.println("destroyed: "+unitID);
         destroyed.add(unitID);
     }
 
-    public void unitMorph(int unitID) {
-        Out.println("morped: " + Utils.unitToString(bwapi.getUnit(unitID)));
-    }
+    public void unitMorph(int unitID) {}
 
     public Point getEnemyHome() {
         return enemyHome;
@@ -209,10 +198,6 @@ public class UndermindClient implements BWAPIEventListener {
 
     public MapConstants getMapConstants() {
         return mapConstants;
-    }
-
-    public void setMapConstants(MapConstants mapConstants) {
-        this.mapConstants = mapConstants;
     }
 
     public boolean isDestroyed(int unitID) {

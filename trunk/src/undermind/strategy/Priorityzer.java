@@ -21,39 +21,6 @@ public class Priorityzer implements Comparator<Unit> {
         this.chief = chief;
     }
 
-    public double getDangerLevel(Set<Unit> dangerousUnits, boolean countWorkers) {
-        double dangerLevel = 0;
-        for(Unit combative: dangerousUnits){
-            if(combative.getTypeID() == UnitType.UnitTypes.Protoss_Zealot.ordinal()){
-                dangerLevel += 1;
-            }
-            else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Marine.ordinal()){
-                dangerLevel += 0.6;
-            }
-            else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Firebat.ordinal()){
-                dangerLevel += 0.75;
-            }
-            else if(combative.getTypeID() == UnitType.UnitTypes.Terran_Bunker.ordinal()){
-                dangerLevel += 0.1;
-            }
-            else if(combative.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
-                dangerLevel += 0.5;
-            }
-            else if(countWorkers){
-                if(combative.getTypeID() == UnitType.UnitTypes.Protoss_Probe.ordinal()){
-                    dangerLevel += 0.7;
-                }
-                else if(combative.getTypeID() == UnitType.UnitTypes.Terran_SCV.ordinal()){
-                    dangerLevel += 0.4;
-                }
-                else if(combative.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
-                    dangerLevel += 0.4;
-                }
-            }
-        }
-        return dangerLevel;
-    }
-
     public int compare(Unit u1, Unit u2) {
 
         if(u1.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal() && u2.getTypeID() == UnitType.UnitTypes.Protoss_Pylon.ordinal()){

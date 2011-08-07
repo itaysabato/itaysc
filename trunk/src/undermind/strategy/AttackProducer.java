@@ -4,7 +4,6 @@ import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import undermind.UndermindClient;
-import undermind.utilities.Out;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -29,7 +28,6 @@ public class AttackProducer {
         if(!canSpwan){
             for(Unit unit: bwapi.getMyUnits()){
                 if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() && unit.isCompleted()){
-                    Out.println("updated spawning pool " + unit.getID());
                     canSpwan = true;
                 }
             }
