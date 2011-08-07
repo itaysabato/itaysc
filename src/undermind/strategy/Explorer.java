@@ -1,7 +1,8 @@
-package undermind;
+package undermind.strategy;
 
 import eisbot.proxy.model.BaseLocation;
 import eisbot.proxy.util.BWColor;
+import undermind.UndermindClient;
 
 import java.awt.*;
 import java.util.*;

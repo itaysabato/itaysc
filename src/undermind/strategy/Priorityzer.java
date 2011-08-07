@@ -1,7 +1,10 @@
-package undermind;
+package undermind.strategy;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+import undermind.strategy.ChiefOfStaff;
+import undermind.utilities.UnitClass;
+import undermind.utilities.Utils;
 
 import java.util.Comparator;
 import java.util.Set;
@@ -74,7 +77,7 @@ public class Priorityzer implements Comparator<Unit> {
         return unitClass1.ordinal() - unitClass2.ordinal();
     }
 
-    boolean withinBounds(Unit unit) {
+    public boolean withinBounds(Unit unit) {
         return chief.getEnemyKeeper().getEnemyHomeBounds() == null
                 || Utils.isNearHome(unit)
                 || chief.getEnemyKeeper().getEnemyHomeBounds().contains(unit.getX(), unit.getY());

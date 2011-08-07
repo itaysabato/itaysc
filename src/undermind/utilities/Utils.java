@@ -1,8 +1,9 @@
-package undermind;
+package undermind.utilities;
 
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+import undermind.UndermindClient;
 
 import java.awt.*;
 import java.util.HashMap;

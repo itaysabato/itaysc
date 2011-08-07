@@ -1,8 +1,10 @@
-package undermind;
+package undermind.strategy;
 
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
+import undermind.dast.EnemyKeeper;
+import undermind.dast.ZerglingKeeper;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -36,7 +38,7 @@ public class ChiefOfStaff {
              if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Zergling.ordinal()){
                  zerglingKeeper.updateZergling(unit);
              }
-            else if(unit.getID() == GamePhase.SCOUT.getScout()){
+            else if(unit.getID() == PreparationPhase.SCOUT.getScout()){
                  zerglingKeeper.updateZergling(unit);
              }
         }

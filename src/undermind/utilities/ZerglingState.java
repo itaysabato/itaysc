@@ -1,4 +1,4 @@
-package undermind;
+package undermind.utilities;
 
 /**
  * Created By: Itay Sabato<br/>

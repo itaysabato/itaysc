@@ -3,6 +3,11 @@ package undermind;
 import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
+import undermind.strategy.AttackProducer;
+import undermind.strategy.PreparationPhase;
+import undermind.utilities.MapConstants;
+import undermind.utilities.Out;
+import undermind.utilities.Utils;
 
 import java.awt.*;
 import java.util.Calendar;
@@ -18,8 +23,8 @@ public class UndermindClient implements BWAPIEventListener {
     private static final UndermindClient myClient = new UndermindClient();
 
     public final JNIBWAPI bwapi;
-    private GamePhase currentPhase;
-    private Attacker attacker;
+    private PreparationPhase currentPreparationPhase;
+    private AttackProducer attackProducer;
     private Point enemyHome;
     private Point enemyTemp;
     private Point myHome;
@@ -83,8 +88,8 @@ public class UndermindClient implements BWAPIEventListener {
 
     private void initFields() {
         isSlow = false;
-        currentPhase = GamePhase.getInitialPhase();
-        attacker = new Attacker(bwapi);
+        currentPreparationPhase = PreparationPhase.getInitialPhase();
+        attackProducer = new AttackProducer(bwapi);
         destroyed = new HashSet<Integer>();
         mapConstants = Utils.getMapConstantsFor(bwapi.getMap().getHash());
         enemyHome = null;
@@ -100,9 +105,9 @@ public class UndermindClient implements BWAPIEventListener {
             }
             clock = Calendar.getInstance().getTimeInMillis();
 
-            currentPhase = currentPhase.gameUpdate();
-            if(currentPhase.ordinal() >= GamePhase.SCOUT.ordinal()){
-                attacker.gameUpdate();
+            currentPreparationPhase = currentPreparationPhase.gameUpdate();
+            if(currentPreparationPhase.ordinal() >= PreparationPhase.SCOUT.ordinal()){
+                attackProducer.gameUpdate();
             }
         }
         catch(Exception e) {
@@ -179,7 +184,7 @@ public class UndermindClient implements BWAPIEventListener {
     }
 
     public void unitMorph(int unitID) {
-        Out.println("morped: "+ Utils.unitToString(bwapi.getUnit(unitID)));
+        Out.println("morped: " + Utils.unitToString(bwapi.getUnit(unitID)));
     }
 
     public Point getEnemyHome() {

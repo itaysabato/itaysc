@@ -1,10 +1,12 @@
-package undermind;
+package undermind.strategy;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
-import sun.plugin.dom.css.Counter;
+import undermind.UndermindClient;
+import undermind.dast.ZerglingStatus;
+import undermind.utilities.Out;
+import undermind.utilities.ZerglingState;
 
-import javax.rmi.CORBA.Util;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -150,7 +152,7 @@ public class Commander {
                 enemyMain = new Point((int)centroidX,(int)centroidY);
             }
             Point dest = explorer.findDestination(enemyMain.x,enemyMain.y,isDrone);
-            Out.println("dest: "+dest);
+            Out.println("dest: " + dest);
             for(ZerglingStatus status: active){
                 status.setState(ZerglingState.EXPLORING);
                 status.setDestination(dest);
