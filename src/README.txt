@@ -4,9 +4,9 @@ Contact:    Itay Sabato <itaysabato@gmail.com>
 Submission Type:    JNI proxy bot
 File I/O:   No files are read/write during play
 Libraries:  BWAPI 3.6.1 (included in submission)
-                            JNI-BWAPI 0.2 (included in submission)
-                            jdk-6u26-windows-i586 (not included in submission)
-                            http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u26-download-400750.html
+            JNI-BWAPI 0.2 (included in submission)
+            jdk-6u26-windows-i586 (not included in submission)
+            http://www.oracle.com/technetwork/java/javase/downloads/jdk-6u26-download-400750.html
 
 Compilation Instructions (Preferably in this order):
 
