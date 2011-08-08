@@ -11,6 +11,8 @@ import java.util.Set;
  * Created By: Itay Sabato<br/>
  * Date: 17/07/11 <br/>
  * Time: 13:15 <br/>
+ *
+ *  This enum encapsulates data about specific maps.
  */
 public enum MapConstants {
     Benzene {

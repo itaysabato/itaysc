@@ -3,13 +3,11 @@ package undermind;
 import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
-import undermind.strategy.AttackProducer;
-import undermind.strategy.PreparationPhase;
+import undermind.strategy.ChiefOfStaff;
 import undermind.utilities.MapConstants;
 import undermind.utilities.Utils;
 
 import java.awt.*;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,24 +15,20 @@ import java.util.Set;
  * Created By: Itay Sabato<br/>
  * Date: 10/07/2011 <br/>
  * Time: 20:47:39 <br/>
+ *
+ *  The main AI client singleton which listens to BWAPI call backs.
  */
 public class UndermindClient implements BWAPIEventListener {
-    private static final UndermindClient myClient = new UndermindClient();
 
+    private static final UndermindClient myClient = new UndermindClient();
     public final JNIBWAPI bwapi;
-    private PreparationPhase currentPreparationPhase;
-    private AttackProducer attackProducer;
+    private ChiefOfStaff chief;
     private Point enemyHome;
     private Point enemyTemp;
     private Point myHome;
     private Point myHomeTile;
     private MapConstants mapConstants;
     private Set<Integer> destroyed;
-    private boolean isSlow;
-
-    private long clock;
-    private long exceeds;
-    public int numBatches;
 
     private UndermindClient() {
         bwapi = new JNIBWAPI(this);
@@ -62,7 +56,6 @@ public class UndermindClient implements BWAPIEventListener {
         try {
             bwapi.setGameSpeed(0);
             bwapi.loadMapData(true);
-            extraStuff();
             initFields();
         }
         catch (Exception e){
@@ -71,20 +64,8 @@ public class UndermindClient implements BWAPIEventListener {
         }
     }
 
-    private void extraStuff() {
-        numBatches = 0;
-        clock = Calendar.getInstance().getTimeInMillis();
-        exceeds = 0;
-        bwapi.enableUserInput();
-        bwapi.drawIDs(true);
-        bwapi.drawTargets(true);
-        bwapi.drawHealth(false);
-    }
-
     private void initFields() {
-        isSlow = false;
-        currentPreparationPhase = PreparationPhase.getInitialPhase();
-        attackProducer = new AttackProducer(bwapi);
+        chief = new ChiefOfStaff(bwapi);
         destroyed = new HashSet<Integer>();
         mapConstants = Utils.getMapConstantsFor(bwapi.getMap().getHash());
         enemyHome = null;
@@ -94,52 +75,12 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void gameUpdate() {
         try {
-            if(clock - Calendar.getInstance().getTimeInMillis() > 41) {
-                exceeds++;
-            }
-            clock = Calendar.getInstance().getTimeInMillis();
-
-            currentPreparationPhase = currentPreparationPhase.gameUpdate();
-            if(currentPreparationPhase.ordinal() >= PreparationPhase.SCOUT.ordinal()){
-                attackProducer.gameUpdate();
-            }
+            chief.gameUpdate();
         }
         catch(Exception e) {
             System.err.println("Exception caught: "+e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public void gameEnded() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void keyPressed(int keyCode) {
-        if(isSlow){
-            bwapi.setGameSpeed(0);
-        }
-        else {
-            bwapi.setGameSpeed(-1);
-        }
-        isSlow = !isSlow;
-    }
-
-    public void matchEnded(boolean winner) {
-        System.out.println("winner: "+winner);
-        System.out.println("exceeds: "+exceeds);
-        System.out.println("numBatches: "+numBatches);
-    }
-
-    public void playerLeft(int id) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void nukeDetect(int x, int y) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void nukeDetect() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void unitDiscover(int unitID) {
@@ -156,25 +97,9 @@ public class UndermindClient implements BWAPIEventListener {
         }
     }
 
-    public void unitEvade(int unitID) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void unitShow(int unitID) {
-    }
-
-    public void unitHide(int unitID) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void unitCreate(int unitID) {
-    }
-
     public void unitDestroy(int unitID) {
         destroyed.add(unitID);
     }
-
-    public void unitMorph(int unitID) {}
 
     public Point getEnemyHome() {
         return enemyHome;
@@ -215,4 +140,16 @@ public class UndermindClient implements BWAPIEventListener {
     public void setMyHomeTile(Point myHomeTile) {
         this.myHomeTile = myHomeTile;
     }
+
+    public void unitMorph(int unitID) {}
+    public void unitEvade(int unitID) {}
+    public void unitShow(int unitID) {}
+    public void unitHide(int unitID) {}
+    public void unitCreate(int unitID) {}
+    public void keyPressed(int keyCode) {}
+    public void matchEnded(boolean winner) {}
+    public void gameEnded() {}
+    public void playerLeft(int id) {}
+    public void nukeDetect(int x, int y) {}
+    public void nukeDetect() {}
 }

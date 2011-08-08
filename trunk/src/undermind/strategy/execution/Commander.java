@@ -1,10 +1,13 @@
-package undermind.strategy;
+package undermind.strategy.execution;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import undermind.UndermindClient;
-import undermind.dast.MyUnitStatus;
-import undermind.utilities.MyUnitState;
+import undermind.strategy.representation.MyUnitState;
+import undermind.strategy.representation.MyUnitStatus;
+import undermind.strategy.ChiefOfStaff;
+import undermind.strategy.decision.Explorer;
+import undermind.strategy.decision.Runner;
 
 import java.awt.*;
 import java.util.*;
@@ -14,6 +17,8 @@ import java.util.List;
  * Created By: Itay Sabato<br/>
  * Date: 14/07/11 <br/>
  * Time: 16:25 <br/>
+ *
+ *  Commands the army's units, including zerglings and the scouting drone.
  */
 public class Commander {
     private final ChiefOfStaff chief;
@@ -25,7 +30,7 @@ public class Commander {
     public Commander(ChiefOfStaff chiefOfStaff) {
         chief = chiefOfStaff;
         explorer = new Explorer();
-        runner = new Runner(chiefOfStaff);
+        runner = new Runner();
     }
 
     public void issueCommands() {
@@ -87,9 +92,6 @@ public class Commander {
                 commandNoob(status,UndermindClient.getMyClient().getEnemyTemp());
             }
         }
-        if(sentNOOBs){
-            UndermindClient.getMyClient().numBatches++;
-        }
 
         if(sentNOOBs && batchIndex < batches.length -1){
             batchIndex++;
@@ -99,7 +101,8 @@ public class Commander {
     private void handleDrone(MyUnitStatus status, Unit unit) {
         Set<Unit> attackers = chief.getEnemyKeeper().getCloseAttackers(unit);
         if(!attackers.isEmpty()){
-            runner.run(unit,status,attackers);
+            Point runTo = runner.getDestination(unit,attackers);
+            runAway(unit,status,runTo);
             return;
         }
 
@@ -124,6 +127,14 @@ public class Commander {
         }
     }
 
+    private void runAway(Unit unit, MyUnitStatus status, Point runTo) {
+        status.setPreviousLocation(new Point(unit.getX(),unit.getY()));
+        status.setHangCount(0);
+        status.setState(MyUnitState.RUNNING);
+        status.setDestination(runTo);
+        chief.bwapi.move(status.getUnitID(), runTo.x, runTo.y);
+    }
+
     private void doSomething(List<MyUnitStatus> active, List<MyUnitStatus> transits, double centroidX, double centroidY, boolean isDrone) {
         Unit target = chief.getEnemyKeeper().getCloseTarget(centroidX,centroidY,isDrone);
 
@@ -145,7 +156,7 @@ public class Commander {
             }
         }
         else {
-            Point enemyMain = chief.getEnemyKeeper().getEnemyMain();
+            Point enemyMain = chief.getEnemyKeeper().getEnemyMainLocation();
             if(enemyMain == null){
                 enemyMain = new Point((int)centroidX,(int)centroidY);
             }

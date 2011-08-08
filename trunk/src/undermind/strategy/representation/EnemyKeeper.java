@@ -1,11 +1,9 @@
-package undermind.dast;
+package undermind.strategy.representation;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
-import eisbot.proxy.util.BWColor;
 import undermind.strategy.ChiefOfStaff;
 import undermind.UndermindClient;
-import undermind.utilities.UnitClass;
 import undermind.utilities.Utils;
 
 import java.awt.*;
@@ -15,15 +13,18 @@ import java.util.*;
  * Created By: Itay Sabato<br/>
  * Date: 21/07/11 <br/>
  * Time: 14:44 <br/>
+ *
+ *  This class stores information about enemy units
+ *  which is updated every frame.
  */
 public class EnemyKeeper {
     private  final ChiefOfStaff chief;
-    private Map<Integer, Unit> spottedEnemies = new HashMap<Integer, Unit>();
     private Rectangle enemyHomeBounds;
+    private Map<Integer, Unit> spottedEnemies = new HashMap<Integer, Unit>();
 
-    private static final int RADIUS = 150;
-    private static final int EXTRA = 500;
-    private Point enemyMain = null;
+    private static final int ATTACKER_RADIUS = 150;
+    private static final int ENEMY_MARGIN = 500;
+    private Point enemyMainLocation = null;
 
     public EnemyKeeper(ChiefOfStaff chief) {
         this.chief = chief;
@@ -31,19 +32,28 @@ public class EnemyKeeper {
 
     public void loadEnemyUnits(ArrayList<Unit> enemyUnits) {
         clean();
-
         for(Unit unit: enemyUnits){
             if(!UndermindClient.getMyClient().isDestroyed(unit.getID())){
-                if(unit.isUnpowered()){
-                    chief.bwapi.drawCircle(unit.getX(),unit.getY(),40, BWColor.RED,true,false);
-                }
                 spottedEnemies.put(unit.getID(),unit);
             }
-            if(Utils.classify(unit) == UnitClass.MAIN && enemyMain == null){
-                enemyMain = new Point(unit.getX(),unit.getY());
+            if(Utils.classify(unit) == UnitClass.MAIN && enemyMainLocation == null){
+                enemyMainLocation = new Point(unit.getX(),unit.getY());
             }
         }
+        calculateEnemyTerritory();
+    }
 
+    private void clean() {
+        for(Iterator<Map.Entry<Integer,Unit>> i = spottedEnemies.entrySet().iterator(); i.hasNext();){
+            Map.Entry<Integer,Unit> entry = i.next();
+            if(UndermindClient.getMyClient().isDestroyed(entry.getKey())
+                    || Utils.isGone(entry.getValue(),chief.bwapi)){
+                i.remove();
+            }
+        }
+    }
+
+    private void calculateEnemyTerritory() {
         enemyHomeBounds = null;
         for (Unit unit: spottedEnemies.values()){
             if(Utils.isStructure(unit)){
@@ -55,45 +65,19 @@ public class EnemyKeeper {
                 }
             }
         }
-
         if(enemyHomeBounds != null){
-            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,BWColor.RED,false);
-            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.RED,false);
-            chief.bwapi.drawLine(enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.RED,false);
-
-            enemyHomeBounds = new Rectangle(enemyHomeBounds.x - EXTRA,enemyHomeBounds.y - EXTRA, enemyHomeBounds.width + (2*EXTRA), enemyHomeBounds.height + (2*EXTRA));
-
-            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,BWColor.GREEN,false);
-            chief.bwapi.drawLine(enemyHomeBounds.x,enemyHomeBounds.y,enemyHomeBounds.x,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.GREEN,false);
-            chief.bwapi.drawLine(enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y,enemyHomeBounds.x + enemyHomeBounds.width,enemyHomeBounds.y + enemyHomeBounds.height,BWColor.GREEN,false);
-        }
-
-        //todo: remove
-        for (Unit unit: spottedEnemies.values()){
-            if(!chief.getPrioritizer().withinBounds(unit)){
-                chief.bwapi.drawCircle(unit.getX(),unit.getY(),40, BWColor.YELLOW,false,false);
-            }
-        }
-
-    }
-
-    private void clean() {
-        for(Iterator<Map.Entry<Integer,Unit>> i = spottedEnemies.entrySet().iterator(); i.hasNext();){
-            Map.Entry<Integer,Unit> entry =i.next();
-            if(UndermindClient.getMyClient().isDestroyed(entry.getKey())
-                    || Utils.isGone(entry.getValue(),chief.bwapi)){
-                i.remove();
-            }
+            enemyHomeBounds = new Rectangle(enemyHomeBounds.x - ENEMY_MARGIN,enemyHomeBounds.y - ENEMY_MARGIN, enemyHomeBounds.width + (2* ENEMY_MARGIN), enemyHomeBounds.height + (2* ENEMY_MARGIN));
         }
     }
 
-    public Unit getCloseTarget(final double x, final double y, boolean isDrone) {
-        Set<Unit> filtered = filterEnemies(isDrone);
+    public Unit getCloseTarget(final double x, final double y, boolean isForDrone) {
+        Set<Unit> filtered = filterTargets(isForDrone);
 
         if(filtered.isEmpty()){
             return null;
         }
 
+        //  ordered firstly by priority and secondly by distance.
         return Collections.min(filtered, new Comparator<Unit>() {
             public int compare(Unit u1, Unit u2) {
                 int priorityComparison = chief.getPrioritizer().compare(u1,u2);
@@ -111,16 +95,14 @@ public class EnemyKeeper {
         });
     }
 
-    private Set<Unit> filterEnemies(boolean isDrone) {
+    private Set<Unit> filterTargets(boolean isForDrone) {
         Set<Unit> filtered = new HashSet<Unit>();
         for(Map.Entry<Integer, Unit> enemy: spottedEnemies.entrySet()){
             Unit unit = UndermindClient.getMyClient().bwapi.getUnit(enemy.getKey());
-
             if(unit == null){
                 unit = enemy.getValue();
-                chief.bwapi.drawCircle(unit.getX(),unit.getY(),50,BWColor.WHITE,false,false);
             }
-            if(!unit.isInvincible() && !Utils.isFlyer(unit) && !unit.isLifted() && (!isDrone || Utils.isStructure(unit))){
+            if(!unit.isInvincible() && !Utils.isFlyer(unit) && !unit.isLifted() && (!isForDrone || Utils.isStructure(unit))){
                 filtered.add(unit);
             }
         }
@@ -132,12 +114,9 @@ public class EnemyKeeper {
         for(Unit enemyUnit: spottedEnemies.values()){
             UnitClass unitClass = Utils.classify(enemyUnit);
 
-            if(unitClass == UnitClass.HARMFUL
-                    || unitClass == UnitClass.ATTACKING_WORKER
-                    || unitClass == UnitClass.WORKER){
-
+            if(unitClass == UnitClass.HARMFUL || unitClass == UnitClass.ATTACKING_WORKER || unitClass == UnitClass.WORKER){
                 double d =Point.distance(myUnit.getX(),myUnit.getY(),enemyUnit.getX(),enemyUnit.getY());
-                if(d <= RADIUS){
+                if(d <= ATTACKER_RADIUS){
                     closeAttackers.add(enemyUnit);
                 }
             }
@@ -145,6 +124,7 @@ public class EnemyKeeper {
         return closeAttackers;
     }
 
+    //  counts how many buildings this pylon powers
     public int getPoweringCount(Unit pylon) {
         int poweringCount = 0;
         for(Unit unit: spottedEnemies.values()){
@@ -166,8 +146,7 @@ public class EnemyKeeper {
         return enemyHomeBounds;
     }
 
-
-    public Point getEnemyMain() {
-        return enemyMain;
+    public Point getEnemyMainLocation() {
+        return enemyMainLocation;
     }
 }

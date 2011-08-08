@@ -4,6 +4,7 @@ import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import undermind.UndermindClient;
+import undermind.strategy.representation.UnitClass;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import java.util.Set;
  * Created By: Itay Sabato<br/>
  * Date: 14/07/11 <br/>
  * Time: 16:57 <br/>
+ *
+ *  Global utility class (contains most of the ugliness).
  */
 public class Utils {
 
@@ -125,6 +128,7 @@ public class Utils {
         return locations;
     }
 
+    // todo: add more flyers.
     public static boolean isFlyer(Unit unit) {
         return unit.getTypeID() == UnitType.UnitTypes.Zerg_Overlord.ordinal();
     }
@@ -136,6 +140,7 @@ public class Utils {
         return "[ Unit: id="+unit.getID()+", type="+ UnitType.UnitTypes.values()[unit.getTypeID()]+", classification="+classify(unit)+", position=("+unit.getX()+","+unit.getY()+")]";
     }
 
+    // true if enemy unit is not where it was last spotted (or anywhere else).
     public static boolean isGone(Unit enemy, JNIBWAPI bwapi) {
         if(bwapi.getUnit(enemy.getID()) != null){
             return false;

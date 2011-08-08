@@ -1,9 +1,9 @@
-package undermind.strategy;
+package undermind.strategy.decision;
 
 import eisbot.proxy.model.Unit;
-import undermind.dast.MyUnitStatus;
-import undermind.utilities.Utils;
-import undermind.utilities.MyUnitState;
+import undermind.strategy.representation.MyUnitState;
+import undermind.strategy.representation.MyUnitStatus;
+import undermind.strategy.ChiefOfStaff;
 
 import java.awt.*;
 import java.util.Set;
@@ -12,6 +12,8 @@ import java.util.Set;
  * Created By: Itay Sabato<br/>
  * Date: 01/08/11 <br/>
  * Time: 23:17 <br/>
+ *
+ *  Decides where to run.
  */
 public class Runner {
     private static int RUN_DIST = 150;
@@ -26,15 +28,10 @@ public class Runner {
             new Point(RUN_DIAG,-RUN_DIAG),
             new Point(RUN_DIAG,RUN_DIAG)
     };
-    private final ChiefOfStaff chief;
 
-    public Runner(ChiefOfStaff chief) {
-        this.chief = chief;
-    }
-
-    public void run(Unit unit, MyUnitStatus status, Set<Unit> attackers) {
+    public Point getDestination(Unit unit, Set<Unit> attackers) {
         double maxDist = 0;
-        int bestGetAway = -1;
+        int bestGetAway = 0;
 
         //TODO: run towards choke point
         for(int i = 0; i < getAways.length; i++){
@@ -49,17 +46,6 @@ public class Runner {
                 bestGetAway = i;
             }
         }
-        if(bestGetAway >= 0){
-            runAway(unit,status,getAways[bestGetAway]);
-        }
-    }
-
-    private void runAway(Unit unit, MyUnitStatus status, Point getAway) {
-        status.setPreviousLocation(new Point(unit.getX(),unit.getY()));
-        status.setHangCount(0);
-        Point runTo = new Point(getAway.x + unit.getX(), getAway.y + unit.getY());
-        status.setState(MyUnitState.RUNNING);
-        status.setDestination(runTo);
-        chief.bwapi.move(status.getUnitID(), runTo.x, runTo.y);
+        return new Point(getAways[bestGetAway].x + unit.getX(), getAways[bestGetAway].y + unit.getY());
     }
 }

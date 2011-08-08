@@ -1,18 +1,19 @@
-package undermind.strategy;
+package undermind.strategy.decision;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import undermind.strategy.ChiefOfStaff;
-import undermind.utilities.UnitClass;
+import undermind.strategy.representation.UnitClass;
 import undermind.utilities.Utils;
 
 import java.util.Comparator;
-import java.util.Set;
 
 /**
  * Created By: Itay Sabato<br/>
  * Date: 22/07/11 <br/>
  * Time: 15:43 <br/>
+ *
+ *  Decides which enemy unit should be targeted next.
  */
 public class Priorityzer implements Comparator<Unit> {
     private final ChiefOfStaff chief;
