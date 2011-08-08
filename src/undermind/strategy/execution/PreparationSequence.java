@@ -1,4 +1,4 @@
-package undermind.strategy;
+package undermind.strategy.execution;
 
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
@@ -14,19 +14,22 @@ import java.util.List;
  * Created By: Itay Sabato<br/>
  * Date: 10/07/2011 <br/>
  * Time: 21:25:00 <br/>
+ *
+ *  This enum is a sequential state machine which sets up
+ *  the base at the start of the game and sends out the scout.
  */
-public enum PreparationPhase {
+public enum PreparationSequence {
     INIT {
         @Override
-        protected void init() throws UndermindException {}
+        protected void clear() throws UndermindException {}
 
         @Override
-        public PreparationPhase gameUpdate() throws UndermindException {
+        public PreparationSequence gameUpdate() throws UndermindException {
             setHome();
             collectMinerals();
 
             MAKE_DRONE.minerals = minerals;
-            MAKE_DRONE.init();
+            MAKE_DRONE.clear();
             return MAKE_DRONE;
         }
 
@@ -84,19 +87,19 @@ public enum PreparationPhase {
         int newDroneID;
 
         @Override
-        protected void init() throws UndermindException {
+        protected void clear() throws UndermindException {
             newDroneID = -1;
         }
 
         @Override
-        public PreparationPhase gameUpdate() throws UndermindException {
+        public PreparationSequence gameUpdate() throws UndermindException {
             if(newDroneID < 0){
                 newDroneID = morphDrone();
             }
 
             if(newDroneID >= 0){
                 if(UndermindClient.getMyClient().bwapi.getUnit(newDroneID).isGatheringMinerals()){
-                    CREATE_POOL.init();
+                    CREATE_POOL.clear();
                     return CREATE_POOL;
                 }
                 else if(UndermindClient.getMyClient().bwapi.getUnit(newDroneID).getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()){
@@ -122,13 +125,13 @@ public enum PreparationPhase {
     CREATE_POOL {
         private static final int POOL_PRICE = 200;
         @Override
-        protected void init() throws UndermindException {
+        protected void clear() throws UndermindException {
             poolDrone = -1;
             poolTile = null;
         }
 
         @Override
-        public PreparationPhase gameUpdate() throws UndermindException {
+        public PreparationSequence gameUpdate() throws UndermindException {
             if(poolDrone < 0){
                 for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
                     if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()) {
@@ -144,7 +147,7 @@ public enum PreparationPhase {
 
             if (UndermindClient.getMyClient().bwapi.getSelf().getMinerals() >= POOL_PRICE) {
                 UndermindClient.getMyClient().bwapi.build(poolDrone, poolTile.x, poolTile.y, UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal());
-                SCOUT.init();
+                SCOUT.clear();
                 SCOUT.poolDrone = poolDrone;
                 return SCOUT;
             }
@@ -170,7 +173,7 @@ public enum PreparationPhase {
         private static final int SCOUTED_RADIUS = 150;
 
         @Override
-        protected void init() throws UndermindException {
+        protected void clear() throws UndermindException {
             scout = -1;
             next = null;
             canBuild = null;
@@ -182,9 +185,9 @@ public enum PreparationPhase {
         }
 
         @Override
-        public PreparationPhase gameUpdate() throws UndermindException {
+        public PreparationSequence gameUpdate() throws UndermindException {
 
-            if(!poolStarted()){
+            if(!isPoolStarted()){
                 Unit poolDroneUnit = UndermindClient.getMyClient().bwapi.getUnit(poolDrone);
                 if(poolDroneUnit != null && (poolDroneUnit.isIdle() || poolDroneUnit.isGatheringMinerals())){
                     poolTile = tryNextTile();
@@ -235,7 +238,7 @@ public enum PreparationPhase {
                     }
                 }
             }
-            throw new UndermindException("No damn tiles to build!!!");
+            throw new UndermindException("No tiles to build!!!");
         }
 
         private boolean isGoodTile(int i, int j) {
@@ -243,8 +246,20 @@ public enum PreparationPhase {
                     && canBuild[i+1][j] && canBuild[i+1][j+1] && canBuild[i+1][j+2];
         }
 
-        private boolean poolStarted() {
-            return  UndermindClient.getMyClient().bwapi.getUnit(poolDrone) == null || UndermindClient.getMyClient().bwapi.getUnit(poolDrone).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() || !UndermindClient.getMyClient().bwapi.getUnit(poolDrone).isExists();
+        private boolean isPoolStarted() {
+            return  UndermindClient.getMyClient().bwapi.getUnit(poolDrone) == null
+                    || UndermindClient.getMyClient().bwapi.getUnit(poolDrone).getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal()
+                    || !UndermindClient.getMyClient().bwapi.getUnit(poolDrone).isExists();
+        }
+
+        private void chooseScout() {
+            for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
+                if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
+                        && unit.getID() != poolDrone) {
+                    scout = unit.getID();
+                    break;
+                }
+            }
         }
 
         private void scoutNext(final Unit scoutUnit) {
@@ -268,34 +283,21 @@ public enum PreparationPhase {
             toScout.remove(next);
             UndermindClient.getMyClient().bwapi.rightClick(scout,next.x,next.y);
         }
-
-        private void chooseScout() {
-            for (Unit unit : UndermindClient.getMyClient().bwapi.getMyUnits()) {
-                if (unit.getTypeID() == UnitType.UnitTypes.Zerg_Drone.ordinal()
-                        && unit.getID() != poolDrone) {
-                    scout = unit.getID();
-                    break;
-                }
-            }
-        }
-
-        public int getScout() {
-            return scout;
-        }
     };
 
+    protected static final int DRONE_COUNT = 5;
+
+    protected int[] minerals;
     protected int poolDrone = -1;
     protected Point poolTile = null;
-    protected int[] minerals;
-    protected static final int DRONE_COUNT = 5;
     protected int scout;
 
-    public abstract PreparationPhase gameUpdate() throws UndermindException;
-    protected abstract  void  init() throws UndermindException;
-
-    public static PreparationPhase getInitialPhase()  {
+    public static PreparationSequence getInitialState()  {
         return INIT;
     }
+
+    protected abstract  void clear() throws UndermindException;
+    public abstract PreparationSequence gameUpdate() throws UndermindException;
 
     public int getScout() {
         return scout;

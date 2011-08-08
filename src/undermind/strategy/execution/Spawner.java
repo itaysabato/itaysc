@@ -1,4 +1,4 @@
-package undermind.strategy;
+package undermind.strategy.execution;
 
 import eisbot.proxy.JNIBWAPI;
 import eisbot.proxy.model.Unit;
@@ -9,32 +9,31 @@ import undermind.UndermindClient;
  * Created By: Itay Sabato<br/>
  * Date: 14/07/11 <br/>
  * Time: 13:18 <br/>
+ *
+ * This class is in charge of continuously
+ * spawning zerglings and overlords.
  */
-public class AttackProducer {
+public class Spawner {
     private JNIBWAPI bwapi;
-    private ChiefOfStaff chief;
-    private boolean canSpwan;
+    private boolean poolReady;
 
-    public AttackProducer(JNIBWAPI bwapi) {
+    public Spawner(JNIBWAPI bwapi) {
         this.bwapi = bwapi;
-        chief = new ChiefOfStaff(bwapi);
-        canSpwan = false;
+        poolReady = false;
     }
 
-    public void gameUpdate() {
-
-        chief.gameUpdate();
-
-        if(!canSpwan){
+    public void spawn() {
+        if(!poolReady){
             for(Unit unit: bwapi.getMyUnits()){
                 if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Spawning_Pool.ordinal() && unit.isCompleted()){
-                    canSpwan = true;
+                    poolReady = true;
                 }
             }
         }
 
-        if(canSpwan){
+        if(poolReady){
             int mineralCount = bwapi.getSelf().getMinerals();
+            // make overlord:
             if(bwapi.getSelf().getSupplyTotal() <= bwapi.getSelf().getSupplyUsed() && mineralCount >= 100){
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal()){
@@ -43,6 +42,7 @@ public class AttackProducer {
                     }
                 }
             }
+            // make zerglings:
             if(mineralCount >= 50 && bwapi.getSelf().getSupplyTotal() > bwapi.getSelf().getSupplyUsed()){
                 for(Unit unit: bwapi.getMyUnits()){
                     if(unit.getTypeID() == UnitType.UnitTypes.Zerg_Larva.ordinal() && !UndermindClient.getMyClient().isDestroyed(unit.getID())){

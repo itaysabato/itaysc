@@ -1,7 +1,6 @@
-package undermind.strategy;
+package undermind.strategy.decision;
 
 import eisbot.proxy.model.BaseLocation;
-import eisbot.proxy.util.BWColor;
 import undermind.UndermindClient;
 
 import java.awt.*;
@@ -12,14 +11,15 @@ import java.util.List;
  * Created By: Itay Sabato<br/>
  * Date: 22/07/11 <br/>
  * Time: 13:57 <br/>
+ *
+ *  Decides which parts of the map to explore.
  */
 public class Explorer {
     private static final Random random = new Random();
     private List<Point> toExplore = null;
-
     private static final int RANDOMS = 11;
 
-    public void init() {
+    private void loadLocations() {
         List<BaseLocation> temp = UndermindClient.getMyClient().bwapi.getMap().getBaseLocations();
         toExplore = new LinkedList<Point>();
         for(BaseLocation baseLocation: temp){
@@ -31,18 +31,15 @@ public class Explorer {
         }
     }
 
-    public Point findDestination(final double aroundX, final double aroundY, boolean isDrone) {
-        if(isDrone){
+    public Point findDestination(final double aroundX, final double aroundY, boolean isForDrone) {
+        if(isForDrone){
             return findRandomDestination((int)aroundX,(int)aroundY);
         }
 
-        if(toExplore == null){
-            init();
+        if(toExplore == null || toExplore.isEmpty()){
+            loadLocations();
         }
 
-        if(toExplore.isEmpty()){
-            init();
-        }
         Point result = Collections.min(toExplore, new Comparator<Point>() {
             public int compare(Point o1, Point o2) {
                 double d1 = Point.distanceSq(o1.getX(),o1.getY(),UndermindClient.getMyClient().getEnemyHome().x, UndermindClient.getMyClient().getEnemyHome().y);
@@ -51,6 +48,7 @@ public class Explorer {
                         1 : (d1 < d2 ? -1 : 0);
             }
         });
+
         toExplore.remove(result);
         return result;
     }

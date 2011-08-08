@@ -1,4 +1,4 @@
-package undermind.utilities;
+package undermind.strategy.representation;
 
 /**
  * Created By: Itay Sabato<br/>
