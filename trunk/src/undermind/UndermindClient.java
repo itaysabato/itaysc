@@ -20,6 +20,7 @@ import java.util.Set;
  */
 public class UndermindClient implements BWAPIEventListener {
 
+    private static boolean singleGame =false;
     private static final UndermindClient myClient = new UndermindClient();
     public final JNIBWAPI bwapi;
     private ChiefOfStaff chief;
@@ -36,6 +37,9 @@ public class UndermindClient implements BWAPIEventListener {
 
     public static void main(String[] arguments) {
         try {
+            if(arguments.length > 0){
+                  singleGame = true;
+            }
             myClient.start();
         }
         catch(Exception e) {
@@ -101,6 +105,12 @@ public class UndermindClient implements BWAPIEventListener {
         destroyed.add(unitID);
     }
 
+    public void gameEnded() {
+        if(singleGame){
+            System.exit(0);
+        }
+    }
+
     public Point getEnemyHome() {
         return enemyHome;
     }
@@ -148,7 +158,6 @@ public class UndermindClient implements BWAPIEventListener {
     public void unitCreate(int unitID) {}
     public void keyPressed(int keyCode) {}
     public void matchEnded(boolean winner) {}
-    public void gameEnded() {}
     public void playerLeft(int id) {}
     public void nukeDetect(int x, int y) {}
     public void nukeDetect() {}
