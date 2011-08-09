@@ -2,7 +2,10 @@ package undermind;
 
 import eisbot.proxy.BWAPIEventListener;
 import eisbot.proxy.JNIBWAPI;
+import eisbot.proxy.model.ChokePoint;
+import eisbot.proxy.model.Region;
 import eisbot.proxy.model.Unit;
+import eisbot.proxy.util.BWColor;
 import undermind.strategy.ChiefOfStaff;
 import undermind.utilities.MapConstants;
 import undermind.utilities.Utils;
@@ -38,7 +41,7 @@ public class UndermindClient implements BWAPIEventListener {
     public static void main(String[] arguments) {
         try {
             if(arguments.length > 0){
-                  singleGame = true;
+                singleGame = true;
             }
             myClient.start();
         }
@@ -79,6 +82,18 @@ public class UndermindClient implements BWAPIEventListener {
 
     public void gameUpdate() {
         try {
+            bwapi.setGameSpeed(3);
+            bwapi.drawTargets(true);
+            for(ChokePoint chokePoint: bwapi.getMap().getChokePoints()){
+                bwapi.drawCircle(chokePoint.getCenterX(),chokePoint.getCenterY(),(int)chokePoint.getRadius(), BWColor.WHITE,false,false);
+            }
+            for(Region region: bwapi.getMap().getRegions()){
+                bwapi.drawCircle(region.getCenterX(),region.getCenterY(),30, BWColor.RED,true,false);
+                for(ChokePoint chokePoint: region.getChokePoints()){
+                    bwapi.drawLine(chokePoint.getCenterX(),chokePoint.getCenterY(),region.getCenterX(),region.getCenterY(),BWColor.GREEN,false);
+                }
+            }
+
             chief.gameUpdate();
         }
         catch(Exception e) {
