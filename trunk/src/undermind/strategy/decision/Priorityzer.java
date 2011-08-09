@@ -34,10 +34,6 @@ public class Priorityzer implements Comparator<Unit> {
         UnitClass unitClass1 =  Utils.classify(u1);
         UnitClass unitClass2 =  Utils.classify(u2);
 
-        if((unitClass1 == UnitClass.HARMFUL) != (unitClass2 == UnitClass.HARMFUL)){
-            return (unitClass1 == UnitClass.HARMFUL) ? -1 : 1;
-        }
-
         if(withinBounds(u1) != withinBounds(u2)){
             return withinBounds(u1) ? -1 : 1;
         }

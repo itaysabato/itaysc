@@ -24,7 +24,7 @@ public class Commander {
     private final ChiefOfStaff chief;
     private final Explorer explorer;
     private final Runner runner;
-    private int[] batches = {2};
+    private int[] batches = {1};
     private int batchIndex = 0;
 
     public Commander(ChiefOfStaff chiefOfStaff) {
@@ -158,8 +158,12 @@ public class Commander {
         else {
             Point enemyMain = chief.getEnemyKeeper().getEnemyMainLocation();
             if(enemyMain == null){
-                enemyMain = new Point((int)centroidX,(int)centroidY);
+                enemyMain  = UndermindClient.getMyClient().getEnemyHome();
+                if(enemyMain == null){
+                    enemyMain = new Point((int)centroidX,(int)centroidY);
+                }
             }
+
             Point dest = explorer.findDestination(enemyMain.x,enemyMain.y,isDrone);
             for(MyUnitStatus status: active){
                 status.setState(MyUnitState.EXPLORING);

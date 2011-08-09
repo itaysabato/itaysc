@@ -1,12 +1,12 @@
 package undermind.strategy.decision;
 
+import eisbot.proxy.model.ChokePoint;
 import eisbot.proxy.model.Unit;
-import undermind.strategy.representation.MyUnitState;
-import undermind.strategy.representation.MyUnitStatus;
-import undermind.strategy.ChiefOfStaff;
+import undermind.utilities.Utils;
 
 import java.awt.*;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -28,8 +28,33 @@ public class Runner {
             new Point(RUN_DIAG,-RUN_DIAG),
             new Point(RUN_DIAG,RUN_DIAG)
     };
-
     public Point getDestination(Unit unit, Set<Unit> attackers) {
+        double maxDist = 0;
+        Point bestGetAway = null;
+
+        List<ChokePoint> chokePoints = Utils.getRegion(unit.getX(),unit.getY()).getChokePoints();
+
+        for (ChokePoint chokePoint : chokePoints) {
+            Point center = new Point(chokePoint.getCenterX(), chokePoint.getCenterY());
+
+            if(Point.distance(center.x,center.y,unit.getX(),unit.getY()) <= chokePoint.getRadius()){
+                return getRunFromChokePoint(unit, attackers);
+            }
+
+            double d = 0;
+            for (Unit attacker : attackers) {
+                d += Point.distance(center.x, center.y, attacker.getX(), attacker.getY());
+            }
+            d = d / ((double) attackers.size());
+            if (maxDist < d) {
+                maxDist = d;
+                bestGetAway = new Point(chokePoint.getCenterX(), chokePoint.getCenterY());
+            }
+        }
+        return bestGetAway;
+    }
+
+    public Point getRunFromChokePoint(Unit unit, Set<Unit> attackers) {
         double maxDist = 0;
         int bestGetAway = 0;
 

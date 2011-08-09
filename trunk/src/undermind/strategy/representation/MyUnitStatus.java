@@ -21,7 +21,7 @@ public class MyUnitStatus {
     private long hangCount = 0;
 
     private static final int HANG_RADIUS = 75;
-    private static final long HANG_LIMIT = 400;
+    private static final long HANG_LIMIT = 250;
 
     public boolean isStuck(Unit unit) {
         if(Point.distance(unit.getX(),unit.getY(),previousLocation.x,previousLocation.y) <= HANG_RADIUS){

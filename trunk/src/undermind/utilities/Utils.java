@@ -1,15 +1,16 @@
 package undermind.utilities;
 
 import eisbot.proxy.JNIBWAPI;
+import eisbot.proxy.model.ChokePoint;
+import eisbot.proxy.model.Region;
 import eisbot.proxy.model.Unit;
 import eisbot.proxy.types.UnitType;
 import undermind.UndermindClient;
 import undermind.strategy.representation.UnitClass;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 /**
  * Created By: Itay Sabato<br/>
@@ -44,12 +45,12 @@ public class Utils {
         }
 
         for(UnitType.UnitTypes type: UnitType.UnitTypes.values()){
-              if(isStructure(type.ordinal())){
-                  UNIT_CLASS_MAP.put(type.ordinal(),UnitClass.HARMLESS_STRUCTURE);
-              }
+            if(isStructure(type.ordinal())){
+                UNIT_CLASS_MAP.put(type.ordinal(),UnitClass.HARMLESS_STRUCTURE);
+            }
             else {
-                  UNIT_CLASS_MAP.put(type.ordinal(),UnitClass.HARMLESS_UNIT);
-              }
+                UNIT_CLASS_MAP.put(type.ordinal(),UnitClass.HARMLESS_UNIT);
+            }
         }
 
         UNIT_CLASS_MAP.put(UnitType.UnitTypes.Zerg_Drone.ordinal(),UnitClass.WORKER);
@@ -174,5 +175,17 @@ public class Utils {
 
         return 0 <= x && x < IS_POWERED[0].length && 0 <= y && y < IS_POWERED.length
                 && IS_POWERED[y][x];
+    }
+
+    public static Region getRegion(final int x, final int y) {
+        return Collections.min(UndermindClient.getMyClient().bwapi.getMap().getRegions(), new Comparator<Region>() {
+            public int compare(Region r1, Region r2) {
+                double d1 = Point.distance(r1.getCenterX(),r1.getCenterY(),x,y);
+                double d2 = Point.distance(r2.getCenterX(),r2.getCenterY(),x,y);
+
+                return d1 > d2 ?
+                        1 : (d1 < d2 ? -1 : 0);
+            }
+        });
     }
 }
